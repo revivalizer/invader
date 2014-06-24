@@ -26,9 +26,7 @@ p = re.compile[[
 	unary       <- ({:tag: '' -> 'unary_op':}   !numeric                  {:operator: unary_operators:}      {:operand:  unary:})       -> {}	/ chain_call    -- we don't match numerics because e.g. -1.5 would be parse as unary minus, positive 1.5
 	chain_call  <- ({:tag: '' -> 'binary_op':}  {:operand1: primary:}     {:operator: chain_operator:}       {:operand2: chain_call:})  -> {}   / primary
 
---	primary     <- numeric / function_call / parensed_expression
-	primary     <- numeric / function_call / variable / parensed_expression
-	---- DON'T PARSE VARIABLES FOR NOW
+	primary     <- numeric / function_call / variable_ref / parensed_expression
 
 	parensed_expression <- ({:tag: '' -> 'parensed_expression':} {:open_parens: open_parens:} {:expression: expression:} {:close_parens: close_parens:}) -> {}
 
@@ -59,10 +57,9 @@ p = re.compile[[
 	function_call           <- ({:tag: '' -> 'function_call':} {:identifier: identifier:} open_parens {:arguments: function_call_arguments:} close_parens ) -> {}
 	function_call_arguments <- (expression comma_expression*)? -> {}
 
---expression  <- logical_or
 	comma_expression  <- ({:tag: '' -> 'comma_expression':} {:comma: comma:} {:expression: expression:}) -> {}
 
-	variable <- ({:tag: '' -> 'variable':} {:identifier: identifier:}) -> {}
+	variable_ref <- ({:tag: '' -> 'variable_ref':} {:identifier: identifier:}) -> {}
 
 	numeric <- float / integer
 

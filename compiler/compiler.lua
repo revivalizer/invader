@@ -247,15 +247,15 @@ function check_sections(ast)
 		local didOutput = false
 
 		for j,statement in ipairs(section.statements) do
-			if (statement.tag=="assign_statement") then
-				if (statement.identifier.value=="out") then
-					didOutput = true
-				end
+			if (statement.tag=="return_statement") then
+				didOutput = true
 			end
 		end
 
 		assert(didOutput, "no output from section '"..section.name.value.."'")
 
+		-- warn if output is not last statement
+		warn(section.statements[#section.statements].tag=="return_statement", "statements after return in section '"..section.name.value.."', they will be ignored")
 
 		-- add to named sections
 		ast.named_sections[section.name.value] = section

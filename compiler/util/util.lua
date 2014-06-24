@@ -5,3 +5,8 @@ function create_table()
 	return t
 end
 
+function warn(test, message)
+	if (test==false) then
+		print("WARNING: "..message)
+	end
+end

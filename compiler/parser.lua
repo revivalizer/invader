@@ -11,9 +11,14 @@ p = re.compile[[
 	-- statements
 	statement_list <- ({:tag: '' -> 'statement_list':} statement*) -> {}
 
-	statement <- assign_statement
+	statement <- assign_statement / return_statement
 
-	assign_statement <- ({:tag: '' -> 'assign_statement':} {:identifier: identifier:} equal {:operand: expression:}) -> {}
+	assign_statement <- ({:tag: '' -> 'assign_statement':} {:type: type:} {:identifier: identifier:} equal {:operand: expression:}) -> {}
+	return_statement <- ({:tag: '' -> 'return_statement':} '<-' ws? {:operand: expression:}) -> {}
+
+	type <- sample_type / num_type
+	sample_type <- ({:tag: '' -> 'type_specifier':} {:type:  'sample':} ws?) -> {}
+	num_type    <- ({:tag: '' -> 'type_specifier':} {:type:  'num':}    ws?) -> {}
 
 	--- expressions, functions
 	expression  <- logical_or

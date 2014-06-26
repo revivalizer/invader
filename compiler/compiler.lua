@@ -236,12 +236,12 @@ function generate_packed_rule_table(program)
 	return tableHeader..countStr..ruleStr
 end
 
-function check_sections(ast)
-	ast.named_sections = {}
+function check_sections(program)
+	program.named_sections = {}
 
-	for i,section in ipairs(ast.sections) do
+	for i,section in ipairs(program.ast.sections) do
 		-- check uniquess of section names
-		assert(ast.sections[section.name.value]==nil, "duplicate section '"..section.name.value.."' found")
+		assert(program.named_sections[section.name.value]==nil, "duplicate section '"..section.name.value.."' found")
 
 		-- check that every section has an output
 		local didOutput = false
@@ -258,18 +258,109 @@ function check_sections(ast)
 		warn(section.statements[#section.statements].tag=="return_statement", "statements after return in section '"..section.name.value.."', they will be ignored")
 
 		-- add to named sections
-		ast.named_sections[section.name.value] = section
+		program.named_sections[section.name.value] = section
 	end
 
-	assert(ast.named_sections.master, "master section not found in program")
+	assert(program.named_sections.master, "master section not found in program")
 end
+
+-- generate linked list of parent scopes
+-- each assign statement generates a new scope
+function generate_scope_lists(program)
+	for i,section in ipairs(program.ast.sections) do
+		local parent_scope = nil
+		for j,statement in ipairs(section.statements) do
+			statement.parent_scope = parent_scope
+
+			if (statement.tag=="assign_statement") then
+				parent_scope = statement
+			end
+		end
+	end
+end
+
+-- check that all variable references are found in scope
+function find_variable_in_scope(var_name, scope)
+	if (scope==nil) then
+		return nil
+	end
+
+	-- scope is an assign statement
+	if (scope.identifier.value==var_name) then
+		return scope
+	else
+		return find_variable_in_scope(var_name, scope.parent_scope)
+	end
+end
+
+function check_variable_refs_recursive(program, node, scope)
+	if (node.tag=="variable_ref") then
+		local res_scope = find_variable_in_scope(node.identifier.value, scope)
+
+		assert(res_scope, "Variable '"..node.identifier.value.."' not found")
+		program.variable_refs[node] = res_scope
+	else
+		for i,child in pairs(node) do
+			if (type(child)=="table") then
+				check_variable_refs_recursive(program, child, scope)
+			end
+		end
+	end
+end
+
+function check_variable_refs(program)
+	for i,section in ipairs(program.ast.sections) do
+		for j,statement in ipairs(section.statements) do
+			if (statement.tag=="assign_statement" or statement.tag=="return_statement") then
+				check_variable_refs_recursive(program, statement.operand, statement.parent_scope)
+			end
+		end
+	end
+end
+
+-- this looks at all variable refs in master section, and change them to section_refs if match found
+function mark_section_refs_recursive(program, node, scope)
+	if (node.tag=="variable_ref") then
+		local section = program.named_sections[node.identifier.value]
+		if (section) then
+			node.tag = "section_ref"
+			program.section_refs[node] = section
+		end
+	else
+		for i,child in pairs(node) do
+			if (type(child)=="table") then
+				mark_section_refs_recursive(program, child, scope)
+			end
+		end
+	end
+end
+
+function mark_section_refs(program)
+	local section = program.named_sections.master
+
+	for j,statement in ipairs(section.statements) do
+		if (statement.tag=="assign_statement" or statement.tag=="return_statement") then
+			mark_section_refs_recursive(program, statement.operand, statement.parent_scope)
+		end
+	end
+end
+
 
 -- Compile program
 function compile(str)
 	local program = {}
 	program.ast = parse(str)
 
-	check_sections(program.ast)
+	print(serialize_table(program.ast))
+
+	check_sections(program)
+	generate_scope_lists(program)
+
+	program.section_refs = {}
+	program.variable_refs = {}
+
+	mark_section_refs(program)
+	check_variable_refs(program)
 --[[
 	--	create_function_list(program)
 --	check_expression(program.ast.root)

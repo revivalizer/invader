@@ -2,56 +2,54 @@
 	local kOpcodeMaskHasArgument = 32768
 
 	-- Base stuff
-	kOpReturn    = 0x00
-	kOpPush      = 0x10 + kOpcodeMaskHasArgument
-	kOpPop       = 0x11
-	kOpDec       = 0x12
-	kOpClone     = 0x13
-	kOpPushVar   = 0x18 + kOpcodeMaskHasArgument
-	kOpPopVar    = 0x19 + kOpcodeMaskHasArgument
-	kOpCallFunc  = 0x60 + kOpcodeMaskHasArgument
-	kOpJump      = 0x80 + kOpcodeMaskHasArgument
-	kOpJumpEqual = 0x81 + kOpcodeMaskHasArgument
-	kOpJumpNotEqual = 0x82 + kOpcodeMaskHasArgument
+	kOpReturn       = 0x000
+
+	kOpPush         = 0x100 + kOpcodeMaskHasArgument
+	kOpPop          = 0x110
+	kOpDec          = 0x120
+	kOpClone        = 0x130
+
+	kOpPushVar      = 0x180 + kOpcodeMaskHasArgument
+	kOpPopVar       = 0x190 + kOpcodeMaskHasArgument
+
+	kOpCallFunc     = 0x600 + kOpcodeMaskHasArgument
+
+	kOpJump         = 0x800 + kOpcodeMaskHasArgument
+	kOpJumpEqual    = 0x810 + kOpcodeMaskHasArgument
+	kOpJumpNotEqual = 0x820 + kOpcodeMaskHasArgument
 
 	-- Binary opcodes
-	kOpAdd                = 0x20
-	kOpSubtract           = 0x21
-	kOpMultiply           = 0x22
-	kOpDivide             = 0x23
-	kOpModulo             = 0x24
-	kOpEqual              = 0x25
-	kOpNotEqual           = 0x26
-	kOpLessThan           = 0x27
-	kOpLessThanOrEqual    = 0x28
-	kOpGreaterThan        = 0x29
-	kOpGreaterThanOrEqual = 0x2A
-	kOpLogicalAnd         = 0x2B
-	kOpLogicalOr          = 0x2C
+	kOpAdd                = 0x200
+	kOpSub                = 0x210
+	kOpMul                = 0x220
+	kOpDiv                = 0x230
+	kOpMod                = 0x240
+	kOpEqual              = 0x250
+	kOpNotEqual           = 0x260
+	kOpLessThan           = 0x270
+	kOpLessThanOrEqual    = 0x280
+	kOpGreaterThan        = 0x290
+	kOpGreaterThanOrEqual = 0x2A0
+	kOpLogicalAnd         = 0x2B0
+	kOpLogicalOr          = 0x2C0
 
 	-- Unary opcodes
-	kOpNot   = 0x40
-	kOpPlus  = 0x41
-	kOpMinus = 0x42
-
-	-- Bases
-	kOpcodeSynthBase     = 1024
-	kOpcodeModeller      = 2048
-	kOpcodeModellerFunc  = 2048 + 512
-
-	kOpTranslateX          = kOpcodeModellerFunc + 0
-	kOpTranslateY          = kOpcodeModellerFunc + 1
-	kOpTranslateZ          = kOpcodeModellerFunc + 2
-	kOpRotateX             = kOpcodeModellerFunc + 3
-	kOpRotateY             = kOpcodeModellerFunc + 4
-	kOpRotateZ             = kOpcodeModellerFunc + 5
-	kOpScale               = kOpcodeModellerFunc + 6
-	kOpScaleUniform        = kOpcodeModellerFunc + 7
-	kOpFlipX               = kOpcodeModellerFunc + 8
-	kOpFlipY               = kOpcodeModellerFunc + 9
-	kOpFlipZ               = kOpcodeModellerFunc + 10
-
-	kOpPushMatrix          = kOpcodeModellerFunc + 16
-	kOpPopMatrix           = kOpcodeModellerFunc + 17
+	kOpNot   = 0x400
+	kOpPlus  = 0x410
+	kOpMinus = 0x420
 
 
+BinaryOpcodes =
+{
+	["+"] = {["num*num"]       = {"num",    kOpAdd + 0}},
+	["+"] = {["sample*sample"] = {"sample", kOpAdd + 1}},
+	["+"] = {["sample*num"]    = {"sample", kOpAdd + 2}},
+	["-"] = {["num*num"]       = {"num",    kOpSub + 0}},
+	["-"] = {["sample*sample"] = {"sample", kOpSub + 1}},
+	["-"] = {["sample*num"]    = {"sample", kOpSub + 2}}, -- don't subtract sample from number
+	["*"] = {["num*num"]       = {"num",    kOpMul + 0}},
+	["*"] = {["num*sample"]    = {"sample", kOpMul + 1}},
+	["*"] = {["sample*num"]    = {"sample", kOpMul + 2}}, -- multiplying samples would ring, so don't do that
+	["/"] = {["num*num"]       = {"num",    kOpDiv + 0}},
+	["/"] = {["sample*num"]    = {"sample", kOpDiv + 1}},
+}

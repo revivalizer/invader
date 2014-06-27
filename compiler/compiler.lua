@@ -22,92 +22,8 @@ function create_label_ref(label)
 	return ref
 end
 
-local transform_ops = {}
-transform_ops.translate_x   = kOpTranslateX
-transform_ops.translate_y   = kOpTranslateY
-transform_ops.translate_z   = kOpTranslateZ
-transform_ops.rotate_x      = kOpRotateX
-transform_ops.rotate_y      = kOpRotateY
-transform_ops.rotate_z      = kOpRotateZ
-transform_ops.scale         = kOpScale
-transform_ops.scale_uniform = kOpScaleUniform
-transform_ops.flip_x        = kOpFlipX
-transform_ops.flip_y        = kOpFlipY
-transform_ops.flip_z        = kOpFlipZ
-
-function must_loop(iterator)
-	return iterator.iterate_count and tonumber(iterator.iterate_count.value)>1
-end
-
 function generate_bytecode(node, program)
-	if (node.tag=="rule_group_list") then
-		for i,v in pairs(node) do
-			generate_bytecode(v, program)
-		end
-
-	elseif (node.tag=="rule_list") then
-		for i,v in ipairs(node) do
-			generate_bytecode(v, program)
-		end
-
-	elseif (node.tag=="rule") then
-		node.label.address = #program.bytecode
-		generate_bytecode(node.statement_list, program)
-
-	elseif (node.tag=="statement_list") then
-		for i,v in ipairs(node) do
-			generate_bytecode(v, program)
-		end
-
-	elseif (node.tag=="iterator") then
-		if (must_loop(node)) then
-			node.iterator_label = create_label(program)
-
-			generate_bytecode(node.iterate_count, program)
-			program.bytecode:insert(kOpPushMatrix)
-
-			node.iterator_label.address = #program.bytecode
-		else
-			program.bytecode:insert(kOpPushMatrix)
-		end
-
-		generate_bytecode(node.transform_list, program)
-
-		-- generate bytecode for chained iterator, or rule
-		if (node.iterator) then
-			generate_bytecode(node.iterator, program)
-		else
-			generate_bytecode(node.rule_identifier, program)
-		end
-
-		if (must_loop(node)) then
-			program.bytecode:insert(kOpDec)
-			program.bytecode:insert(kOpClone)
-			program.bytecode:insert(kOpJumpNotEqual)
-			program.bytecode:insert(create_label_ref(node.iterator_label))
-			program.bytecode:insert(kOpPop)
-		end
-
-		program.bytecode:insert(kOpPopMatrix)
-
-	elseif (node.tag=="transform_list") then
-		for i,v in ipairs(node) do
-			if (v.tag=="scale") then
-				-- special case for three value scale_uniform
-				generate_bytecode(v.value_x, program)
-				generate_bytecode(v.value_y, program)
-				generate_bytecode(v.value_z, program)
-			elseif ((v.tag=="flip_x") or (v.tag=="flip_y") or (v.tag=="flip_z")) then
-				-- these transforms take no parameters
-			else
-				-- other transforms take one parameter
-				generate_bytecode(v.value, program)
-			end
-
-			program.bytecode:insert(transform_ops[v.tag])
-		end
-
-	elseif (node.tag=="literal_int" or node.tag=="literal_float") then
+	if (node.tag=="literal_int" or node.tag=="literal_float") then
 		node.constant_index = program.constants:get_id(tonumber(node.value))
 
 		program.bytecode:insert(kOpPush)
@@ -150,90 +66,6 @@ function update_labels(program)
 
 	-- generate new label set from sorted, distinct set
 	program.labels = program.distinct_labels:to_table()
-end
-
-function transform_rules(program)
-	-- create new table with rules grouped by their name
-	-- also add labels to rules
-
-	local rule_groups = create_table()
-	rule_groups.tag = "rule_group_list"
-
-	local ordered_rule_groups = create_table() -- for iteration
-
-	local count = 0
-
-	for i,rule in ipairs(program.ast.root) do
-		rule.label = create_label(program)
-
-		if (rule_groups[rule.identifier.name]) then
-			-- rule group exists
-			rule_groups[rule.identifier.name]:insert(rule)
-		else
-			-- new rule group
-			rule_groups[rule.identifier.name] = create_table()
-			rule_groups[rule.identifier.name].tag = "rule_list"
-			rule_groups[rule.identifier.name]:insert(rule)
-			rule_groups[rule.identifier.name].id = count
-
-			count = count + 1
-
-			-- insert into order rule group table
-			ordered_rule_groups:insert(rule_groups[rule.identifier.name])
-		end
-	end
-
-	program.rule_groups         = rule_groups
-	program.ordered_rule_groups = ordered_rule_groups
-end
-
-function generate_packed_rule_table(program)
-	--[[
-		table layout
-			num rule groups
-			rule group count*   ->   0,2,3 for two groups with 2 and 1 rules respectively
-			rule *
-	]]
-
-	local countStr = string.pack("H", 0)
-	local ruleStr  = ""
-
-	for i,group in ipairs(program.ordered_rule_groups) do
-		countStr = countStr..string.pack("H", #group)
-
-		for j,rule in ipairs(group) do
-			-- label, weight, maxdepth, substitute rule
-			ruleStr = ruleStr..string.pack("H", program.distinct_labels:get_id(rule.label.address)-1)
-
-			local w = 1
-			local md = 0
-			local sub = 0xFFFF
-
-			for k,modifier in ipairs(rule.modifier_list) do
-				if (modifier.tag=="modifer_weight") then
-					w = tonumber(modifer.weight.value)
-				elseif (modifier.tag=="modifier_maxdepth") then
-					md = tonumber(modifer.maxdepth.value)
-				elseif (modifier.tag=="modifier_maxdepth_substitute") then
-					md = tonumber(modifier.maxdepth.value)
-					sub = program.rule_groups[modifier.substitute_identifier.name].id
-				end
-			end
-
-			ruleStr = ruleStr..string.pack("H", w)
-			ruleStr = ruleStr..string.pack("H", md)
-			ruleStr = ruleStr..string.pack("H", sub)
-		end
-	end
-
-	local table_size = 12
-
-	local tableHeader = ""
-	tableHeader = string.pack("I", #program.ordered_rule_groups)
-	tableHeader = string.pack("I", table_size)
-	tableHeader = string.pack("I", table_size + #countStr)
-
-	return tableHeader..countStr..ruleStr
 end
 
 function check_sections(program)
@@ -346,6 +178,71 @@ function mark_section_refs(program)
 end
 
 
+-- Type inference
+function infer_types_recursive(program, node)
+	local type = nil
+
+	if     (node.tag=="variable_ref") then
+		type = program.variable_refs[node].type
+	elseif (node.tag=="section_ref") then
+		type = "sample"
+	elseif (node.tag=="binary_op") then
+			infer_types_recursive(program, node.operand1)
+			infer_types_recursive(program, node.operand2)
+
+			local intype = node.operand1.type.."*"..node.operand2.type
+			local op = BinaryOpcodes[node.operator.type][intype]
+
+			assert(op, "Type mismatch for operator '"..node.operator.type.."', doesn't support '"..node.operand1.type.."' x '"..node.operand2.type.."'.")
+
+			type = op[1]
+
+			node.op = op
+	elseif (node.tag=="literal_int") then
+		type = "num"
+	elseif (node.tag=="function_call") then
+		for i,arg in ipairs(node.arguments) do
+			infer_types_recursive(program, arg)
+		end
+
+		-- check that types match function description
+		local f = functions[node.identifier.value]
+
+		assert(f, "Unknown function '"..node.identifier.value.."'.")
+
+		type = f.type
+	end
+
+	node.type = type
+
+	return type
+end
+
+-- TODO
+-- maybe do function overloading?
+-- check binary operands
+-- unarys
+-- section name in return statement
+-- generally, positions on errors
+
+function infer_types(program)
+	for i,section in ipairs(program.ast.sections) do
+		for j,statement in ipairs(section.statements) do
+			if (statement.tag=="assign_statement") then
+				local type = infer_types_recursive(program, statement.operand)
+
+				assert(type==statement.type, "Type mismatch in assign statement, trying to assign "..type.." to "..statement.type..".")
+
+				statement.type = type
+			elseif (statement.tag=="return_statement") then
+				local type = infer_types_recursive(program, statement.operand)
+
+				assert(type=="sample", "Type mismatch in return statement, must return sample..")
+			end
+		end
+	end
+end
+
 -- Compile program
 function compile(str)
 	local program = {}
@@ -361,6 +258,8 @@ function compile(str)
 
 	mark_section_refs(program)
 	check_variable_refs(program)
+
+	infer_types(program)
 --[[
 	--	create_function_list(program)
 --	check_expression(program.ast.root)

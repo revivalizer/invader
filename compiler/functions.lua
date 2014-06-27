@@ -2,10 +2,10 @@ local funcoffset = 655 -- random
 
 functions =
 {
-	["box"] = {
-		["id"] = kOpcodeModellerFunc + 0,
+	["osc"] = {
+		["id"] = 1,
 		["arguments"] = {},
-		["result"] = "void",
-		["description"] = {"Emits a box."},
+		["type"] = "sample",
+		["description"] = {"Simple oscillator."},
 	},
 }

@@ -2,10 +2,11 @@ local funcoffset = 655 -- random
 
 functions =
 {
-	["osc"] = {
+	{
+		["name"] = "osc",
 		["id"] = 1,
 		["arguments"] = {},
-		["type"] = "sample",
-		["description"] = {"Simple oscillator."},
+		["return_type"] = "sample",
+		["description"] = "Simple oscillator.",
 	},
 }

@@ -38,18 +38,35 @@
 	kOpPlus  = 0x410
 	kOpMinus = 0x420
 
-
 BinaryOpcodes =
 {
-	["+"] = {["num*num"]       = {"num",    kOpAdd + 0}},
-	["+"] = {["sample*sample"] = {"sample", kOpAdd + 1}},
-	["+"] = {["sample*num"]    = {"sample", kOpAdd + 2}},
-	["-"] = {["num*num"]       = {"num",    kOpSub + 0}},
-	["-"] = {["sample*sample"] = {"sample", kOpSub + 1}},
-	["-"] = {["sample*num"]    = {"sample", kOpSub + 2}}, -- don't subtract sample from number
-	["*"] = {["num*num"]       = {"num",    kOpMul + 0}},
-	["*"] = {["num*sample"]    = {"sample", kOpMul + 1}},
-	["*"] = {["sample*num"]    = {"sample", kOpMul + 2}}, -- multiplying samples would ring, so don't do that
-	["/"] = {["num*num"]       = {"num",    kOpDiv + 0}},
-	["/"] = {["sample*num"]    = {"sample", kOpDiv + 1}},
+	["+"]  = {["num*num"]       = {"num",    kOpAdd + 0}},
+	["+"]  = {["sample*sample"] = {"sample", kOpAdd + 1}},
+	["+"]  = {["sample*num"]    = {"sample", kOpAdd + 2}},
+	["-"]  = {["num*num"]       = {"num",    kOpSub + 0}},
+	["-"]  = {["sample*sample"] = {"sample", kOpSub + 1}},
+	["-"]  = {["sample*num"]    = {"sample", kOpSub + 2}}, -- don't subtract sample from number
+	["*"]  = {["num*num"]       = {"num",    kOpMul + 0}},
+	["*"]  = {["num*sample"]    = {"sample", kOpMul + 1}},
+	["*"]  = {["sample*num"]    = {"sample", kOpMul + 2}}, -- multiplying samples would ring, so don't do that
+	["/"]  = {["num*num"]       = {"num",    kOpDiv + 0}},
+	["/"]  = {["sample*num"]    = {"sample", kOpDiv + 1}},
+	["%"]  = {["num*num"]       = {"num",    kOpMod + 0}},
+	["=="] = {["num*num"]       = {"num",    kOpEqual + 0}},
+	["!="] = {["num*num"]       = {"num",    kOpNotEqual + 0}},
+	["<"]  = {["num*num"]       = {"num",    kOpLessThan + 0}},
+	["<="] = {["num*num"]       = {"num",    kOpLessThanOrEqual + 0}},
+	[">"]  = {["num*num"]       = {"num",    kOpGreaterThan + 0}},
+	[">="] = {["num*num"]       = {"num",    kOpGreaterThanOrEqual + 0}},
+	["&&"] = {["num*num"]       = {"num",    kOpLogicalAnd + 0}},
+	["||"] = {["num*num"]       = {"num",    kOpLogicalOr + 0}},
+}
+
+UnaryOpcodes =
+{
+	["!"]  = {["num"]       = {"num",    kOpNot + 0}},
+	["+"]  = {["num"]       = {"num",    kOpPlus + 0}},
+	["+"]  = {["sample"]    = {"sample", kOpPlus + 0}},
+	["-"]  = {["num"]       = {"num",    kOpMinus + 0}},
+	["-"]  = {["sample"]    = {"sample", kOpMinus + 0}},
 }

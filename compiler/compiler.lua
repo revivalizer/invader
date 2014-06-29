@@ -177,7 +177,6 @@ function mark_section_refs(program)
 	end
 end
 
-
 -- Type inference
 function infer_types_recursive(program, node)
 	local type = nil
@@ -198,6 +197,16 @@ function infer_types_recursive(program, node)
 			type = op[1]
 
 			node.op = op
+	elseif (node.tag=="unary_op") then
+			infer_types_recursive(program, node.operand)
+
+			local op = UnaryOpcodes[node.operator.type][node.operand.type]
+
+			assert(op, "Type mismatch for operator '"..node.operator.type.."', doesn't support '"..node.operand.type.."'.")
+
+			type = op[1]
+
+			node.op = op
 	elseif (node.tag=="literal_int") then
 		type = "num"
 	elseif (node.tag=="function_call") then
@@ -205,12 +214,44 @@ function infer_types_recursive(program, node)
 			infer_types_recursive(program, arg)
 		end
 
+		local funcMatch = nil
+		local nameMatches = create_table()
+
 		-- check that types match function description
-		local f = functions[node.identifier.value]
+		for i,func in ipairs(functions) do
+			if (func.name==node.identifier.value) then
+				nameMatches:insert(func)
 
-		assert(f, "Unknown function '"..node.identifier.value.."'.")
+				if (#node.arguments==#func.arguments) then
+					local argMatch = true
 
-		type = f.type
+					for j,arg in ipairs(func.arguments) do
+						argMatch = argMatch and (arg==node.arguments[j])
+					end
+
+					if (argMatch) then
+						funcMatch = func
+					end
+				end
+			end
+		end
+
+		if (funcMatch==nil) then
+			local errorString = "Couldn't match function "..node.identifier.value.."("..table.concat(node.arguments, ", ")..")."
+
+			if (#nameMatches > 0) then
+				errorString = errorString.."\nPossible matches:"
+
+				for i,func in ipairs(nameMatches) do
+					errorString = errorString.."\n"..func.return_type.." "..func.name.."("..table.concat(func.arguments, ", ")..")"
+				end
+			end
+
+			error(errorString)
+		end
+
+		node.func_ref = funcMatch
+		type = funcMatch.return_type
 	end
 
 	node.type = type
@@ -224,6 +265,7 @@ end
 -- unarys
 -- section name in return statement
 -- generally, positions on errors
+-- parent scope refs should really be in external func, as should func_refs
 
 function infer_types(program)
 	for i,section in ipairs(program.ast.sections) do

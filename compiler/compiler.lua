@@ -270,6 +270,7 @@ end
 -- section name in return statement
 -- generally, positions on errors
 -- parent scope refs should really be in external func, as should func_refs
+-- section variables aren't right
 
 function infer_types(program)
 	for i,section in ipairs(program.ast.sections) do
@@ -293,7 +294,6 @@ end
 
 function generate_bytecode(program, node)
 	-- Generate bytecode for this node, calling children recursively when appropriate
-print(node.tag)
 	if (node.tag=="root") then
 		for i,section in ipairs(node.sections) do
 			generate_bytecode(program, section)
@@ -320,10 +320,12 @@ print(node.tag)
 		generate_bytecode(program, node.operand)
 
 		-- store output in variable
-		node.variable_index = program.sample_variables:get_id(node)
+--		node.variable_index = program.sample_variables:get_id(node)
+
+		local containing_section = program.named_sections[node.section_name]
 
 		program.bytecode:insert(kOpPopVar + op_modifier(node.type))
-		program.bytecode:insert(node.variable_index-1) -- (index is 1 offset)
+		program.bytecode:insert(containing_section.variable_index-1) -- (index is 1 offset)
 
 	elseif (node.tag=="literal_int" or node.tag=="literal_float") then
 		node.constant_index = program.constants:get_id(tonumber(node.value))
@@ -334,7 +336,7 @@ print(node.tag)
 	elseif (node.tag=="variable_ref") then
 		local definition_node = program.variable_refs[node]
 
-		program.bytecode:insert(kOpPushVar + op_modifier(definition_node))
+		program.bytecode:insert(kOpPushVar + op_modifier(definition_node.type))
 		program.bytecode:insert(definition_node.variable_index-1) -- (index is 1 offset)
 
 	elseif (node.tag=="section_ref") then
@@ -388,8 +390,6 @@ function compile(str)
 	local program = {}
 	program.ast = parse(str)
 
-	print(serialize_table(program.ast))
-
 	check_sections(program)
 	generate_scope_lists(program)
 
@@ -409,16 +409,18 @@ function compile(str)
 
 	generate_section_ids(program)
 	generate_section_variables(program)
+
 	generate_bytecode(program, program.ast)
 
-	print(serialize_table(program.bytecode))
+	print(serialize_table(program.ast))
 
+--[[	print(serialize_table(program.bytecode))
 	for i,v in ipairs(program.bytecode) do
 		if (type(v)=="number") then
 			program.bytecode[i] = string.format("0x%04X", v)
 		end
 	end
-	print(serialize_table(program.bytecode))
+	print(serialize_table(program.bytecode))]]
 
 
 --[[

@@ -104,7 +104,7 @@ function generate_scope_lists(program)
 	for i,section in ipairs(program.ast.sections) do
 		local parent_scope = nil
 		for j,statement in ipairs(section.statements) do
-			statement.parent_scope = parent_scope
+			program.parent_scope_refs[statement] = parent_scope
 
 			if (statement.tag=="assign_statement") then
 				parent_scope = statement
@@ -114,7 +114,7 @@ function generate_scope_lists(program)
 end
 
 -- check that all variable references are found in scope
-function find_variable_in_scope(var_name, scope)
+function find_variable_in_scope(program, var_name, scope)
 	if (scope==nil) then
 		return nil
 	end
@@ -123,13 +123,13 @@ function find_variable_in_scope(var_name, scope)
 	if (scope.identifier.value==var_name) then
 		return scope
 	else
-		return find_variable_in_scope(var_name, scope.parent_scope)
+		return find_variable_in_scope(program, var_name, program.parent_scope_refs[scope])
 	end
 end
 
 function check_variable_refs_recursive(program, node, scope)
 	if (node.tag=="variable_ref") then
-		local res_scope = find_variable_in_scope(node.identifier.value, scope)
+		local res_scope = find_variable_in_scope(program, node.identifier.value, scope)
 
 		assert(res_scope, "Variable '"..node.identifier.value.."' not found")
 		program.variable_refs[node] = res_scope
@@ -146,7 +146,7 @@ function check_variable_refs(program)
 	for i,section in ipairs(program.ast.sections) do
 		for j,statement in ipairs(section.statements) do
 			if (statement.tag=="assign_statement" or statement.tag=="return_statement") then
-				check_variable_refs_recursive(program, statement.operand, statement.parent_scope)
+				check_variable_refs_recursive(program, statement.operand, program.parent_scope_refs[statement])
 			end
 		end
 	end
@@ -174,7 +174,7 @@ function mark_section_refs(program)
 
 	for j,statement in ipairs(section.statements) do
 		if (statement.tag=="assign_statement" or statement.tag=="return_statement") then
-			mark_section_refs_recursive(program, statement.operand, statement.parent_scope)
+			mark_section_refs_recursive(program, statement.operand, program.parent_scope_refs[statement])
 		end
 	end
 end
@@ -269,8 +269,6 @@ end
 -- TODO
 -- section name in return statement
 -- generally, positions on errors
--- parent scope refs should really be in external func, as should func_refs
--- section variables aren't right
 
 function infer_types(program)
 	for i,section in ipairs(program.ast.sections) do
@@ -390,12 +388,13 @@ function compile(str)
 	local program = {}
 	program.ast = parse(str)
 
+	program.section_refs      = {}
+	program.variable_refs     = {}
+	program.function_refs     = {}
+	program.parent_scope_refs = {}
+
 	check_sections(program)
 	generate_scope_lists(program)
-
-	program.section_refs = {}
-	program.variable_refs = {}
-	program.function_refs = {}
 
 	mark_section_refs(program)
 	check_variable_refs(program)

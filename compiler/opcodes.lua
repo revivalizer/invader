@@ -12,11 +12,26 @@
 	kOpPushVar      = 0x180 + kOpcodeMaskHasArgument
 	kOpPopVar       = 0x190 + kOpcodeMaskHasArgument
 
+-- these aren't needed, let's just use push/pop var instead
+--	kOpPushSection  = 0x1A0 + kOpcodeMaskHasArgument
+--	kOpPopSection   = 0x1B0 + kOpcodeMaskHasArgument
+
 	kOpCallFunc     = 0x600 + kOpcodeMaskHasArgument
 
 	kOpJump         = 0x800 + kOpcodeMaskHasArgument
 	kOpJumpEqual    = 0x810 + kOpcodeMaskHasArgument
 	kOpJumpNotEqual = 0x820 + kOpcodeMaskHasArgument
+
+	kOpIsNum    = 0
+	kOpIsSample = 1
+
+	function op_modifier(type_string)
+		if (type_string=="num") then
+			return kOpIsNum
+		elseif (type_string=="sample") then
+			return kOpIsSample
+		end
+	end
 
 	-- Binary opcodes
 	kOpAdd                = 0x200
@@ -38,7 +53,7 @@
 	kOpPlus  = 0x410
 	kOpMinus = 0x420
 
-BinaryOpcodes =
+binary_opcodes =
 {
 	["+"]  = {["num*num"]       = {"num",    kOpAdd + 0}},
 	["+"]  = {["sample*sample"] = {"sample", kOpAdd + 1}},
@@ -62,7 +77,7 @@ BinaryOpcodes =
 	["||"] = {["num*num"]       = {"num",    kOpLogicalOr + 0}},
 }
 
-UnaryOpcodes =
+unary_opcodes =
 {
 	["!"]  = {["num"]       = {"num",    kOpNot + 0}},
 	["+"]  = {["num"]       = {"num",    kOpPlus + 0}},

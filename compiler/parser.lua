@@ -3,7 +3,7 @@ require("re") -- this is the "re" module of lpeg
 -- full grammar with captures
 
 p = re.compile[[
-	start <- ws? ({:sections: section_list:} {:match_length: {}:}) -> {}
+	start <- ws? ({:tag: '' -> 'root':} {:sections: section_list:} {:match_length: {}:}) -> {}
 
 	section_list <- ({:tag: '' -> 'section_list':} section*) -> {}
 	section      <- '### ' ({:tag: '' -> 'section':} {:name: identifier:} {:statements: statement_list:} ws?) -> {}

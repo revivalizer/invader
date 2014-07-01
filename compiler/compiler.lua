@@ -81,6 +81,8 @@ function check_sections(program)
 		for j,statement in ipairs(section.statements) do
 			if (statement.tag=="return_statement") then
 				didOutput = true
+
+				statement.section_name = section.name.value
 			end
 		end
 
@@ -183,32 +185,37 @@ function infer_types_recursive(program, node)
 
 	if     (node.tag=="variable_ref") then
 		type = program.variable_refs[node].type
+
 	elseif (node.tag=="section_ref") then
 		type = "sample"
+
 	elseif (node.tag=="binary_op") then
 			infer_types_recursive(program, node.operand1)
 			infer_types_recursive(program, node.operand2)
 
 			local intype = node.operand1.type.."*"..node.operand2.type
-			local op = BinaryOpcodes[node.operator.type][intype]
+			local op = binary_opcodes[node.operator.type][intype]
 
 			assert(op, "Type mismatch for operator '"..node.operator.type.."', doesn't support '"..node.operand1.type.."' x '"..node.operand2.type.."'.")
 
 			type = op[1]
 
 			node.op = op
+
 	elseif (node.tag=="unary_op") then
 			infer_types_recursive(program, node.operand)
 
-			local op = UnaryOpcodes[node.operator.type][node.operand.type]
+			local op = unary_opcodes[node.operator.type][node.operand.type]
 
 			assert(op, "Type mismatch for operator '"..node.operator.type.."', doesn't support '"..node.operand.type.."'.")
 
 			type = op[1]
 
 			node.op = op
+
 	elseif (node.tag=="literal_int") then
 		type = "num"
+
 	elseif (node.tag=="function_call") then
 		for i,arg in ipairs(node.arguments) do
 			infer_types_recursive(program, arg)
@@ -250,7 +257,7 @@ function infer_types_recursive(program, node)
 			error(errorString)
 		end
 
-		node.func_ref = funcMatch
+		program.function_refs[node] = funcMatch
 		type = funcMatch.return_type
 	end
 
@@ -260,9 +267,6 @@ function infer_types_recursive(program, node)
 end
 
 -- TODO
--- maybe do function overloading?
--- check binary operands
--- unarys
 -- section name in return statement
 -- generally, positions on errors
 -- parent scope refs should really be in external func, as should func_refs
@@ -280,8 +284,102 @@ function infer_types(program)
 				local type = infer_types_recursive(program, statement.operand)
 
 				assert(type=="sample", "Type mismatch in return statement, must return sample..")
+
+				statement.type = type
 			end
 		end
+	end
+end
+
+function generate_bytecode(program, node)
+	-- Generate bytecode for this node, calling children recursively when appropriate
+print(node.tag)
+	if (node.tag=="root") then
+		for i,section in ipairs(node.sections) do
+			generate_bytecode(program, section)
+		end
+
+	elseif (node.tag=="section") then
+		for i,statement in ipairs(node.statements) do
+			generate_bytecode(program, statement)
+		end
+
+	elseif (node.tag=="assign_statement") then
+		if (node.type=="num") then
+			node.variable_index = program.num_variables:get_id(node)
+		elseif (node.type=="sample") then
+			node.variable_index = program.sample_variables:get_id(node)
+		end
+
+		generate_bytecode(program, node.operand)
+
+		program.bytecode:insert(kOpPopVar + op_modifier(node.type))
+		program.bytecode:insert(node.variable_index-1) -- (index is 1 offset)
+
+	elseif (node.tag=="return_statement") then
+		generate_bytecode(program, node.operand)
+
+		-- store output in variable
+		node.variable_index = program.sample_variables:get_id(node)
+
+		program.bytecode:insert(kOpPopVar + op_modifier(node.type))
+		program.bytecode:insert(node.variable_index-1) -- (index is 1 offset)
+
+	elseif (node.tag=="literal_int" or node.tag=="literal_float") then
+		node.constant_index = program.constants:get_id(tonumber(node.value))
+
+		program.bytecode:insert(kOpPush)
+		program.bytecode:insert(node.constant_index-1) -- (index is 1 offset)
+
+	elseif (node.tag=="variable_ref") then
+		local definition_node = program.variable_refs[node]
+
+		program.bytecode:insert(kOpPushVar + op_modifier(definition_node))
+		program.bytecode:insert(definition_node.variable_index-1) -- (index is 1 offset)
+
+	elseif (node.tag=="section_ref") then
+		local section = program.section_refs[node]
+
+		program.bytecode:insert(kOpPushVar + op_modifier("sample"))
+		program.bytecode:insert(section.variable_index-1) -- (index is 1 offset)
+
+	elseif (node.tag=="binary_op") then
+		generate_bytecode(program, node.operand1)
+		generate_bytecode(program, node.operand2)
+		program.bytecode:insert(node.op[2])
+
+	elseif (node.tag=="unary_op") then
+		generate_bytecode(program, node.operand)
+		program.bytecode:insert(node.op[2])
+
+	elseif (node.tag=="function_call") then
+		for i,arg in ipairs(node.arguments) do
+			generate_bytecode(program, arg)
+		end
+
+		program.bytecode:insert(kOpCallFunc)
+
+		local func = program.function_refs[node]
+		program.bytecode:insert(func.id)
+	end
+end
+
+function generate_section_ids(program)
+	local count = 0
+
+	for i,section in ipairs(program.ast.sections) do
+		if (section.name.value ~= "master") then
+			section.id = count
+			count = count + 1
+		end
+	end
+
+	program.named_sections.master.id = count
+end
+
+function generate_section_variables(program)
+	for i,section in ipairs(program.ast.sections) do
+		section.variable_index = program.sample_variables:get_id(section)
 	end
 end
 
@@ -297,11 +395,32 @@ function compile(str)
 
 	program.section_refs = {}
 	program.variable_refs = {}
+	program.function_refs = {}
 
 	mark_section_refs(program)
 	check_variable_refs(program)
 
 	infer_types(program)
+
+	program.constants        = create_unique_set()
+	program.bytecode         = create_table()
+	program.num_variables    = create_unique_set()
+	program.sample_variables = create_unique_set()
+
+	generate_section_ids(program)
+	generate_section_variables(program)
+	generate_bytecode(program, program.ast)
+
+	print(serialize_table(program.bytecode))
+
+	for i,v in ipairs(program.bytecode) do
+		if (type(v)=="number") then
+			program.bytecode[i] = string.format("0x%04X", v)
+		end
+	end
+	print(serialize_table(program.bytecode))
+
+
 --[[
 	--	create_function_list(program)
 --	check_expression(program.ast.root)

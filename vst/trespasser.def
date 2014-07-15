@@ -1,0 +1,6 @@
+LIBRARY	"transgressor"
+EXPORTS
+VSTPluginMain 
+main=VSTPluginMain
+
+

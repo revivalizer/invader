@@ -12,6 +12,7 @@ solution "invader_vst"
 
 	buildoptions(invader.commonbuildoptions)
 	linkoptions (invader.commonlinkoptions)
+	removelinkoptions { "/NODEFAULTLIB" }
 
 	warnings       "extra"
 	floatingpoint  "fast"
@@ -20,10 +21,22 @@ solution "invader_vst"
 
 	includedirs { "../../trespasser" }
 
+	newoption {
+	   trigger     = "vstdir",
+	   value       = "path",
+	   description = "Output directory for the compiled executable"
+	}
+
+	if (_OPTIONS.vstdir==nil) then
+		print("You must specify a target VST directory with --vstdir=PATH")
+		os.exit()
+	end
+
 	project "invader_vst"
 		kind "SharedLib"
 		targetname "invader"
 
+		postbuildcommands { "copy \"$(TargetPath)\" \"".._OPTIONS.vstdir.."\" " }		
 
 		includedirs { "../../trespasser/external/libs/vstsdk2.4/src" }
 		configmap {

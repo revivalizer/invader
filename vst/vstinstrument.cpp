@@ -3,15 +3,6 @@
 #pragma warning(push)
 #pragma warning(disable : 4100) // unreferenced parameter
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-int _fltused=0; 
-#ifdef __cplusplus
-}
-#endif
-
 #include "VSTInstrument.h"
 //#include "VSTEditor.h"
 //#include "gui/vm/luavm.h"
@@ -33,7 +24,7 @@ VSTInstrument::VSTInstrument(audioMasterCallback audioMaster) : AudioEffectX(aud
 		canProcessReplacing();
 		programsAreChunks(true);
 		isSynth();
-		setUniqueID('tran');
+		setUniqueID('inva');
 	}
 
 	//strcpy(programName, "default");
@@ -401,19 +392,19 @@ bool VSTInstrument::getOutputProperties(VstInt32 index, VstPinProperties* proper
 
 bool VSTInstrument::getEffectName(char* name)
 {
-	vst_strncpy(name, "ebola", kVstMaxEffectNameLen);
+	vst_strncpy(name, "invader", kVstMaxEffectNameLen);
 	return true;
 }
 
 bool VSTInstrument::getVendorString(char* text)
 {
-	vst_strncpy (text, "fnuque", kVstMaxVendorStrLen);
+	vst_strncpy (text, "revival", kVstMaxVendorStrLen);
 	return true;
 }
 
 bool VSTInstrument::getProductString(char* text)
 {
-	vst_strncpy (text, "ebola", kVstMaxProductStrLen);
+	vst_strncpy (text, "invader", kVstMaxProductStrLen);
 	return true;
 }
 

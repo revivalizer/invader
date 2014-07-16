@@ -1,5 +1,7 @@
 #pragma once
 
+namespace invader {
+
 class ZResampler2x : public align16
 {
 public:
@@ -24,3 +26,5 @@ private:
 
 template<uint32_t oversamplingFactor>
 void ZResampler2xDownsample(ZResampler2x& resampler, ZBlockBuffer<oversamplingFactor>& out, ZBlockBuffer<oversamplingFactor*2>& in);
+
+} // namespace invader

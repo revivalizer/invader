@@ -43,16 +43,16 @@ private:
 	//static const int kMaxNameLength = 255;
 	//char programName[kMaxNameLength + 1];
 
-	LuaVM* vm;
+	//LuaVM* vm;
 
 	ZMutex eventQueueMutex;
 	event_queue_t eventQueue;
 
 	ZCircularBuffer<16384> sampleBuffer;
 	ZBlockBuffer1x downsampleBuffer;
-	ZResampler2x* downsampler;
+	invader::ZResampler2x* downsampler;
 
-	ZSynth* synth;
+	invader::ZSynth* synth;
 
-	VSTEditor* vstEditor;
+//	VSTEditor* vstEditor;
 };

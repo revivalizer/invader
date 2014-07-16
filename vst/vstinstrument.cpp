@@ -3,9 +3,18 @@
 #pragma warning(push)
 #pragma warning(disable : 4100) // unreferenced parameter
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+int _fltused=0; 
+#ifdef __cplusplus
+}
+#endif
+
 #include "VSTInstrument.h"
-#include "VSTEditor.h"
-#include "gui/vm/luavm.h"
+//#include "VSTEditor.h"
+//#include "gui/vm/luavm.h"
 
 AudioEffect* createEffectInstance(audioMasterCallback audioMaster)
 {
@@ -13,9 +22,9 @@ AudioEffect* createEffectInstance(audioMasterCallback audioMaster)
 }
 
 VSTInstrument::VSTInstrument(audioMasterCallback audioMaster) : AudioEffectX(audioMaster, 1, 0), align16()
-, vm(new LuaVM())
-, downsampler(new ZResampler2x)
-, vstEditor(nullptr)
+//, vm(new LuaVM())
+, downsampler(new invader::ZResampler2x)
+//, vstEditor(nullptr)
 {
 	if (audioMaster)
 	{
@@ -29,6 +38,7 @@ VSTInstrument::VSTInstrument(audioMasterCallback audioMaster) : AudioEffectX(aud
 
 	//strcpy(programName, "default");
 
+/*
 	// Init LuaVM
 	#ifdef RUN_FROM_DISK
 		ZScopedRegistryKey basePath("BasePath");
@@ -60,14 +70,15 @@ VSTInstrument::VSTInstrument(audioMasterCallback audioMaster) : AudioEffectX(aud
 	// Create Editor
 	vstEditor = new VSTEditor(this, vm);
 	setEditor(vstEditor);
+*/
 	suspend();
 
-	vm->SetGlobalVariable("editor", "VSTEditor *", vstEditor);
+//	vm->SetGlobalVariable("editor", "VSTEditor *", vstEditor);
 
 	// Create Synth
-	synth = new ZSynth();
-	vm->SetGlobalVariable("synth", "ZSynth *", synth);
-	vm->LoadDefaultProgram();
+	synth = new invader::ZSynth(nullptr);
+//	vm->SetGlobalVariable("synth", "ZSynth *", synth);
+//	vm->LoadDefaultProgram();
 
 	/*// Create test program
 	synth->synth = synth;
@@ -111,21 +122,22 @@ VSTInstrument::VSTInstrument(audioMasterCallback audioMaster) : AudioEffectX(aud
 VSTInstrument::~VSTInstrument()
 {
 	delete synth;
-	delete vm;
+//	delete vm;
 	delete downsampler;
 }
 
 VstInt32 VSTInstrument::getChunk(void **data, bool isPreset)
 {
-	uint32_t length;
-	vm->SaveChunk((char **)data, &length);
-	return (VstInt32)length;
+//	uint32_t length;
+//	vm->SaveChunk((char **)data, &length);
+//	return (VstInt32)length;
+	return 0;
 }
 
 VstInt32 VSTInstrument::setChunk(void *data, VstInt32 byteSize, bool isPreset)
 {
-	vm->LoadChunk((char *)data, (uint32_t)byteSize);
-	vstEditor->RequestRedraw();
+	//vm->LoadChunk((char *)data, (uint32_t)byteSize);
+	//vstEditor->RequestRedraw();
 	return 0;
 }
 
@@ -217,7 +229,7 @@ void VSTInstrument::processReplacing(float** inputs, float** outputs, VstInt32 s
 				synth->ProcessBlock();
 
 				// Resample
-				ZResampler2xDownsample(*downsampler, downsampleBuffer, synth->blockStack->Pop());
+				ZResampler2xDownsample(*downsampler, downsampleBuffer, synth->vm.stack->PopSampleBlock());
 
 				sampleBuffer.PutBlock(downsampleBuffer);
 
@@ -434,4 +446,5 @@ VstInt32 VSTInstrument::getNumMidiOutputChannels()
 {
 	return 0; // no MIDI output back to Host app
 }
+
 #pragma warning(pop)

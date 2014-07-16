@@ -1,5 +1,7 @@
 #include "pch.h"
 
+namespace invader {
+
 const double ZResampler2x::coeffd[] = {0.045362164348961023, 0.16808748123450229, 0.33714968797907396, 0.52237785430835393, 0.70806413636353871, 0.89744559117277234};
 
 ZResampler2x::ZResampler2x(void)
@@ -67,3 +69,5 @@ void ZResampler2xDownsample(ZResampler2x& resampler, ZBlockBuffer<oversamplingFa
 }
 
 template void ZResampler2xDownsample(ZResampler2x& resampler, ZBlockBuffer<kDefaultOversampling/2>& out, ZBlockBuffer<kDefaultOversampling>& in);
+
+} // namespace invader

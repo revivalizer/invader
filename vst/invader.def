@@ -1,4 +1,4 @@
-LIBRARY	"transgressor"
+LIBRARY	"invader"
 EXPORTS
 VSTPluginMain 
 main=VSTPluginMain

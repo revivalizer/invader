@@ -8,8 +8,10 @@ solution "invader_vst"
 
 	flags(invader.commoncompilerflags)
 	flags(invader.commonstandaloneflags)
+	removeflags { "OmitDefaultLibrary" }
 
 	buildoptions(invader.commonbuildoptions)
+	linkoptions (invader.commonlinkoptions)
 
 	warnings       "extra"
 	floatingpoint  "fast"
@@ -22,13 +24,15 @@ solution "invader_vst"
 		kind "SharedLib"
 		targetname "invader"
 
+
+		includedirs { "../../trespasser/external/libs/vstsdk2.4/src" }
 		configmap {
 			["VSTi Debug"]   = "Debug",
 			["VSTi Release"] = "Release"
 		}
 
---		files { "*.h", "*.cpp" }
---		files { "invader.def" }
+		files { "*.h", "*.cpp" }
+		files { "invader.def" }
 
 		links { "invader_synth" }
 		links { "vstsdk2.4" }

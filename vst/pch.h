@@ -1,4 +1,12 @@
 #pragma once
+
+#include <deque>
+#include <vector>
+
+#include "libs/base/base.h"
+#include "libs/base_synth/base_synth.h"
+
+#include "../synth/synth.h"
 /*
 #include <deque>
 #include <vector>

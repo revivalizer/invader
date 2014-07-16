@@ -1,9 +1,6 @@
 project "invader_synth"
 	kind "StaticLib"
 
---	targetdir("build/%{prj.name}/bin/%{cfg.longname}")
---	objdir   ("build/%{prj.name}/obj/%{cfg.longname}")
-
 	configmap {
 		["VSTi Debug"]   = "Debug",
 		["VSTi Release"] = "Release"
@@ -17,8 +14,10 @@ project "invader_synth"
 	files { "./util/*.h", "./util/*.cpp" }
 	files { "./math/levelfollower.h", "./math/levelfollower.cpp" }
 	files { "./math/onepolefilter.h", "./math/onepolefilter.cpp" }
+	files { "./math/resampler2x.h", "./math/resampler2x.cpp" }
 	files { "./math/util.h", "./math/util.cpp" }
 	files { "./pch.h", "./pch.cpp" }
+	files { "./synth.h" }
 --	files { "./**.h", "./**.cpp" }
 --	files { "invader.def" }
 	excludes { "./vm/synthvm*" }

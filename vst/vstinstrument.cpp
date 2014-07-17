@@ -16,7 +16,7 @@ VSTInstrument::VSTInstrument(audioMasterCallback audioMaster) : AudioEffectX(aud
 //, vm(new LuaVM())
 , downsampler(new invader::ZResampler2x)
 //, vstEditor(nullptr)
-, programFile("C:\\Users\\ralph\\Documents\\code\\invader\\test.lua")
+, programFile("C:\\Users\\ralph\\Documents\\code\\invader\\test.lua.bin")
 {
 	if (audioMaster)
 	{
@@ -68,7 +68,10 @@ VSTInstrument::VSTInstrument(audioMasterCallback audioMaster) : AudioEffectX(aud
 //	vm->SetGlobalVariable("editor", "VSTEditor *", vstEditor);
 
 	// Create Synth
-	synth = new invader::ZSynth(nullptr);
+	programFile.Update();
+	auto prog = invader::ZVMProgram::FromBlob(programFile.data);
+	prog->Unpack();
+	synth = new invader::ZSynth(prog);
 //	vm->SetGlobalVariable("synth", "ZSynth *", synth);
 //	vm->LoadDefaultProgram();
 

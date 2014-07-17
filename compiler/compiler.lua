@@ -298,6 +298,8 @@ function generate_bytecode(program, node)
 		end
 
 	elseif (node.tag=="section") then
+		node.bytecodeStart = #program.bytecode
+
 		for i,statement in ipairs(node.statements) do
 			generate_bytecode(program, statement)
 		end
@@ -383,6 +385,18 @@ function generate_section_variables(program)
 	end
 end
 
+function generate_section_start_table(program)
+	local startoffset = create_table()
+
+	for i,section in ipairs(program.ast.sections) do
+		startoffset[section.id + 1] = section.bytecodeStart
+	end
+
+	startoffset:insert(#program.bytecode) -- end marker
+
+	program.section_starts = startoffset
+end
+
 -- Compile program
 function compile(str)
 	local program = {}
@@ -403,6 +417,7 @@ function compile(str)
 
 	program.constants        = create_unique_set()
 	program.bytecode         = create_table()
+	program.labels           = create_table()
 	program.num_variables    = create_unique_set()
 	program.sample_variables = create_unique_set()
 
@@ -410,6 +425,8 @@ function compile(str)
 	generate_section_variables(program)
 
 	generate_bytecode(program, program.ast)
+
+	generate_section_start_table(program)
 
 	print(serialize_table(program.ast))
 

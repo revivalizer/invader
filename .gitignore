@@ -8,3 +8,5 @@
 *.opensdf
 */ipch/*
 */build/*
+*.lua.bin
+*.lua.bin.h

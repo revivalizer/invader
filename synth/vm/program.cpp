@@ -2,6 +2,18 @@
 
 namespace invader {
 
+template <typename T, typename U>
+T* ZPack(T* a, U* b)
+{
+	return (T*)((uintptr_t)a-(uintptr_t)b);
+}
+
+template <typename T, typename U>
+T* ZUnpack(T* a, U* b)
+{
+	return (T*)((uintptr_t)a+(uintptr_t)b);
+}
+
 ZVMProgram::ZVMProgram(void)
 	: bytecode(NULL)
 {
@@ -9,18 +21,20 @@ ZVMProgram::ZVMProgram(void)
 
 ZVMProgram* ZVMProgram::Unpack()
 {
-	bytecode   = (opcode_t*)  ((uintptr_t)bytecode   + (uintptr_t)this);
-	labels     = (opcode_t*)  ((uintptr_t)labels     + (uintptr_t)this);
-	//numconstants  = (constant_t*)((uintptr_t)numconstants  + (uintptr_t)this);
+	bytecode  = ZUnpack(bytecode, this);
+	labels    = ZUnpack(labels, this);
+	sections  = ZUnpack(sections, this);
+	constants = ZUnpack(constants, this);
 
 	return this;
 }
 
 ZVMProgram* ZVMProgram::Pack()
 {
-	bytecode   = (opcode_t*)  ((uintptr_t)bytecode   - (uintptr_t)this);
-	labels     = (opcode_t*)  ((uintptr_t)labels     - (uintptr_t)this);
-	//numconstants  = (constant_t*)((uintptr_t)numconstants  - (uintptr_t)this);
+	bytecode  = ZPack(bytecode, this);
+	labels    = ZPack(labels, this);
+	sections  = ZPack(sections, this);
+	constants = ZPack(constants, this);
 
 	return this;
 }

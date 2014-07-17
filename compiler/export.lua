@@ -18,26 +18,29 @@ require("pack")
 
 function generate_data(program)
 	-- generate arrays of data in strings, using the pack library
-	local opcodes_str     = string.pack("H"..#program.bytecode, unpack(program.bytecode))
-	local labels_str      = string.pack("H"..#program.labels, unpack(program.labels))
-	local constants_str   = string.pack("d"..#program.constants, unpack(program.constants))
-	local custom_data_str = generate_packed_rule_table(program)
+	local bytecode_str       = string.pack("H"..#program.bytecode,        unpack(program.bytecode))
+	local labels_str         = string.pack("H"..#program.labels,          unpack(program.labels))
+	local sections_str       = string.pack("H"..#program.section_starts,  unpack(program.section_starts))
+	local constants_str      = string.pack("d"..#program.constants,       unpack(program.constants))
 
-	local header_size = 24 -- assuming 32-bit pointers
+	local header_size = 32 -- assuming 32-bit pointers
 
 	-- compute offsets to data
-	local opcodes_pos       = header_size
-	local labels_pos        = opcodes_pos   + opcodes_str:len()
-	local constants_pos     = labels_pos    + labels_str:len()
-	local custom_data_pos   = constants_pos + constants_str:len()
+	local bytecode_pos      = header_size
+	local labels_pos        = bytecode_pos  + bytecode_str:len()
+	local sections_pos      = labels_pos    + labels_str:len()
+	local constants_pos     = sections_pos  + sections_str:len()
 
-	local program_size      = custom_data_pos + custom_data_str:len()
+	local program_size      = constants_pos + constants_str:len()
+
+	local globalStorageSize = 0 -- for now
+	local numSections = #program.ast.sections
 
 	-- generate header data
-	local header_str = string.pack("IIIIII", program_size, #program.bytecode, opcodes_pos, labels_pos, constants_pos, custom_data_pos)
+	local header_str = string.pack("IIIIIIII", program_size, #program.bytecode, globalStorageSize, numSections, bytecode_pos, labels_pos, sections_pos, constants_pos)
 
 	-- return concantenated data
-	return header_str..opcodes_str..labels_str..constants_str..custom_data_str
+	return header_str..bytecode_str..labels_str..sections_str..constants_str
 end
 
 

@@ -14,9 +14,10 @@ public:
 	size_t      programSize;
 	size_t      bytecodeSize;
 	size_t      globalStorageSize;
-	size_t		numInstruments;
+	size_t      numSections;
 	opcode_t*   bytecode;
 	label_t*    labels;
+	label_t*    sections;
 	num_t*      constants;
 };
 

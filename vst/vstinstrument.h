@@ -54,5 +54,7 @@ private:
 
 	invader::ZSynth* synth;
 
+	ZWatchFile programFile;
+
 //	VSTEditor* vstEditor;
 };

@@ -37,6 +37,7 @@ solution "invader_vst"
 		targetname "invader"
 
 		postbuildcommands { "copy \"$(TargetPath)\" \"".._OPTIONS.vstdir.."\" " }		
+		debugcommand "$(TargetDir)\\$(TargetName).exe" -- this should launch SAVIhost which should be placed in the target folders, and be named the same as the target file (invader.exe)
 
 		includedirs { "../../trespasser/external/libs/vstsdk2.4/src" }
 		configmap {

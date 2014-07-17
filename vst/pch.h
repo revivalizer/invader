@@ -7,6 +7,8 @@
 #include "libs/base_synth/base_synth.h"
 
 #include "../synth/synth.h"
+#include "watchfile.h"
+
 /*
 #include <deque>
 #include <vector>

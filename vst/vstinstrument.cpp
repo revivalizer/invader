@@ -16,6 +16,7 @@ VSTInstrument::VSTInstrument(audioMasterCallback audioMaster) : AudioEffectX(aud
 //, vm(new LuaVM())
 , downsampler(new invader::ZResampler2x)
 //, vstEditor(nullptr)
+, programFile("C:\\Users\\ralph\\Documents\\code\\invader\\test.lua")
 {
 	if (audioMaster)
 	{

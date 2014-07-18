@@ -5,17 +5,17 @@ namespace invader {
 enum
 {
 	// Base stuff
-	kOpReturn    = 0x000,
+	kOpReturn       = 0x000,
 
-	kOpPush      = 0x100 + kOpcodeMaskHasArgument,
-	kOpPop       = 0x110,
-	kOpDec       = 0x120,
-	kOpClone     = 0x130,
+	kOpPush         = 0x100 + kOpcodeMaskHasArgument,
+	kOpPop          = 0x110,
+	kOpDec          = 0x120,
+	kOpClone        = 0x130,
 
-	kOpPushVar   = 0x180 + kOpcodeMaskHasArgument,
-	kOpPopVar    = 0x190 + kOpcodeMaskHasArgument,
+	kOpPushGlobal   = 0x180 + kOpcodeMaskHasArgument,
+	kOpPopGlobal    = 0x190 + kOpcodeMaskHasArgument,
 
-	kOpCallFunc  = 0x600 + kOpcodeMaskHasArgument,
+	kOpCallFunc     = 0x600 + kOpcodeMaskHasArgument,
 
 	kOpJump         = 0x800 + kOpcodeMaskHasArgument,
 	kOpJumpEqual    = 0x810 + kOpcodeMaskHasArgument,

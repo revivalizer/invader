@@ -7,6 +7,10 @@ require("util.serialize")
 require("util.unique_set")
 require("util.util")
 
+-- byte size of types
+local kNumSize = 8
+local kSampleSize = 2*8*16
+
 function create_label(program)
 	local label = {}
 	program.labels:insert(label)
@@ -306,15 +310,15 @@ function generate_bytecode(program, node)
 
 	elseif (node.tag=="assign_statement") then
 		if (node.type=="num") then
-			node.variable_index = program.num_variables:get_id(node)
+			node.global_address = allocate_global_storage(program, kNumSize, 8)
 		elseif (node.type=="sample") then
-			node.variable_index = program.sample_variables:get_id(node)
+			node.global_address = allocate_global_storage(program, kSampleSize, 16)
 		end
 
 		generate_bytecode(program, node.operand)
 
-		program.bytecode:insert(kOpPopVar + op_modifier(node.type))
-		program.bytecode:insert(node.variable_index-1) -- (index is 1 offset)
+		program.bytecode:insert(kOpPopGlobal + op_modifier(node.type))
+		program.bytecode:insert(node.global_address) -- (index is 1 offset)
 
 	elseif (node.tag=="return_statement") then
 		generate_bytecode(program, node.operand)
@@ -324,8 +328,8 @@ function generate_bytecode(program, node)
 
 		local containing_section = program.named_sections[node.section_name]
 
-		program.bytecode:insert(kOpPopVar + op_modifier(node.type))
-		program.bytecode:insert(containing_section.variable_index-1) -- (index is 1 offset)
+		program.bytecode:insert(kOpPopGlobal + op_modifier(node.type))
+		program.bytecode:insert(containing_section.global_address)
 
 	elseif (node.tag=="literal_int" or node.tag=="literal_float") then
 		node.constant_index = program.constants:get_id(tonumber(node.value))
@@ -336,14 +340,14 @@ function generate_bytecode(program, node)
 	elseif (node.tag=="variable_ref") then
 		local definition_node = program.variable_refs[node]
 
-		program.bytecode:insert(kOpPushVar + op_modifier(definition_node.type))
-		program.bytecode:insert(definition_node.variable_index-1) -- (index is 1 offset)
+		program.bytecode:insert(kOpPushGlobal + op_modifier(definition_node.type))
+		program.bytecode:insert(definition_node.global_address)
 
 	elseif (node.tag=="section_ref") then
 		local section = program.section_refs[node]
 
-		program.bytecode:insert(kOpPushVar + op_modifier("sample"))
-		program.bytecode:insert(section.variable_index-1) -- (index is 1 offset)
+		program.bytecode:insert(kOpPushGlobal + op_modifier("sample"))
+		program.bytecode:insert(section.global_address)
 
 	elseif (node.tag=="binary_op") then
 		generate_bytecode(program, node.operand1)
@@ -381,7 +385,7 @@ end
 
 function generate_section_variables(program)
 	for i,section in ipairs(program.ast.sections) do
-		section.variable_index = program.sample_variables:get_id(section)
+		section.global_address = allocate_global_storage(program, kSampleSize, 16)
 	end
 end
 
@@ -395,6 +399,17 @@ function generate_section_start_table(program)
 	startoffset:insert(#program.bytecode) -- end marker
 
 	program.section_starts = startoffset
+end
+
+function allocate_global_storage(program, size, align)
+	-- find next aligned address
+	local address = math.floor((program.global_storage_size + (align-1))/align)*align
+
+	-- increase storage amount
+	program.global_storage_size = address + size
+
+	-- return address
+	return address
 end
 
 -- Compile program
@@ -415,11 +430,10 @@ function compile(str)
 
 	infer_types(program)
 
-	program.constants        = create_unique_set()
-	program.bytecode         = create_table()
-	program.labels           = create_table()
-	program.num_variables    = create_unique_set()
-	program.sample_variables = create_unique_set()
+	program.constants           = create_unique_set()
+	program.bytecode            = create_table()
+	program.labels              = create_table()
+	program.global_storage_size = 0
 
 	generate_section_ids(program)
 	generate_section_variables(program)

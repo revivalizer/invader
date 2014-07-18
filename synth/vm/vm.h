@@ -16,7 +16,7 @@ public:
 
 	ZNode* CreateNodeFromOpcode(nodetype_t type);
 	
-	void CreateNodeInstances(ZVMProgram* program);
+	void CreateNodeInstances(ZVMProgram* program, opcode_index_t start, opcode_index_t end);
 
 	ZNode**               nodeInstances;
 	ZVMStack*             stack;

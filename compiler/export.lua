@@ -33,7 +33,7 @@ function generate_data(program)
 
 	local program_size      = constants_pos + constants_str:len()
 
-	local globalStorageSize = 0 -- for now
+	local globalStorageSize = program.global_storage_size
 	local numSections = #program.ast.sections
 
 	-- generate header data

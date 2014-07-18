@@ -303,7 +303,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 	}
 }
 
-void ZVirtualMachine::CreateNodeInstances(ZVMProgram* program)
+void ZVirtualMachine::CreateNodeInstances(ZVMProgram* program, opcode_index_t start, opcode_index_t end)
 {
 	// Create array
 	nodeInstances = new ZNode*[program->bytecodeSize];
@@ -312,8 +312,7 @@ void ZVirtualMachine::CreateNodeInstances(ZVMProgram* program)
 	zzeromem(nodeInstances, sizeof(ZNode*)*program->bytecodeSize);
 
 	// Create node instances where applicable
-	ZVMBytecodeIterator it(*program);
-
+	ZVMBytecodeIterator it(*program); 
 	while (it.Next())
 	{
 		if (it.opcode & kOpcodeMaskIsNode)

@@ -34,7 +34,6 @@ public:
 		return *((ZBlockBufferInternal*)(mem[address]));
 	}
 
-
 	uintptr_t* mem;
 };
 

@@ -9,8 +9,8 @@ kOpPush         = 0x100 + kOpcodeMaskHasArgument
 --kOpDec          = 0x120
 --kOpClone        = 0x130
 
-kOpPushVar      = 0x180 + kOpcodeMaskHasArgument
-kOpPopVar       = 0x190 + kOpcodeMaskHasArgument
+kOpPushGlobal      = 0x180 + kOpcodeMaskHasArgument
+kOpPopGlobal       = 0x190 + kOpcodeMaskHasArgument
 
 -- these aren't needed, let's just use push/pop var instead
 --	kOpPushSection  = 0x1A0 + kOpcodeMaskHasArgument

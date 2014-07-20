@@ -1,0 +1,27 @@
+only one note?
+
+
+
+Mapping of MIDI input to channels
+	GetInstrumentFromMIDI(channel, note)->NoteOn(note, velocity, deltaSamples);
+Test Projects
+Compiler pos errors
+		Grab pos on everything
+		Convert pos to line/col
+Parser pos error
+Align stack and global storage
+
+constants not working
+remove ZInstrument::voicemixbuffer -- similar for voice, synth?
+
+db, semis, % suffix
+uint32_t for section ids? typedef?
+
+are return types always "sample"? check return_statement bytecode generation
+
+accessing global storage for channel results is a bit hacky
+
+crash on exit from host
+
+MANUAL
+ADSR or other envelope is required

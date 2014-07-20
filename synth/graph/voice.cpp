@@ -2,14 +2,14 @@
 
 namespace invader {
 
-ZVoice::ZVoice(ZSynth* synth, ZInstrument* instrument, ZVMProgram* program)
-	: isNoteOn(false)
-	, isActive(false)
-	, dcTrap(new ZOnepoleFilter)
-	, levelFollower(new ZLevelFollower)
-	, vm(program, new ZVMStack((uintptr_t)new uint8_t[10000]))
-	, program(program)
-{
+	ZVoice::ZVoice( ZSynth* synth, ZInstrument* instrument, ZVMProgram* program, uint32_t section, ZVMStorage* globalStorage ) : isNoteOn(false)
+		, isActive(false)
+		, dcTrap(new ZOnepoleFilter)
+		, levelFollower(new ZLevelFollower)
+		, vm(program, new ZVMStack((uintptr_t)new uint8_t[10000]), globalStorage)
+		, program(program)
+		, section(section)
+	{
 	// Cutoff 5Hz, makes the trap fast enough to track offset changes,
 	// but causes only a moderate attenuation of 0.26 dB and a phase shift of 14deg at 20 Hz
 	dcTrap->SetCutoff(5); 
@@ -18,8 +18,10 @@ ZVoice::ZVoice(ZSynth* synth, ZInstrument* instrument, ZVMProgram* program)
 	vm.instrument = instrument;
 	vm.voice      = this;
 
-	bytecodeStart = kInvalidOpcodeIndex;
-	bytecodeEnd   = kInvalidOpcodeIndex;
+	bytecodeStart = program->sections[section];
+	bytecodeEnd   = program->sections[section+1];
+
+	vm.CreateNodeInstances(program, section); 
 }
 
 ZVoice::~ZVoice(void)
@@ -67,7 +69,7 @@ void ZVoice::NoteOff(uint32_t deltaSamples)
 ZBlockBufferInternal& ZVoice::ProcessBlock(void)
 {
 	vm.Run(bytecodeStart, program);
-	ZBlockBufferInternal& output = ZOnepoleFilterHighpassBlock(*dcTrap, vm.stack->PopSampleBlock());
+	ZBlockBufferInternal& output = ZOnepoleFilterHighpassBlock(*dcTrap, vm.globalStorage->Load<ZBlockBufferInternal>((invader::opcode_index_t)(section*sizeof(ZBlockBufferInternal))));
 
 	// Check level
 	ZLevelFollowerProcessBlock(*levelFollower, output);

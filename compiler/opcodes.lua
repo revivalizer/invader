@@ -11,6 +11,7 @@ kOpPush         = 0x100 + kOpcodeMaskHasArgument
 
 kOpPushGlobal      = 0x180 + kOpcodeMaskHasArgument
 kOpPopGlobal       = 0x190 + kOpcodeMaskHasArgument
+kOpResetGlobal     = 0x1A0 + kOpcodeMaskHasArgument
 
 -- these aren't needed, let's just use push/pop var instead
 --	kOpPushSection  = 0x1A0 + kOpcodeMaskHasArgument
@@ -55,16 +56,16 @@ kOpMinus = 0x420
 
 binary_opcodes =
 {
-	["+"]  = {["num*num"]       = {"num",    kOpAdd + 0}},
-	["+"]  = {["sample*sample"] = {"sample", kOpAdd + 1}},
-	["+"]  = {["sample*num"]    = {"sample", kOpAdd + 2}},
-	["-"]  = {["num*num"]       = {"num",    kOpSub + 0}},
-	["-"]  = {["sample*sample"] = {"sample", kOpSub + 1}},
+	["+"]  = {["num*num"]       = {"num",    kOpAdd + 0},
+	          ["sample*sample"] = {"sample", kOpAdd + 1},
+	          ["sample*num"]    = {"sample", kOpAdd + 2}},
+	["-"]  = {["num*num"]       = {"num",    kOpSub + 0},
+	          ["sample*sample"] = {"sample", kOpSub + 1}},
 	["-"]  = {["sample*num"]    = {"sample", kOpSub + 2}}, -- don't subtract sample from number
-	["*"]  = {["num*num"]       = {"num",    kOpMul + 0}},
-	["*"]  = {["sample*num"]    = {"sample", kOpMul + 1}}, -- multiplying samples would ring, so don't do that
-	["/"]  = {["num*num"]       = {"num",    kOpDiv + 0}},
-	["/"]  = {["sample*num"]    = {"sample", kOpDiv + 1}},
+	["*"]  = {["num*num"]       = {"num",    kOpMul + 0},
+	          ["sample*num"]    = {"sample", kOpMul + 1}}, -- multiplying samples would ring, so don't do that
+	["/"]  = {["num*num"]       = {"num",    kOpDiv + 0},
+	          ["sample*num"]    = {"sample", kOpDiv + 1}},
 	["%"]  = {["num*num"]       = {"num",    kOpMod + 0}},
 	["=="] = {["num*num"]       = {"num",    kOpEqual + 0}},
 	["!="] = {["num*num"]       = {"num",    kOpNotEqual + 0}},
@@ -79,8 +80,8 @@ binary_opcodes =
 unary_opcodes =
 {
 	["!"]  = {["num"]       = {"num",    kOpNot + 0}},
-	["+"]  = {["num"]       = {"num",    kOpPlus + 0}},
-	["+"]  = {["sample"]    = {"sample", kOpPlus + 0}},
-	["-"]  = {["num"]       = {"num",    kOpMinus + 0}},
-	["-"]  = {["sample"]    = {"sample", kOpMinus + 1}},
+	["+"]  = {["num"]       = {"num",    kOpPlus + 0},
+	          ["sample"]    = {"sample", kOpPlus + 0}},
+	["-"]  = {["num"]       = {"num",    kOpMinus + 0},
+	          ["sample"]    = {"sample", kOpMinus + 1}},
 }

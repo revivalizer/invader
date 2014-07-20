@@ -6,7 +6,9 @@ class ZVMStack
 {
 public:
 
-	ZVMStack(uintptr_t mem) : ptr(mem)
+	ZVMStack(uintptr_t mem)
+		: mem(mem)
+		, offset(0)
 	{
 	}
 
@@ -14,30 +16,21 @@ public:
 	{
 	}
 
-	uintptr_t ptr;
+	uintptr_t mem;
+	uintptr_t offset;
 
-	void PushNum(num_t num)
+	template <class T>
+	void Push(const T& num)
 	{
-		ptr += sizeof(num_t);
-		*((double*)ptr) = num;
+		*((T*)(mem+offset)) = num;
+		offset += sizeof(T);
 	}
 
-	num_t PopNum()
+	template <class T>
+	T& Pop()
 	{
-		ptr -= sizeof(num_t);
-		return ((double*)ptr)[1];
-	}
-
-	void PushSampleBlock(ZBlockBufferInternal& block)
-	{
-		ptr += sizeof(ZBlockBufferInternal);
-		*((ZBlockBufferInternal*)ptr) = block;
-	}
-
-	ZBlockBufferInternal& PopSampleBlock()
-	{
-		ptr -= sizeof(ZBlockBufferInternal);
-		return ((ZBlockBufferInternal*)ptr)[1];
+		offset -= sizeof(T);
+		return *((T*)(mem+offset));
 	}
 };
 

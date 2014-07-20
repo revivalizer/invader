@@ -2,15 +2,16 @@
 
 namespace invader {
 
-ZInstrument::ZInstrument(ZSynth* synth, ZVMProgram* program)
-	: synth(synth)
-	, hasProgram(false)
-	, isActive(false)
-	//, outputBuffer(nullptr)
-{
+	ZInstrument::ZInstrument( ZSynth* synth, ZVMProgram* program, uint32_t section, ZVMStorage* globalStorage ) : synth(synth)
+		, hasProgram(false)
+		, isActive(false)
+		, section(section)
+		, globalStorage(globalStorage)
+		//, outputBuffer(nullptr)
+	{
 	for (uint32_t i=0; i<kNumVoices; i++)
 	{
-		voices[i] = new ZVoice(synth, this, program);
+		voices[i] = new ZVoice(synth, this, program, section, globalStorage);
 	}
 
 	for (uint32_t i=0; i<128; i++)
@@ -29,10 +30,12 @@ void ZInstrument::NoteOn(uint32_t note, uint32_t velocity, uint32_t deltaSamples
 {
 	uint32_t voice = GetVoiceFromPool(note, velocity, deltaSamples);
 
-	double pitch = (double)note;
+	if (voice!=0xFFFFFFFF)
+	{
+		double pitch = (double)note;
 
-	voices[voice]->NoteOn(pitch, note, velocity, deltaSamples);
-
+		voices[voice]->NoteOn(pitch, note, velocity, deltaSamples);
+	}
 }
 
 void ZInstrument::NoteOff(uint32_t note, uint32_t deltaSamples)
@@ -49,7 +52,7 @@ void ZInstrument::ControlChange(uint32_t number, uint32_t value, uint32_t deltaS
 
 uint32_t ZInstrument::GetVoiceFromPool(uint32_t note, uint32_t velocity, uint32_t deltaSamples)
 {
-  deltaSamples; velocity;
+	deltaSamples; velocity;
 
 	double bestScore = 0;
 	uint32_t bestVoice = 0xFFFFFFFF;
@@ -96,7 +99,11 @@ void ZInstrument::NoteOffVoicesPlayingNote(uint32_t note, uint32_t deltaSamples)
 void ZInstrument::ProcessBlock(void)
 {
 	// Generate voice mix
-	voiceMixBuffer.Reset();
+	//voiceMixBuffer.Reset();
+
+	// Reset buffer in global storage
+	auto outBuffer = globalStorage->Load<ZBlockBufferInternal>((opcode_index_t)(section*sizeof(ZBlockBufferInternal)));
+	outBuffer.Reset();
 
 	for (uint32_t i=0; i<kNumVoices; i++)
 	{
@@ -113,7 +120,8 @@ void ZInstrument::ProcessBlock(void)
 			// Add to buffer
 			mixBuffer.Add(voices[i]->vm->blockStack->Pop());*/
 
-			voiceMixBuffer.Add(voices[i]->ProcessBlock());
+			//voiceMixBuffer.Add(voices[i]->ProcessBlock());
+			voices[i]->ProcessBlock();
 		}
 	}
 

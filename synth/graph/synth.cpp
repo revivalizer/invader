@@ -3,19 +3,35 @@
 namespace invader {
 
 ZSynth::ZSynth(ZVMProgram* program)
-	: vm(program, new ZVMStack((uintptr_t)new uint8_t[10000]))
+	: vm(program, new ZVMStack((uintptr_t)new uint8_t[10000]), new ZVMStorage((uintptr_t)new uint8_t[program->globalStorageSize]))
 	, program(program)
+	, numInstruments(program->numSections-1)
 {
-	for (uint32_t i=0; i<kNumInstruments; i++)
+	instruments = new ZInstrument*[numInstruments];
+
+	for (uint32_t i=0; i<numInstruments; i++)
 	{
-		instruments[i] = new ZInstrument(this, program);
+		instruments[i] = new ZInstrument(this, program, i, vm.globalStorage);
 	}
+
+	section = program->numSections-1;
+
+	vm.CreateNodeInstances(program, section); // last section is master section
+
+	vm.synth      = this;
+	vm.instrument = nullptr;
+	vm.voice      = nullptr;
+
+	bytecodeStart = program->sections[section];
+	bytecodeEnd   = program->sections[section+1];
 }
 
 ZSynth::~ZSynth(void)
 {
-	for (uint32_t i=0; i<kNumInstruments; i++)
+	for (uint32_t i=0; i<numInstruments; i++)
 		delete instruments[i];
+
+	delete instruments;
 }
 
 void ZSynth::NoteOn(uint32_t channel, uint32_t note, uint32_t velocity, uint32_t deltaSamples)
@@ -36,7 +52,7 @@ void ZSynth::ControlChange(uint32_t channel, uint32_t number, uint32_t value, ui
 
 void ZSynth::ProcessBlock(void)
 {
-	for (uint32_t i=0; i<kNumInstruments; i++)
+	for (uint32_t i=0; i<numInstruments; i++)
 	{
 		instruments[i]->sync = sync;
 		instruments[i]->ProcessBlock();

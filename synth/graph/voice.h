@@ -11,7 +11,7 @@ class ZLevelFollower;
 class ZVoice : public align16
 {
 public:
-	ZVoice(ZSynth* synth, ZInstrument* instrument, ZVMProgram* program);
+	ZVoice(ZSynth* synth, ZInstrument* instrument, ZVMProgram* program, uint32_t section, ZVMStorage* globalStorage);
 	~ZVoice(void);
 
 	void NoteOn(double pitch, uint32_t note, uint32_t velocity, uint32_t deltaSamples);
@@ -37,6 +37,8 @@ public:
 	opcode_index_t bytecodeStart, bytecodeEnd;
 
 	ZVMProgram* program;
+
+	uint32_t section;
 
 private:
 	bool isActive;

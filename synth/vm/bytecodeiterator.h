@@ -7,12 +7,13 @@ namespace invader {
 class ZVMBytecodeIterator
 {
 public:
-	ZVMBytecodeIterator(const ZVMProgram& program);
+	ZVMBytecodeIterator(const ZVMProgram& program, opcode_index_t start = 0, opcode_index_t end = kInvalidOpcodeIndex);
 	bool Next(void);
 
 	opcode_t opcode; 
-	argument_t argument;
+
 	opcode_index_t i;
+	opcode_index_t start, end;
 private:
 	const ZVMProgram& program;
 	opcode_index_t currentOpcode;

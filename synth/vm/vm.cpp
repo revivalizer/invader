@@ -2,10 +2,11 @@
 
 namespace invader {
 
-ZVirtualMachine::ZVirtualMachine(ZVMProgram* program, ZVMStack* stack)
+ZVirtualMachine::ZVirtualMachine(ZVMProgram* program, ZVMStack* stack, ZVMStorage* globalStorage)
 	: nodeInstances(nullptr)
 	, stack(stack)
 	, program(program)
+	, globalStorage(globalStorage)
 {
 //#error must init variable array
 }
@@ -40,8 +41,8 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 			{
 				case kOpReturn:
 					return;
-				case kOpPush + kOpTypeNum:
-					stack->PushNum(program->constants[*ip++]);
+				case kOpPush | kOpTypeNum:
+					stack->Push<num_t>(program->constants[*ip++]);
 					break;
 				/*case kOpPop:
 					numstack--;
@@ -56,17 +57,23 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 					numstack++;
 					ip+=1;
 					break;*/
-				case kOpPushVar | kOpTypeNum:
-					stack->PushNum(globalStorage.LoadNum(*ip++));
+				case kOpPushGlobal | kOpTypeNum:
+					stack->Push(globalStorage->Load<num_t>(*ip++));
 					break;
-				case kOpPushVar | kOpTypeSample:
-					stack->PushSampleBlock(globalStorage.LoadSampleBlock(*ip++));
+				case kOpPushGlobal | kOpTypeSample:
+					stack->Push(globalStorage->Load<ZBlockBufferInternal>(*ip++));
 					break;
-				case kOpPopVar | kOpTypeNum:
-					globalStorage.StoreNum(*ip++, stack->PopNum());
+				case kOpPopGlobal | kOpTypeNum:
+					globalStorage->Store<num_t>(*ip++, stack->Pop<num_t>());
 					break;
-				case kOpPopVar | kOpTypeSample:
-					globalStorage.StoreSampleBlock(*ip++, stack->PopSampleBlock());
+				case kOpPopGlobal | kOpTypeSample:
+					globalStorage->Store<ZBlockBufferInternal>(*ip++, stack->Pop<ZBlockBufferInternal>());
+					break;
+				case kOpResetGlobal | kOpTypeNum:
+					globalStorage->Reset<num_t>(*ip++);
+					break;
+				case kOpResetGlobal | kOpTypeSample:
+					globalStorage->Reset<ZBlockBufferInternal>(*ip++);
 					break;
 				/*case kOpJump:
 					ip = program->labels[argument];
@@ -88,170 +95,176 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 				case kOpAdd | 0: // num x num
 					{
-						num_t op2 = stack->PopNum();
-						num_t op1 = stack->PopNum();
-						stack->PushNum(op1 + op2);
+						num_t op2 = stack->Pop<num_t>();
+						num_t op1 = stack->Pop<num_t>();
+						stack->Push(op1 + op2);
 						break;
 					}
 
 				case kOpAdd | 1: // sample x sample
 					{
-						ZBlockBufferInternal& op2 = stack->PopSampleBlock();
-						ZBlockBufferInternal& op1 = stack->PopSampleBlock();
+						ZBlockBufferInternal& op2 = stack->Pop<ZBlockBufferInternal>();
+						ZBlockBufferInternal& op1 = stack->Pop<ZBlockBufferInternal>();
 						for (uint32_t i=0; i<op1.numSamples; i++)
 							op1.samples[i] += op2.samples[i];
+						stack->Push(op1);
 						break;
 					}
 
 				case kOpAdd | 2: // sample x num
 					{
-						num_t op2 = stack->PopNum();
-						ZBlockBufferInternal& op1 = stack->PopSampleBlock();
+						num_t op2 = stack->Pop<num_t>();
+						ZBlockBufferInternal& op1 = stack->Pop<ZBlockBufferInternal>();
 						sample_t s = sample_t(op2);
 						for (uint32_t i=0; i<op1.numSamples; i++)
 							op1.samples[i] += s;
+						stack->Push(op1);
 						break;
 					}
 
 				case kOpSubtract | 0: // num x num
 					{
-						num_t op2 = stack->PopNum();
-						num_t op1 = stack->PopNum();
-						stack->PushNum(op1 - op2);
+						num_t op2 = stack->Pop<num_t>();
+						num_t op1 = stack->Pop<num_t>();
+						stack->Push(op1 - op2);
 						break;
 					}
 
 				case kOpSubtract | 1: // sample x sample
 					{
-						ZBlockBufferInternal& op2 = stack->PopSampleBlock();
-						ZBlockBufferInternal& op1 = stack->PopSampleBlock();
+						ZBlockBufferInternal& op2 = stack->Pop<ZBlockBufferInternal>();
+						ZBlockBufferInternal& op1 = stack->Pop<ZBlockBufferInternal>();
 						for (uint32_t i=0; i<op1.numSamples; i++)
 							op1.samples[i] -= op2.samples[i];
+						stack->Push(op1);
 						break;
 					}
 
 				case kOpSubtract | 2: // sample x num
 					{
-						num_t op2 = stack->PopNum();
-						ZBlockBufferInternal& op1 = stack->PopSampleBlock();
+						num_t op2 = stack->Pop<num_t>();
+						ZBlockBufferInternal& op1 = stack->Pop<ZBlockBufferInternal>();
 						sample_t s = sample_t(op2);
 						for (uint32_t i=0; i<op1.numSamples; i++)
 							op1.samples[i] -= s;
+						stack->Push(op1);
 						break;
 					}
 
 				case kOpMultiply | 0: // num x num
 					{
-						num_t op2 = stack->PopNum();
-						num_t op1 = stack->PopNum();
-						stack->PushNum(op1 * op2);
+						num_t op2 = stack->Pop<num_t>();
+						num_t op1 = stack->Pop<num_t>();
+						stack->Push(op1 * op2);
 						break;
 					}
 
 				case kOpMultiply | 1: // sample x num
 					{
-						num_t op2 = stack->PopNum();
-						ZBlockBufferInternal& op1 = stack->PopSampleBlock();
+						num_t op2 = stack->Pop<num_t>();
+						ZBlockBufferInternal& op1 = stack->Pop<ZBlockBufferInternal>();
 						sample_t s = sample_t(op2);
 						for (uint32_t i=0; i<op1.numSamples; i++)
 							op1.samples[i] *= s;
+						stack->Push(op1);
 						break;
 					}
 
 				case kOpDivide | 0: // num x num
 					{
-						num_t op2 = stack->PopNum();
-						num_t op1 = stack->PopNum();
-						stack->PushNum(op1 / op2);
+						num_t op2 = stack->Pop<num_t>();
+						num_t op1 = stack->Pop<num_t>();
+						stack->Push(op1 / op2);
 						break;
 					}
 
 				case kOpDivide | 1: // sample x num
 					{
-						num_t op2 = stack->PopNum();
-						ZBlockBufferInternal& op1 = stack->PopSampleBlock();
+						num_t op2 = stack->Pop<num_t>();
+						ZBlockBufferInternal& op1 = stack->Pop<ZBlockBufferInternal>();
 						sample_t s = sample_t(op2);
 						for (uint32_t i=0; i<op1.numSamples; i++)
 							op1.samples[i] /= s;
+						stack->Push(op1);
 						break;
 					}
 
 				case kOpModulo: // num x num
 					{
-						num_t op2 = stack->PopNum();
-						num_t op1 = stack->PopNum();
-						stack->PushNum(zfmodd(op1, op2));
+						num_t op2 = stack->Pop<num_t>();
+						num_t op1 = stack->Pop<num_t>();
+						stack->Push(zfmodd(op1, op2));
 						break;
 					}
 
 				case kOpEqual: // num x num
 					{
-						num_t op2 = stack->PopNum();
-						num_t op1 = stack->PopNum();
-						stack->PushNum((op1 == op2) ? 1. : 0.);
+						num_t op2 = stack->Pop<num_t>();
+						num_t op1 = stack->Pop<num_t>();
+						stack->Push((op1 == op2) ? 1. : 0.);
 						break;
 					}
 
 				case kOpNotEqual: // num x num
 					{
-						num_t op2 = stack->PopNum();
-						num_t op1 = stack->PopNum();
-						stack->PushNum((op1 != op2) ? 1. : 0.);
+						num_t op2 = stack->Pop<num_t>();
+						num_t op1 = stack->Pop<num_t>();
+						stack->Push((op1 != op2) ? 1. : 0.);
 						break;
 					}
 
 				case kOpLessThan: // num x num
 					{
-						num_t op2 = stack->PopNum();
-						num_t op1 = stack->PopNum();
-						stack->PushNum((op1 < op2) ? 1. : 0.);
+						num_t op2 = stack->Pop<num_t>();
+						num_t op1 = stack->Pop<num_t>();
+						stack->Push((op1 < op2) ? 1. : 0.);
 						break;
 					}
 
 				case kOpLessThanOrEqual: // num x num
 					{
-						num_t op2 = stack->PopNum();
-						num_t op1 = stack->PopNum();
-						stack->PushNum((op1 <= op2) ? 1. : 0.);
+						num_t op2 = stack->Pop<num_t>();
+						num_t op1 = stack->Pop<num_t>();
+						stack->Push((op1 <= op2) ? 1. : 0.);
 						break;
 					}
 
 				case kOpGreaterThan: // num x num
 					{
-						num_t op2 = stack->PopNum();
-						num_t op1 = stack->PopNum();
-						stack->PushNum((op1 > op2) ? 1. : 0.);
+						num_t op2 = stack->Pop<num_t>();
+						num_t op1 = stack->Pop<num_t>();
+						stack->Push((op1 > op2) ? 1. : 0.);
 						break;
 					}
 
 				case kOpGreaterThanOrEqual: // num x num
 					{
-						num_t op2 = stack->PopNum();
-						num_t op1 = stack->PopNum();
-						stack->PushNum((op1 >= op2) ? 1. : 0.);
+						num_t op2 = stack->Pop<num_t>();
+						num_t op1 = stack->Pop<num_t>();
+						stack->Push((op1 >= op2) ? 1. : 0.);
 						break;
 					}
 
 				case kOpLogicalAnd: // num x num
 					{
-						num_t op2 = stack->PopNum();
-						num_t op1 = stack->PopNum();
-						stack->PushNum((op1!=0. && op2!=0.) ? 1. : 0.);
+						num_t op2 = stack->Pop<num_t>();
+						num_t op1 = stack->Pop<num_t>();
+						stack->Push((op1!=0. && op2!=0.) ? 1. : 0.);
 						break;
 					}
 
 				case kOpLogicalOr: // num x num
 					{
-						num_t op2 = stack->PopNum();
-						num_t op1 = stack->PopNum();
-						stack->PushNum((op1!=0. || op2!=0.) ? 1. : 0.);
+						num_t op2 = stack->Pop<num_t>();
+						num_t op1 = stack->Pop<num_t>();
+						stack->Push((op1!=0. || op2!=0.) ? 1. : 0.);
 						break;
 					}
 
 				case kOpNot: // num
 					{
-						num_t op = stack->PopNum();
-						stack->PushNum((op==0.) ? 1. : 0.);
+						num_t op = stack->Pop<num_t>();
+						stack->Push((op==0.) ? 1. : 0.);
 						break;
 					}
 
@@ -263,17 +276,38 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 				case kOpMinus | 0: // num
 					{
-						num_t op = stack->PopNum();
-						stack->PushNum(-op);
+						num_t op = stack->Pop<num_t>();
+						stack->Push(-op);
 						break;
 					}
 
 				case kOpMinus | 1: // num
 					{
-						ZBlockBufferInternal& op = stack->PopSampleBlock();
+						ZBlockBufferInternal& op = stack->Pop<ZBlockBufferInternal>();
 						for (uint32_t i=0; i<op.numSamples; i++)
 							op.samples[i] *= sample_t(-1.0); // TODO: Use constant!
+						stack->Push(op);
 						break;
+					}
+
+				case kOpCallFunc:
+					{
+						switch (*ip++)
+						{
+							case 1: // Osc
+								{
+									ZBlockBufferInternal out;
+
+									for (double i=0.0; i<out.numSamples; i++)
+									{
+										double time = voice->timeSinceNoteOn + i/kSampleRate;
+										out.samples[zifloord(i)] = sample_t(zsind(time*pitchToFrequency(voice->pitch)*kM_PI2));
+									}
+
+									stack->Push(out);
+									break;
+								}
+						}
 					}
 
 /*
@@ -303,8 +337,10 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 	}
 }
 
-void ZVirtualMachine::CreateNodeInstances(ZVMProgram* program, opcode_index_t start, opcode_index_t end)
+void ZVirtualMachine::CreateNodeInstances(ZVMProgram* program, uint32_t section)
 {
+	opcode_index_t start = program->sections[section], end = program->sections[section+1];
+
 	// Create array
 	nodeInstances = new ZNode*[program->bytecodeSize];
 
@@ -312,7 +348,7 @@ void ZVirtualMachine::CreateNodeInstances(ZVMProgram* program, opcode_index_t st
 	zzeromem(nodeInstances, sizeof(ZNode*)*program->bytecodeSize);
 
 	// Create node instances where applicable
-	ZVMBytecodeIterator it(*program); 
+	ZVMBytecodeIterator it(*program, start, end); 
 	while (it.Next())
 	{
 		if (it.opcode & kOpcodeMaskIsNode)

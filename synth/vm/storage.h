@@ -6,7 +6,8 @@ class ZVMStorage
 {
 public:
 
-	ZVMStorage(void)
+	ZVMStorage(uintptr_t mem)
+		: mem(mem)
 	{
 	}
 
@@ -14,17 +15,26 @@ public:
 	{
 	}
 
-	void StoreNum(opcode_index_t address, num_t num)
+	template <class T>
+	void Store(opcode_index_t address, const T& data)
 	{
-		*((num_t*)(mem[address])) = num;
+		*((T*)(mem+address)) = data;
 	}
 
-	num_t LoadNum(opcode_index_t address)
+	template <class T>
+	T& Load(opcode_index_t address)
 	{
-		return *((num_t*)(mem[address]));
+		return *((T*)(mem+address));
 	}
 
-	void StoreSampleBlock(opcode_index_t address, ZBlockBufferInternal& block)
+	template <class T>
+	void Reset(opcode_index_t address)
+	{
+		zzeromem((void*)(mem+address), sizeof(T));
+	}
+
+
+	/*void StoreSampleBlock(opcode_index_t address, ZBlockBufferInternal& block)
 	{
 		*((ZBlockBufferInternal*)(mem[address])) = block;
 	}
@@ -32,9 +42,9 @@ public:
 	ZBlockBufferInternal& LoadSampleBlock(opcode_index_t address)
 	{
 		return *((ZBlockBufferInternal*)(mem[address]));
-	}
+	}*/
 
-	uintptr_t* mem;
+	uintptr_t mem;
 };
 
 } // namespace invader

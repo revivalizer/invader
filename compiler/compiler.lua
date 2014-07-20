@@ -9,7 +9,7 @@ require("util.util")
 
 -- byte size of types
 local kNumSize = 8
-local kSampleSize = 2*8*16
+local kSampleSize = 2*8*16*2 -- stereo * double size * block size * oversampling
 
 function create_label(program)
 	local label = {}
@@ -321,13 +321,22 @@ function generate_bytecode(program, node)
 		program.bytecode:insert(node.global_address) -- (index is 1 offset)
 
 	elseif (node.tag=="return_statement") then
-		generate_bytecode(program, node.operand)
+		assert(node.type=="sample") -- isn't this true?
 
-		-- store output in variable
---		node.variable_index = program.sample_variables:get_id(node)
+		generate_bytecode(program, node.operand)
 
 		local containing_section = program.named_sections[node.section_name]
 
+		if (containing_section.name.value~="master") then
+			-- load current
+			program.bytecode:insert(kOpPushGlobal + op_modifier(node.type))
+			program.bytecode:insert(containing_section.global_address)
+
+			-- add current value in global variable
+			program.bytecode:insert(binary_opcodes["+"]["sample*sample"][2])
+		end
+
+		-- write new value to global storage
 		program.bytecode:insert(kOpPopGlobal + op_modifier(node.type))
 		program.bytecode:insert(containing_section.global_address)
 

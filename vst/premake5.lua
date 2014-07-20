@@ -47,6 +47,7 @@ solution "invader_vst"
 
 		files { "*.h", "*.cpp" }
 		files { "invader.def" }
+		files { "TODO.txt" }
 
 		links { "invader_synth" }
 		links { "vstsdk2.4" }

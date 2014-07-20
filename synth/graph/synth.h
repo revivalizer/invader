@@ -19,9 +19,11 @@ public:
 
 	void ProcessBlock(void);
 
-	ZInstrument* instruments[kNumInstruments];
+	uint32_t numInstruments;
+
+	ZInstrument** instruments;
 	ZInstrument* GetInstrument(uint32_t i) { return instruments[i]; }
-	ZInstrument* GetInstrumentFromMIDI(uint32_t channel, uint32_t note) { channel; note; return nullptr; }
+	ZInstrument* GetInstrumentFromMIDI(uint32_t channel, uint32_t note) { channel; note; return instruments[0]; }
 
 	ZMutex renderMutex;
 
@@ -31,6 +33,8 @@ public:
 
 	opcode_index_t bytecodeStart, bytecodeEnd;
 	ZVMProgram* program;
+
+	uint32_t section;
 };
 
 } // namespace invader

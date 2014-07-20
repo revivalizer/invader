@@ -14,6 +14,7 @@ enum
 
 	kOpPushGlobal   = 0x180 + kOpcodeMaskHasArgument,
 	kOpPopGlobal    = 0x190 + kOpcodeMaskHasArgument,
+	kOpResetGlobal  = 0x1A0 + kOpcodeMaskHasArgument,
 
 	kOpCallFunc     = 0x600 + kOpcodeMaskHasArgument,
 

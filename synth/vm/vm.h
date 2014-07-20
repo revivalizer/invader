@@ -9,18 +9,18 @@ class ZVoice;
 class ZVirtualMachine
 {
 public:
-	ZVirtualMachine(ZVMProgram* program, ZVMStack* stack);
+	ZVirtualMachine(ZVMProgram* program, ZVMStack* stack, ZVMStorage* storage);
 	~ZVirtualMachine(void);
 
 	void Run(opcode_t ip, ZVMProgram* program);
 
 	ZNode* CreateNodeFromOpcode(nodetype_t type);
 	
-	void CreateNodeInstances(ZVMProgram* program, opcode_index_t start, opcode_index_t end);
+	void CreateNodeInstances(ZVMProgram* program, uint32_t section);
 
 	ZNode**               nodeInstances;
 	ZVMStack*             stack;
-	ZVMStorage            globalStorage;
+	ZVMStorage*           globalStorage;
 
 	const ZVMProgram* program;
 

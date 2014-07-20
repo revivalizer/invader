@@ -8,7 +8,7 @@ class ZVoice;
 class ZInstrument : public align16
 {
 public:
-	ZInstrument(ZSynth* synth, ZVMProgram* program);
+	ZInstrument(ZSynth* synth, ZVMProgram* program, uint32_t section, ZVMStorage* globalStorage);
 	~ZInstrument(void);
 
 	void NoteOn(uint32_t note, uint32_t velocity, uint32_t deltaSamples);
@@ -29,6 +29,10 @@ public:
 	ZSyncInfo sync; 
 
 	uint8_t midiCC[128];
+
+	uint32_t section;
+	ZVMStorage* globalStorage;
+
 
 private:
 	uint32_t GetVoiceFromPool(uint32_t note, uint32_t velocity, uint32_t deltaSamples);

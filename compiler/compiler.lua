@@ -449,6 +449,8 @@ function compile(str)
 
 	generate_bytecode(program, program.ast)
 
+	program.constants = program.constants:to_table()
+
 	generate_section_start_table(program)
 
 	print(serialize_table(program.ast))

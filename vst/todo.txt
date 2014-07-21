@@ -1,6 +1,4 @@
-only one note?
-
-
+remove ZInstrument::voicemixbuffer -- similar for voice, synth?
 
 Mapping of MIDI input to channels
 	GetInstrumentFromMIDI(channel, note)->NoteOn(note, velocity, deltaSamples);
@@ -10,9 +8,6 @@ Compiler pos errors
 		Convert pos to line/col
 Parser pos error
 Align stack and global storage
-
-constants not working
-remove ZInstrument::voicemixbuffer -- similar for voice, synth?
 
 db, semis, % suffix
 uint32_t for section ids? typedef?

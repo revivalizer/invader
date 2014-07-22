@@ -225,7 +225,8 @@ void VSTInstrument::processReplacing(float** inputs, float** outputs, VstInt32 s
 
 				// Resample
 				// Access here is a little hackish, we're relying on storage of sample block outputs to be stored continually in global storage, starting at zero
-				ZResampler2xDownsample(*downsampler, downsampleBuffer, synth->vm.globalStorage->Load<ZBlockBufferInternal>((invader::opcode_index_t)(synth->section*sizeof(ZBlockBufferInternal))));
+				//ZResampler2xDownsample(*downsampler, downsampleBuffer, synth->vm.globalStorage->Load<ZBlockBufferInternal>((invader::opcode_index_t)(synth->section*sizeof(ZBlockBufferInternal))));
+				ZResampler2xDownsample(*downsampler, downsampleBuffer, synth->vm.stack->Pop<ZBlockBufferInternal>());
 
 				sampleBuffer.PutBlock(downsampleBuffer);
 

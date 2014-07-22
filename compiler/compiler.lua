@@ -308,6 +308,8 @@ function generate_bytecode(program, node)
 			generate_bytecode(program, statement)
 		end
 
+		program.bytecode:insert(kOpReturn)
+
 	elseif (node.tag=="assign_statement") then
 		if (node.type=="num") then
 			node.global_address = allocate_global_storage(program, kNumSize, 8)
@@ -324,21 +326,6 @@ function generate_bytecode(program, node)
 		assert(node.type=="sample") -- isn't this true?
 
 		generate_bytecode(program, node.operand)
-
-		local containing_section = program.named_sections[node.section_name]
-
-		if (containing_section.name.value~="master") then
-			-- load current
-			program.bytecode:insert(kOpPushGlobal + op_modifier(node.type))
-			program.bytecode:insert(containing_section.global_address)
-
-			-- add current value in global variable
-			program.bytecode:insert(binary_opcodes["+"]["sample*sample"][2])
-		end
-
-		-- write new value to global storage
-		program.bytecode:insert(kOpPopGlobal + op_modifier(node.type))
-		program.bytecode:insert(containing_section.global_address)
 
 	elseif (node.tag=="literal_int" or node.tag=="literal_float") then
 		node.constant_index = program.constants:get_id(tonumber(node.value))
@@ -455,13 +442,15 @@ function compile(str)
 
 	print(serialize_table(program.ast))
 
---[[	print(serialize_table(program.bytecode))
+--[[
+	print(serialize_table(program.bytecode))
 	for i,v in ipairs(program.bytecode) do
 		if (type(v)=="number") then
 			program.bytecode[i] = string.format("0x%04X", v)
 		end
 	end
-	print(serialize_table(program.bytecode))]]
+	print(serialize_table(program.bytecode))
+]]
 
 
 --[[

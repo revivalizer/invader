@@ -23,9 +23,6 @@ public:
 
 	bool IsActive() const { return hasProgram && isActive; }
 
-	ZBlockBufferInternal voiceMixBuffer;
-	//ZBlockBufferInternal* outputBuffer;
-
 	ZSyncInfo sync; 
 
 	uint8_t midiCC[128];

@@ -1,4 +1,7 @@
-remove ZInstrument::voicemixbuffer -- similar for voice, synth?
+crash on exit from host
+this didn't compile: 	out osc()+test*0.0
+
+ADSR gate
 
 Mapping of MIDI input to channels
 	GetInstrumentFromMIDI(channel, note)->NoteOn(note, velocity, deltaSamples);
@@ -7,16 +10,13 @@ Compiler pos errors
 		Grab pos on everything
 		Convert pos to line/col
 Parser pos error
+String line must require newline
 Align stack and global storage
 
 db, semis, % suffix
 uint32_t for section ids? typedef?
 
 are return types always "sample"? check return_statement bytecode generation
-
-accessing global storage for channel results is a bit hacky
-
-crash on exit from host
 
 MANUAL
 ADSR or other envelope is required

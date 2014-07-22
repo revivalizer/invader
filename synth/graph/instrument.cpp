@@ -7,7 +7,6 @@ namespace invader {
 		, isActive(false)
 		, section(section)
 		, globalStorage(globalStorage)
-		//, outputBuffer(nullptr)
 	{
 	for (uint32_t i=0; i<kNumVoices; i++)
 	{
@@ -98,36 +97,20 @@ void ZInstrument::NoteOffVoicesPlayingNote(uint32_t note, uint32_t deltaSamples)
 
 void ZInstrument::ProcessBlock(void)
 {
-	// Generate voice mix
-	//voiceMixBuffer.Reset();
-
 	// Reset buffer in global storage
-	auto outBuffer = globalStorage->Load<ZBlockBufferInternal>((opcode_index_t)(section*sizeof(ZBlockBufferInternal)));
-	outBuffer.Reset();
+	ZBlockBufferInternal mix;
+	mix.Reset();
 
 	for (uint32_t i=0; i<kNumVoices; i++)
 	{
 		if (voices[i]->IsActive())
 		{
-			/*// Render voice
-
-			voices[i]->vm->Run(voices[i]->vmProgram->entryPoint, voices[i]->vmProgram);
-			
-			// Run DC trap
-			// TODO: It's a little weird that the instrument has to do this... probably.
-			ZOnepoleFilterHighpassBlock(*voices[i]->dcTrap, voices[i]->vm->blockStack->Get(-1));
-
-			// Add to buffer
-			mixBuffer.Add(voices[i]->vm->blockStack->Pop());*/
-
-			//voiceMixBuffer.Add(voices[i]->ProcessBlock());
-			voices[i]->ProcessBlock();
+			mix.Add(voices[i]->ProcessBlock());
 		}
 	}
 
-	// Run program
-	//Run(bytecodeStart, program);
-	//outputBuffer = &(blockStack->Pop());
+	// Store mix, so it can be referenced by synth
+	globalStorage->Store<ZBlockBufferInternal>((opcode_index_t)(section*sizeof(ZBlockBufferInternal)), mix);
 
 	sync.AdvanceBlock();
 }

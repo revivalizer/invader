@@ -69,10 +69,13 @@ void ZVoice::NoteOff(uint32_t deltaSamples)
 ZBlockBufferInternal& ZVoice::ProcessBlock(void)
 {
 	vm.Run(bytecodeStart, program);
-	ZBlockBufferInternal& output = ZOnepoleFilterHighpassBlock(*dcTrap, vm.globalStorage->Load<ZBlockBufferInternal>((invader::opcode_index_t)(section*sizeof(ZBlockBufferInternal))));
+
+	// Trap DC
+	ZBlockBufferInternal& out = vm.stack->Pop<ZBlockBufferInternal>();
+	ZOnepoleFilterHighpassBlock(*dcTrap, out);
 
 	// Check level
-	ZLevelFollowerProcessBlock(*levelFollower, output);
+	ZLevelFollowerProcessBlock(*levelFollower, out);
 
 	if (!IsNoteOn() && levelFollower->GetdBLevel() < -108)
 		isActive = false;
@@ -87,7 +90,7 @@ ZBlockBufferInternal& ZVoice::ProcessBlock(void)
 		timeSinceNoteOff += kBlockSize*kDefaultOversampling/kSampleRate;
 	}
 
-	return output;
+	return out;
 }
 
 } // namespace invader

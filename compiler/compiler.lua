@@ -183,6 +183,20 @@ function mark_section_refs(program)
 	end
 end
 
+function arg_str_from_table(arguments)
+	local s = ""
+
+	for i,argument in ipairs(arguments) do
+		if (s~="") then
+			s = s..", "
+		end
+
+		s = s..argument.type
+	end
+
+	return s
+end
+
 -- Type inference
 function infer_types_recursive(program, node)
 	local type = nil
@@ -198,6 +212,8 @@ function infer_types_recursive(program, node)
 			infer_types_recursive(program, node.operand2)
 
 			local intype = node.operand1.type.."*"..node.operand2.type
+			print(intype)
+			print(node.operator.type)
 			local op = binary_opcodes[node.operator.type][intype]
 
 			assert(op, "Type mismatch for operator '"..node.operator.type.."', doesn't support '"..node.operand1.type.."' x '"..node.operand2.type.."'.")
@@ -240,7 +256,7 @@ function infer_types_recursive(program, node)
 					local argMatch = true
 
 					for j,arg in ipairs(func.arguments) do
-						argMatch = argMatch and (arg==node.arguments[j])
+						argMatch = argMatch and (arg==node.arguments[j].type)
 					end
 
 					if (argMatch) then
@@ -251,7 +267,8 @@ function infer_types_recursive(program, node)
 		end
 
 		if (funcMatch==nil) then
-			local errorString = "Couldn't match function "..node.identifier.value.."("..table.concat(node.arguments, ", ")..")."
+			print(serialize_table(node))
+			local errorString = "Couldn't match function "..node.identifier.value.."("..arg_str_from_table(node.arguments)..")."
 
 			if (#nameMatches > 0) then
 				errorString = errorString.."\nPossible matches:"
@@ -445,9 +462,8 @@ function compile(str)
 
 	print(serialize_table(program.ast))
 
-	print(#program.constants)
-
-	if (true) then
+	-- print bytecode in hex
+	if (false) then
 		print(serialize_table(program.bytecode))
 		for i,v in ipairs(program.bytecode) do
 			if (type(v)=="number") then

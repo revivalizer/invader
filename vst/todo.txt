@@ -2,16 +2,18 @@ ADSR gate
 
 Mapping of MIDI input to channels
 	GetInstrumentFromMIDI(channel, note)->NoteOn(note, velocity, deltaSamples);
-Test Projects
+
 Compiler pos errors
 		Grab pos on everything
 		Convert pos to line/col
 Parser pos error
 String line must require newline
 
-db, semis, % suffix
+db, semis, % suffix, ms
 
 are return types always "sample"? check return_statement bytecode generation
+
+Test Projects
 
 crash on exit from host: NO HEADWAY ON THIS SO FAR
 

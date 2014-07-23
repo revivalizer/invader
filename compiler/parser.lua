@@ -63,7 +63,7 @@ p = re.compile[[
 	function_call           <- ({:tag: '' -> 'function_call':} {:identifier: identifier:} open_parens {:arguments: function_call_arguments:} close_parens ) -> {}
 	function_call_arguments <- (expression comma_expression*)? -> {}
 
-	comma_expression  <- ({:tag: '' -> 'comma_expression':} {:comma: comma:} {:expression: expression:}) -> {}
+	comma_expression  <- comma expression
 
 	variable_ref <- ({:tag: '' -> 'variable_ref':} {:identifier: identifier:}) -> {}
 

@@ -13,7 +13,6 @@ enum { kInvalidOpcode      = 0xFFFF };
 enum { kInvalidArgument    = 0xFFFF };
 enum { kInvalidOpcodeIndex = 0xFFFF };
 
-const opcode_t kOpcodeMaskHasArgument = 1 << 15;
-const opcode_t kOpcodeMaskIsNode      = 1 << 14;
+const opcode_t kOpcodeMaskIsNode      = 1 << 15;
 
 } // namespace invader

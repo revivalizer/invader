@@ -447,16 +447,15 @@ function compile(str)
 
 	print(#program.constants)
 
---[[
-	print(serialize_table(program.bytecode))
-	for i,v in ipairs(program.bytecode) do
-		if (type(v)=="number") then
-			program.bytecode[i] = string.format("0x%04X", v)
+	if (true) then
+		print(serialize_table(program.bytecode))
+		for i,v in ipairs(program.bytecode) do
+			if (type(v)=="number") then
+				program.bytecode[i] = string.format("0x%04X", v)
+			end
 		end
+		print(serialize_table(program.bytecode))
 	end
-	print(serialize_table(program.bytecode))
-]]
-
 
 --[[
 	--	create_function_list(program)

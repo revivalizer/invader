@@ -1,27 +1,25 @@
 
-local kOpcodeMaskHasArgument = 32768
-
 -- Base stuff
 kOpReturn       = 0x000
 
-kOpPush         = 0x100 + kOpcodeMaskHasArgument
+kOpPush         = 0x100
 --kOpPop          = 0x110
 --kOpDec          = 0x120
 --kOpClone        = 0x130
 
-kOpPushGlobal      = 0x180 + kOpcodeMaskHasArgument
-kOpPopGlobal       = 0x190 + kOpcodeMaskHasArgument
-kOpResetGlobal     = 0x1A0 + kOpcodeMaskHasArgument
+kOpPushGlobal      = 0x180
+kOpPopGlobal       = 0x190
+kOpResetGlobal     = 0x1A0
 
 -- these aren't needed, let's just use push/pop var instead
 --	kOpPushSection  = 0x1A0 + kOpcodeMaskHasArgument
 --	kOpPopSection   = 0x1B0 + kOpcodeMaskHasArgument
 
-kOpCallFunc     = 0x600 + kOpcodeMaskHasArgument
+kOpCallFunc     = 0x600
 
-kOpJump         = 0x800 + kOpcodeMaskHasArgument
-kOpJumpEqual    = 0x810 + kOpcodeMaskHasArgument
-kOpJumpNotEqual = 0x820 + kOpcodeMaskHasArgument
+kOpJump         = 0x800
+kOpJumpEqual    = 0x810
+kOpJumpNotEqual = 0x820
 
 kOpIsNum    = 0
 kOpIsSample = 1

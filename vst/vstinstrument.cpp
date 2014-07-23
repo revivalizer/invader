@@ -117,7 +117,6 @@ VSTInstrument::VSTInstrument(audioMasterCallback audioMaster) : AudioEffectX(aud
 VSTInstrument::~VSTInstrument()
 {
 	delete synth;
-//	delete vm;
 	delete downsampler;
 }
 

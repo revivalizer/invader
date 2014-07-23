@@ -1,5 +1,8 @@
-crash on exit from host
 this didn't compile: 	out osc()+test*0.0
+
+uint32_t for section ids? typedef?
+remove "has argument" bit
+Align stack and global storage
 
 ADSR gate
 
@@ -11,12 +14,12 @@ Compiler pos errors
 		Convert pos to line/col
 Parser pos error
 String line must require newline
-Align stack and global storage
 
 db, semis, % suffix
-uint32_t for section ids? typedef?
 
 are return types always "sample"? check return_statement bytecode generation
+
+crash on exit from host: NO HEADWAY ON THIS SO FAR
 
 MANUAL
 ADSR or other envelope is required

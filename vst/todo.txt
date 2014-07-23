@@ -1,5 +1,4 @@
 uint32_t for section ids? typedef?
-remove "has argument" bit
 Align stack and global storage
 
 ADSR gate

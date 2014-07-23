@@ -3,7 +3,7 @@
 namespace invader {
 
 ZSynth::ZSynth(ZVMProgram* program)
-	: vm(program, new ZVMStack((uintptr_t)new uint8_t[10000]), new ZVMStorage((uintptr_t)new uint8_t[program->globalStorageSize]))
+	: vm(program, new ZVMStack((uintptr_t)zalignedalloc(10000, 16)), new ZVMStorage((uintptr_t)zalignedalloc(program->globalStorageSize, 16)))
 	, program(program)
 	, numInstruments(program->numSections-1)
 {
@@ -32,6 +32,12 @@ ZSynth::~ZSynth(void)
 		delete instruments[i];
 
 	delete instruments;
+	
+	zalignedfree((void*)vm.globalStorage->mem);
+	delete vm.globalStorage;
+
+	zalignedfree((void*)vm.stack->mem);
+	delete vm.stack;
 }
 
 void ZSynth::NoteOn(uint32_t channel, uint32_t note, uint32_t velocity, uint32_t deltaSamples)

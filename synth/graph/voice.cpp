@@ -6,7 +6,7 @@ namespace invader {
 		, isActive(false)
 		, dcTrap(new ZOnepoleFilter)
 		, levelFollower(new ZLevelFollower)
-		, vm(program, new ZVMStack((uintptr_t)new uint8_t[10000]), globalStorage)
+		, vm(program, new ZVMStack((uintptr_t)zalignedalloc(10000, 16)), globalStorage)
 		, program(program)
 		, section(section)
 	{
@@ -28,6 +28,9 @@ ZVoice::~ZVoice(void)
 {
 	delete dcTrap;
 	delete levelFollower;
+	
+	zalignedfree((void*)vm.stack->mem);
+	delete vm.stack;
 }
 
 void ZVoice::NoteOn(double pitch, uint32_t note, uint32_t velocity, uint32_t deltaSamples)

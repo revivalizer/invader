@@ -2,7 +2,7 @@
 
 namespace invader {
 
-	ZVoice::ZVoice( ZSynth* synth, ZInstrument* instrument, ZVMProgram* program, uint32_t section, ZVMStorage* globalStorage ) : isNoteOn(false)
+	ZVoice::ZVoice( ZSynth* synth, ZInstrument* instrument, ZVMProgram* program, section_id_t section, ZVMStorage* globalStorage ) : isNoteOn(false)
 		, isActive(false)
 		, dcTrap(new ZOnepoleFilter)
 		, levelFollower(new ZLevelFollower)

@@ -11,10 +11,10 @@ ZSynth::ZSynth(ZVMProgram* program)
 
 	for (uint32_t i=0; i<numInstruments; i++)
 	{
-		instruments[i] = new ZInstrument(this, program, i, vm.globalStorage);
+		instruments[i] = new ZInstrument(this, program, section_id_t(i), vm.globalStorage);
 	}
 
-	section = program->numSections-1;
+	section = section_id_t(program->numSections-1);
 
 	vm.CreateNodeInstances(program, section); // last section is master section
 

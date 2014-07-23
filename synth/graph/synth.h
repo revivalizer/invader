@@ -6,6 +6,8 @@ class ZInstrument;
 class ZVMProgram;
 class ZSynthVirtualMachine;
 
+typedef opcode_t section_id_t;
+
 class ZSynth : public align16
 {
 public:
@@ -34,7 +36,7 @@ public:
 	opcode_index_t bytecodeStart, bytecodeEnd;
 	ZVMProgram* program;
 
-	uint32_t section;
+	section_id_t section;
 };
 
 } // namespace invader

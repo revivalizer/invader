@@ -2,7 +2,7 @@
 
 namespace invader {
 
-	ZInstrument::ZInstrument( ZSynth* synth, ZVMProgram* program, uint32_t section, ZVMStorage* globalStorage ) : synth(synth)
+	ZInstrument::ZInstrument( ZSynth* synth, ZVMProgram* program, section_id_t section, ZVMStorage* globalStorage ) : synth(synth)
 		, hasProgram(false)
 		, isActive(false)
 		, section(section)

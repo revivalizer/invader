@@ -1,5 +1,3 @@
-this didn't compile: 	out osc()+test*0.0
-
 uint32_t for section ids? typedef?
 remove "has argument" bit
 Align stack and global storage

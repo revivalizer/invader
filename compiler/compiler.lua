@@ -220,6 +220,9 @@ function infer_types_recursive(program, node)
 	elseif (node.tag=="literal_int") then
 		type = "num"
 
+	elseif (node.tag=="literal_float") then
+		type = "num"
+
 	elseif (node.tag=="function_call") then
 		for i,arg in ipairs(node.arguments) do
 			infer_types_recursive(program, arg)
@@ -441,6 +444,8 @@ function compile(str)
 	generate_section_start_table(program)
 
 	print(serialize_table(program.ast))
+
+	print(#program.constants)
 
 --[[
 	print(serialize_table(program.bytecode))

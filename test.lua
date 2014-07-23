@@ -1,7 +1,7 @@
 str = [[
 ### strings
 	num test = 1
-	out osc()
+	out osc()+test
 ### master
 	out strings
 ]]

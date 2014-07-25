@@ -27,25 +27,6 @@ function create_label_ref(label)
 	return ref
 end
 
-function generate_bytecode(node, program)
-	if (node.tag=="literal_int" or node.tag=="literal_float") then
-		node.constant_index = program.constants:get_id(tonumber(node.value))
-
-		program.bytecode:insert(kOpPush)
-		program.bytecode:insert(node.constant_index-1) -- (index is 1 offset)
-
-	elseif (node.tag=="identifier") then
-		local func = functions[node.name]
-
-		-- this check will hopefully be superflouos, when we do semantic checking later
-		if (func) then
-			program.bytecode:insert(kOpCallFunc)
-			program.bytecode:insert(func.id)
-		end
-
-	end
-end
-
 function update_labels(program)
 	-- create sorted label list
 	local sorted_labels = {}
@@ -184,6 +165,18 @@ function mark_section_refs(program)
 	end
 end
 
+function mark_dot_operator(node)
+	if (node.tag=="binary_op" and node.operator.type==".") then
+		node.tag = "dot_op"
+	end
+
+	for i,child in pairs(node) do
+		if (type(child)=="table") then
+			mark_dot_operator(child)
+		end
+	end
+end
+
 function arg_str_from_table(arguments)
 	local s = ""
 
@@ -198,6 +191,51 @@ function arg_str_from_table(arguments)
 	return s
 end
 
+function match_function(program, node, function_list, error_generator)
+	for i,arg in ipairs(node.arguments) do
+		infer_types_recursive(program, arg)
+	end
+
+	local funcMatch = nil
+	local nameMatches = create_table()
+
+	-- check that types match function description
+	for i,func in ipairs(function_list) do
+		if (func.name==node.identifier.value) then
+			nameMatches:insert(func)
+
+			if (#node.arguments==#func.arguments) then
+				local argMatch = true
+
+				for j,arg in ipairs(func.arguments) do
+					argMatch = argMatch and (arg==node.arguments[j].type)
+				end
+
+				if (argMatch) then
+					funcMatch = func
+				end
+			end
+		end
+	end
+
+	if (funcMatch==nil) then
+		local errorString = error_generator(node)
+
+		if (#nameMatches > 0) then
+			errorString = errorString.."\nPossible matches:"
+
+			for i,func in ipairs(nameMatches) do
+				errorString = errorString.."\n"..func.return_type.." "..func.name.."("..table.concat(func.arguments, ", ")..")"
+			end
+		end
+
+		error(errorString)
+	end
+
+	program.function_refs[node] = funcMatch
+	return funcMatch.return_type
+end
+
 -- Type inference
 function infer_types_recursive(program, node)
 	local type = nil
@@ -208,10 +246,11 @@ function infer_types_recursive(program, node)
 	elseif (node.tag=="section_ref") then
 		type = "sample"
 
-	elseif (node.tag=="binary_op" and node.operator.type==".") then
+	elseif (node.tag=="dot_op") then
 		-- dot operator
 			infer_types_recursive(program, node.operand1)
-print(node.operand2.tag)
+
+			-- only allow function calls for now
 			assert(node.operand2.tag=="function_call", "Only function calls allowed after '.'")
 
 			node.operand2.tag = "method_call"
@@ -225,7 +264,6 @@ print(node.operand2.tag)
 			infer_types_recursive(program, node.operand2)
 
 			local intype = node.operand1.type.."*"..node.operand2.type
-			print(intype)
 			print(node.operator.type)
 			local op = binary_opcodes[node.operator.type][intype]
 
@@ -254,93 +292,13 @@ print(node.operand2.tag)
 
 	elseif (node.tag=="method_call") then
 		local sibling = program.dot_sibling_refs[node]
+		local funcs = types[sibling.type].methods
 
-		for i,arg in ipairs(node.arguments) do
-			infer_types_recursive(program, arg)
-		end
-
-		local funcMatch = nil
-		local nameMatches = create_table()
-
-		-- check that types match function description
-		for i,func in ipairs(types[sibling.type].methods) do
-			if (func.name==node.identifier.value) then
-				nameMatches:insert(func)
-
-				if (#node.arguments==#func.arguments) then
-					local argMatch = true
-
-					for j,arg in ipairs(func.arguments) do
-						argMatch = argMatch and (arg==node.arguments[j].type)
-					end
-
-					if (argMatch) then
-						funcMatch = func
-					end
-				end
-			end
-		end
-
-		if (funcMatch==nil) then
-			local errorString = "Couldn't match method "..node.identifier.value.."("..arg_str_from_table(node.arguments)..")."
-
-			if (#nameMatches > 0) then
-				errorString = errorString.."\nPossible matches:"
-
-				for i,func in ipairs(nameMatches) do
-					errorString = errorString.."\n"..func.return_type.." "..func.name.."("..table.concat(func.arguments, ", ")..")"
-				end
-			end
-
-			error(errorString)
-		end
-
-		program.function_refs[node] = funcMatch
-		type = funcMatch.return_type
+		type = match_function(program, node, funcs, function(node) return "Couldn't match method "..node.identifier.value.."("..arg_str_from_table(node.arguments)..")." end)
 
 	elseif (node.tag=="function_call") then
-		for i,arg in ipairs(node.arguments) do
-			infer_types_recursive(program, arg)
-		end
+		type = match_function(program, node, functions, function(node) return "Couldn't match function "..node.identifier.value.."("..arg_str_from_table(node.arguments)..")." end)
 
-		local funcMatch = nil
-		local nameMatches = create_table()
-
-		-- check that types match function description
-		for i,func in ipairs(functions) do
-			if (func.name==node.identifier.value) then
-				nameMatches:insert(func)
-
-				if (#node.arguments==#func.arguments) then
-					local argMatch = true
-
-					for j,arg in ipairs(func.arguments) do
-						argMatch = argMatch and (arg==node.arguments[j].type)
-					end
-
-					if (argMatch) then
-						funcMatch = func
-					end
-				end
-			end
-		end
-
-		if (funcMatch==nil) then
-			local errorString = "Couldn't match function "..node.identifier.value.."("..arg_str_from_table(node.arguments)..")."
-
-			if (#nameMatches > 0) then
-				errorString = errorString.."\nPossible matches:"
-
-				for i,func in ipairs(nameMatches) do
-					errorString = errorString.."\n"..func.return_type.." "..func.name.."("..table.concat(func.arguments, ", ")..")"
-				end
-			end
-
-			error(errorString)
-		end
-
-		program.function_refs[node] = funcMatch
-		type = funcMatch.return_type
 	end
 
 	node.type = type
@@ -423,7 +381,7 @@ function generate_bytecode(program, node)
 		program.bytecode:insert(kOpPushGlobal + op_modifier("sample"))
 		program.bytecode:insert(section.global_address)
 
-	elseif (node.tag=="binary_op" and node.operator.type==".") then
+	elseif (node.tag=="dot_op") then
 		generate_bytecode(program, node.operand1)
 		generate_bytecode(program, node.operand2)
 
@@ -506,6 +464,8 @@ function compile(str)
 
 	mark_section_refs(program)
 	check_variable_refs(program)
+
+	mark_dot_operator(program.ast)
 
 	infer_types(program)
 

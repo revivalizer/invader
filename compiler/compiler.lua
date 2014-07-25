@@ -2,6 +2,7 @@ require 'parser'
 require 'export'
 require 'opcodes'
 require 'functions'
+require 'types'
 
 require("util.serialize")
 require("util.unique_set")
@@ -207,6 +208,18 @@ function infer_types_recursive(program, node)
 	elseif (node.tag=="section_ref") then
 		type = "sample"
 
+	elseif (node.tag=="binary_op" and node.operator.type==".") then
+		-- dot operator
+			infer_types_recursive(program, node.operand1)
+print(node.operand2.tag)
+			assert(node.operand2.tag=="function_call", "Only function calls allowed after '.'")
+
+			node.operand2.tag = "method_call"
+
+			program.dot_sibling_refs[node.operand2] = node.operand1
+
+			type = infer_types_recursive(program, node.operand2)
+
 	elseif (node.tag=="binary_op") then
 			infer_types_recursive(program, node.operand1)
 			infer_types_recursive(program, node.operand2)
@@ -239,6 +252,52 @@ function infer_types_recursive(program, node)
 	elseif (node.tag=="literal_float") then
 		type = "num"
 
+	elseif (node.tag=="method_call") then
+		local sibling = program.dot_sibling_refs[node]
+
+		for i,arg in ipairs(node.arguments) do
+			infer_types_recursive(program, arg)
+		end
+
+		local funcMatch = nil
+		local nameMatches = create_table()
+
+		-- check that types match function description
+		for i,func in ipairs(types[sibling.type].methods) do
+			if (func.name==node.identifier.value) then
+				nameMatches:insert(func)
+
+				if (#node.arguments==#func.arguments) then
+					local argMatch = true
+
+					for j,arg in ipairs(func.arguments) do
+						argMatch = argMatch and (arg==node.arguments[j].type)
+					end
+
+					if (argMatch) then
+						funcMatch = func
+					end
+				end
+			end
+		end
+
+		if (funcMatch==nil) then
+			local errorString = "Couldn't match method "..node.identifier.value.."("..arg_str_from_table(node.arguments)..")."
+
+			if (#nameMatches > 0) then
+				errorString = errorString.."\nPossible matches:"
+
+				for i,func in ipairs(nameMatches) do
+					errorString = errorString.."\n"..func.return_type.." "..func.name.."("..table.concat(func.arguments, ", ")..")"
+				end
+			end
+
+			error(errorString)
+		end
+
+		program.function_refs[node] = funcMatch
+		type = funcMatch.return_type
+
 	elseif (node.tag=="function_call") then
 		for i,arg in ipairs(node.arguments) do
 			infer_types_recursive(program, arg)
@@ -267,7 +326,6 @@ function infer_types_recursive(program, node)
 		end
 
 		if (funcMatch==nil) then
-			print(serialize_table(node))
 			local errorString = "Couldn't match function "..node.identifier.value.."("..arg_str_from_table(node.arguments)..")."
 
 			if (#nameMatches > 0) then
@@ -365,6 +423,10 @@ function generate_bytecode(program, node)
 		program.bytecode:insert(kOpPushGlobal + op_modifier("sample"))
 		program.bytecode:insert(section.global_address)
 
+	elseif (node.tag=="binary_op" and node.operator.type==".") then
+		generate_bytecode(program, node.operand1)
+		generate_bytecode(program, node.operand2)
+
 	elseif (node.tag=="binary_op") then
 		generate_bytecode(program, node.operand1)
 		generate_bytecode(program, node.operand2)
@@ -374,7 +436,7 @@ function generate_bytecode(program, node)
 		generate_bytecode(program, node.operand)
 		program.bytecode:insert(node.op[2])
 
-	elseif (node.tag=="function_call") then
+	elseif (node.tag=="function_call" or node.tag=="method_call") then
 		for i,arg in ipairs(node.arguments) do
 			generate_bytecode(program, arg)
 		end
@@ -437,6 +499,7 @@ function compile(str)
 	program.variable_refs     = {}
 	program.function_refs     = {}
 	program.parent_scope_refs = {}
+	program.dot_sibling_refs  = {}
 
 	check_sections(program)
 	generate_scope_lists(program)
@@ -463,7 +526,7 @@ function compile(str)
 	print(serialize_table(program.ast))
 
 	-- print bytecode in hex
-	if (false) then
+	if (true) then
 		print(serialize_table(program.bytecode))
 		for i,v in ipairs(program.bytecode) do
 			if (type(v)=="number") then

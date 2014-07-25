@@ -1,10 +1,10 @@
 types = {
-	"num" = {
-		methods = {
-		}
+	["num"] = {
+		["methods"] = {
+		},
 	},
-	"sample" = {
-		methods = {
+	["sample"] = {
+		["methods"] = {
 			{
 				["name"] = "ADSR",
 				["id"] = 0x101,
@@ -12,6 +12,6 @@ types = {
 				["return_type"] = "sample",
 				["description"] = "Basic ADSR envelope.",
 			},
-		}
+		},
 	},
 }

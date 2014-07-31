@@ -399,10 +399,16 @@ function generate_bytecode(program, node)
 			generate_bytecode(program, arg)
 		end
 
-		program.bytecode:insert(kOpCallFunc)
-
 		local func = program.function_refs[node]
+
+		if (not OpcodeIsNode(func)) then
+			-- it's only a function if the function isn't a node
+			-- in that case, don't insert kOpCallFunc
+			program.bytecode:insert(kOpCallFunc)
+		end
+
 		program.bytecode:insert(func.id)
+
 	end
 end
 

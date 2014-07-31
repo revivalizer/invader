@@ -42,8 +42,8 @@ enum
 	kOpPlus  = 0x410,
 	kOpMinus = 0x420,
 
-	// Bases
-	kOpcodeSynthBase       = 1024,
+	// Nodes
+	kOpNodeADSR = 0x101 | kOpcodeMaskIsNode,
 };
 
 // Type identifier

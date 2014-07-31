@@ -51,6 +51,7 @@ bool ZVMBytecodeIterator::Next(void)
 			case kOpNot:
 			case kOpPlus:
 			case kOpMinus:
+			case kOpNodeADSR:
 				currentOpcode+=1;
 				break;
 

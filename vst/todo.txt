@@ -1,4 +1,17 @@
 ADSR gate
+	add adsr files (4) to invader namespace
+	add ADSR to node create from opcode
+	check instantiation and processing of ADSR node
+
+Checklist for new node:
+	Add opcode to compiler
+	Add function def to compiler as either function or method
+	Add opcode to vm
+	Include files in project
+	Add header to pch
+	Check that class is in invader namespace
+	Handle opcode in node generation
+	Handle opcode is bytecode iterator
 
 Mapping of MIDI input to channels
 	GetInstrumentFromMIDI(channel, note)->NoteOn(note, velocity, deltaSamples);

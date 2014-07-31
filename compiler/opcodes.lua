@@ -83,3 +83,17 @@ unary_opcodes =
 	["-"]  = {["num"]       = {"num",    kOpMinus + 0},
 	          ["sample"]    = {"sample", kOpMinus + 1}},
 }
+
+kOpcodeMaskIsNode = 2^15
+
+function OpcodeIsNode(op)
+		if (op >= kOpcodeMaskIsNode) then
+			return true
+		else
+			return false
+		end
+end
+
+-- Node opcodes
+kOpNodeADSR = 0x101 + kOpcodeMaskIsNode
+

@@ -67,3 +67,6 @@ solution "invader_vst"
 	include "../../trespasser/libs/base"
 	include "../../trespasser/libs/base_synth"
 	include "../synth"
+
+
+-- Ralphs make: in invader/vst: premake5 vs2012 --vstdir="C:\Program Files (x86)\Steinberg\VstPlugins"

@@ -15,7 +15,9 @@ project "invader_synth"
 	files { "./math/levelfollower.h", "./math/levelfollower.cpp" }
 	files { "./math/onepolefilter.h", "./math/onepolefilter.cpp" }
 	files { "./math/resampler2x.h", "./math/resampler2x.cpp" }
+	files { "./math/adsrenvelope.h", "./math/adsrenvelope.cpp" }
 	files { "./math/util.h", "./math/util.cpp" }
+	files { "./nodes/adsrgain.h", "./nodes/adsrgain.cpp" }
 	files { "./pch.h", "./pch.cpp" }
 	files { "./synth.h" }
 --	files { "./**.h", "./**.cpp" }

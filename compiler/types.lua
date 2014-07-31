@@ -7,7 +7,7 @@ types = {
 		["methods"] = {
 			{
 				["name"] = "ADSR",
-				["id"] = 0x101,
+				["id"] = kOpNodeADSR,
 				["arguments"] = {"num", "num", "num", "num"},
 				["return_type"] = "sample",
 				["description"] = "Basic ADSR envelope.",

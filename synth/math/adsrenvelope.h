@@ -1,5 +1,7 @@
 #pragma once
 
+namespace invader { 
+
 enum {
 	kEnvelopeTypeAnalogue = 0,
 	kEnvelopeTypeDigital,
@@ -102,3 +104,5 @@ class ZADSREnvelope
 	friend class Envelope;
 	friend class ADSRVisualFeedbackDrawer;
 };
+
+} // namespace invader

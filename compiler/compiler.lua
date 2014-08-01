@@ -401,7 +401,7 @@ function generate_bytecode(program, node)
 
 		local func = program.function_refs[node]
 
-		if (not OpcodeIsNode(func)) then
+		if (not OpcodeIsNode(func.id)) then
 			-- it's only a function if the function isn't a node
 			-- in that case, don't insert kOpCallFunc
 			program.bytecode:insert(kOpCallFunc)
@@ -492,7 +492,7 @@ function compile(str)
 	print(serialize_table(program.ast))
 
 	-- print bytecode in hex
-	if (true) then
+	if (false) then
 		print(serialize_table(program.bytecode))
 		for i,v in ipairs(program.bytecode) do
 			if (type(v)=="number") then

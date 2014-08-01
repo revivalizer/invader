@@ -1,7 +1,7 @@
 str = [[
 ### strings
 	num test = 1
-	out osc().ADSR(0.1, 0.1, 0.5, 1.0)
+	out osc().ADSR(0.1, 0.1, -6, 1.0)
 //	out osc()
 ### master
 	out strings

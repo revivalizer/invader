@@ -1,7 +1,9 @@
 #include "pch.h"
 #include "adsrgain.h"
 
-ZADSRGain::ZADSRGain(nodetype_t type) : ZSynthNode(type)
+namespace invader { 
+
+ZADSRGain::ZADSRGain(nodetype_t type) : ZNode(type)
 	, didNoteOn(false)
 	, didNoteOff(false)
 {
@@ -24,22 +26,17 @@ ZADSRGain::ZADSRGain(nodetype_t type) : ZSynthNode(type)
 	filter.SetCutoff(375.0/4.0);
 }
 
-void ZADSRGain::Process(ZVirtualMachine* vm, argument_t argument)
+void ZADSRGain::Process(ZVirtualMachine* vm)
 {
-	argument;
-	ZSynthVirtualMachine* synthvm = static_cast<ZSynthVirtualMachine*>(vm);
-
-	attack  = vm->stack[-4];
-	decay   = vm->stack[-3];
-	sustain = vm->stack[-2];
-	release = vm->stack[-1];
-
-	vm->stack -= 4;
+	release = vm->stack->Pop<num_t>();
+	sustain = vm->stack->Pop<num_t>();
+	decay   = vm->stack->Pop<num_t>();
+	attack  = vm->stack->Pop<num_t>();
 
 	if (didNoteOn)
 	{
-		env.attack = attack/1000.0;
-		env.decay = decay/1000.0;
+		env.attack = attack;
+		env.decay = decay;
 		env.sustain = dbToGain(sustain);
 
 		env.NoteOn();
@@ -47,20 +44,21 @@ void ZADSRGain::Process(ZVirtualMachine* vm, argument_t argument)
 	}
 	if (didNoteOff)
 	{
-		env.release = release/1000.0;
+		env.release = release;
 
 		env.NoteOff();
 		didNoteOff = false;
 	}
 
 	sample_t gain = sample_t(env.Advance(kBlockSize*kDefaultOversampling));
-	ZBlockBufferInternal& block = synthvm->blockStack->Top();
+	ZBlockBufferInternal& block = vm->stack->Pop<ZBlockBufferInternal>();
 
 	for (uint32_t i=0; i<block.numSamples; i++)
 	{
 		block.samples[i] *= filter.Lowpass(gain);
-		//block.samples[i] *= gain;
 	}
+
+	vm->stack->Push(block);
 }
 
 void ZADSRGain::NoteOn(double pitch, uint32_t note, uint32_t velocity, uint32_t deltaSamples)
@@ -78,3 +76,5 @@ void ZADSRGain::NoteOff(uint32_t deltaSamples)
 
 	didNoteOff = true;
 }
+
+} // namespace invader

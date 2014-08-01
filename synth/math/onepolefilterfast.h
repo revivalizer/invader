@@ -2,6 +2,8 @@
 
 // Based on: http://www.earlevel.com/main/2012/12/15/a-one-pole-filter/
 
+namespace invader {
+
 class ZOnepoleFilterFast
 {
 public:
@@ -34,3 +36,4 @@ public:
 	sample_t a0, b1, z1;
 };
 
+} // namespace invader

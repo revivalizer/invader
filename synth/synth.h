@@ -13,8 +13,11 @@
 
 #include "math/util.h"
 #include "math/onepolefilter.h"
+#include "math/onepolefilterfast.h"
 #include "math/levelfollower.h"
 #include "math/resampler2x.h"
+#include "math/shapingtransform.h"
+#include "math/adsrenvelope.h"
 
 #include "graph/synth.h"
 #include "graph/instrument.h"

@@ -1,5 +1,7 @@
 #include "pch.h"
 
+namespace invader { 
+
 ZADSREnvelope::ZADSREnvelope() :
 	analogueShapeTransform(0.93f),
 	attackShaper(0.5f),
@@ -241,3 +243,5 @@ double ZADSREnvelope::Next(int samples)
 {
 	return ValueAt(currentTime + samples/kSampleRate);
 }
+
+} // namespace invader

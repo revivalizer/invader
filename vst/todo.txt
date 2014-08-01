@@ -1,17 +1,9 @@
 ADSR gate
-	add adsr files (4) to invader namespace
-	add ADSR to node create from opcode
-	check instantiation and processing of ADSR node
+	something wrong with gate... sometimes jumps
 
-Checklist for new node:
-	Add opcode to compiler
-	Add function def to compiler as either function or method
-	Add opcode to vm
-	Include files in project
-	Add header to pch
-	Check that class is in invader namespace
-	Handle opcode in node generation
-	Handle opcode is bytecode iterator
+set build location
+
+Setup remote
 
 Mapping of MIDI input to channels
 	GetInstrumentFromMIDI(channel, note)->NoteOn(note, velocity, deltaSamples);
@@ -29,6 +21,18 @@ are return types always "sample"? check return_statement bytecode generation
 Test Projects
 
 crash on exit from host: NO HEADWAY ON THIS SO FAR
+
+specify if functions can be called in both master and voice sections (e.g. adsrgain)
+
+Checklist for new node:
+	Add opcode to compiler
+	Add function def to compiler as either function or method
+	Add opcode to vm
+	Include files in project
+	Add header to pch
+	Check that class is in invader namespace
+	Handle opcode in node generation
+	Handle opcode is bytecode iterator
 
 MANUAL
 ADSR or other envelope is required

@@ -1,5 +1,7 @@
 #pragma once
 
+namespace invader {
+
 class ShapingTransform
 {
 public:
@@ -28,3 +30,5 @@ public:
 private:
 	ShapingTransform shape;
 };
+
+} // namespace invader

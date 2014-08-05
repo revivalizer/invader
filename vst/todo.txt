@@ -1,8 +1,3 @@
-check attributes
-	only on instruments
-	only channel allowed
-	check value range
-
 add bytecodes to const section
 execute const section
 

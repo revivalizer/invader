@@ -124,6 +124,43 @@ function check_sections(program)
 	assert(program.named_sections.master, "master section not found in program")
 end
 
+function is_instrument(section)
+	local name = section.name.value
+
+	if (name=="const_global" or name=="global" or name=="master") then
+		return false
+	else
+		return true
+	end
+end
+
+function check_attributes(program)
+	program.named_attributes = {}
+
+	for i,section in ipairs(program.ast.sections) do
+		if (is_instrument(section)) then
+			program.named_attributes[section] = {}
+
+			-- at the moment, only the channel attribute is allowed
+			assert(#section.attributes==1, "'channel' attribute not set for section '"..section.name.value.."'.")
+			assert(section.attributes[1].name.value=="channel", "Unknown attribute '"..section.attributes[1].name.value.."' for section '"..section.name.value.."'.")
+
+			for j,attribute in ipairs(section.attributes) do
+				program.named_attributes[section][attribute.name.value] = attribute
+			end
+
+			-- check value of channel attr
+			local channel_attr = program.named_attributes[section]["channel"]
+			assert(channel_attr.value.tag=="literal_int", "'channel' attribute must have integer value in section '"..section.name.value.."'.")
+			assert(tonumber(channel_attr.value.value)>=1 and tonumber(channel_attr.value.value)<=16, "'channel' attribute out of range in section '"..section.name.value.."'.")
+
+		else
+			assert(#section.attributes==0, "Section '"..section.name.value.."' must not have attribute.")
+		end
+	end
+end
+
+
 -- generate linked list of parent scopes
 -- each assign statement generates a new scope
 function generate_scope_lists(program)
@@ -499,6 +536,9 @@ function compile(str)
 	program.dot_sibling_refs  = {}
 
 	check_sections(program)
+
+	check_attributes(program)
+
 	generate_scope_lists(program)
 
 	mark_section_refs(program)

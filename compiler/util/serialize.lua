@@ -27,7 +27,7 @@ function serialize_table(t, indent)
 			elseif type(v)=="string" then
 				str = str..commaNewLine..indent..indentString..iStr.." = \""..espace_string(v).."\""
 			elseif type(v)=="boolean" then
-				str = str..commaNewLine..indent..indentString.iStr.." = "..tostring(v)..""
+				str = str..commaNewLine..indent..indentString..iStr.." = "..tostring(v)..""
 			elseif type(v)=="table" then
 				str = str..commaNewLine..indent..indentString..iStr.." = "..serialize_table(v, indent..indentString)
 			end

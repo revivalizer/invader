@@ -32,6 +32,8 @@ solution "invader_vst"
 		os.exit()
 	end
 
+	location "build"
+
 	project "invader_vst"
 		kind "SharedLib"
 		targetname "invader"

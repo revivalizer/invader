@@ -1,11 +1,14 @@
-ADSR gate
-	something wrong with gate... sometimes jumps
+check attributes
+	only on instruments
+	only channel allowed
+	check value range
 
-set build location
+add bytecodes to const section
+execute const section
 
-Setup remote
+add function to ZVMProgram to get section id for different sections
 
-Mapping of MIDI input to channels
+Mapping of MIDI input to chann	   | max: C-5els
 	GetInstrumentFromMIDI(channel, note)->NoteOn(note, velocity, deltaSamples);
 
 Compiler pos errors
@@ -23,6 +26,10 @@ Test Projects
 crash on exit from host: NO HEADWAY ON THIS SO FAR
 
 specify if functions can be called in both master and voice sections (e.g. adsrgain)
+
+
+
+
 
 Checklist for new node:
 	Add opcode to compiler

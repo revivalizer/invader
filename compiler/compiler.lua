@@ -54,7 +54,40 @@ function update_labels(program)
 	program.labels = program.distinct_labels:to_table()
 end
 
+function create_section(name)
+	local section = {}
+
+	section.tag = "section"
+
+	section.statements     = {}
+	section.statements.tag = "statement_list"
+
+	section.name       = {}
+	section.name.value = "const_global"
+	section.name.tag   = "identifier"
+
+	section.attributes = {}
+
+	return section
+end
+
 function check_sections(program)
+	-- check global is first and master last
+	assert(program.ast.sections[1].name.value=="global", "first section must be 'global'")
+	assert(program.ast.sections[#program.ast.sections].name.value=="master", "last section must be 'master'")
+
+	local const_section = create_section("const_global")
+	table.insert(program.ast.sections, 1, const_section)
+
+	-- setup whether section must produce output
+	for i,section in ipairs(program.ast.sections) do
+		if (i==1 or i==2) then -- global and const_global don't produce output
+			section.mustOutput = false
+		else
+			section.mustOutput = true
+		end
+	end
+
 	program.named_sections = {}
 
 	for i,section in ipairs(program.ast.sections) do
@@ -72,10 +105,17 @@ function check_sections(program)
 			end
 		end
 
-		assert(didOutput, "no output from section '"..section.name.value.."'")
+		if (section.mustOutput) then
+			assert(didOutput==true, "no output from section '"..section.name.value.."'")
+		else
+			assert(didOutput==false, "unexpected output from section '"..section.name.value.."'")
+		end
 
 		-- warn if output is not last statement
-		warn(section.statements[#section.statements].tag=="return_statement", "statements after return in section '"..section.name.value.."', they will be ignored")
+		-- this a little wrong... multiple outputs in section will still work I guess
+		if (#section.statements > 0) then
+			warn(section.statements[#section.statements].tag=="return_statement", "statements after return in section '"..section.name.value.."', they will be ignored")
+		end
 
 		-- add to named sections
 		program.named_sections[section.name.value] = section
@@ -306,10 +346,6 @@ function infer_types_recursive(program, node)
 	return type
 end
 
--- TODO
--- section name in return statement
--- generally, positions on errors
-
 function infer_types(program)
 	for i,section in ipairs(program.ast.sections) do
 		for j,statement in ipairs(section.statements) do
@@ -415,14 +451,11 @@ end
 function generate_section_ids(program)
 	local count = 0
 
+	-- sections are in the following order: global_const, global, <instruments>, master
 	for i,section in ipairs(program.ast.sections) do
-		if (section.name.value ~= "master") then
-			section.id = count
-			count = count + 1
-		end
+		section.id = count
+		count = count + 1
 	end
-
-	program.named_sections.master.id = count
 end
 
 function generate_section_variables(program)

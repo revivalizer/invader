@@ -6,7 +6,11 @@ p = re.compile[[
 	start <- ws? ({:tag: '' -> 'root':} {:sections: section_list:} {:match_length: {}:}) -> {}
 
 	section_list <- ({:tag: '' -> 'section_list':} section*) -> {}
-	section      <- '### ' ({:tag: '' -> 'section':} {:name: identifier:} {:statements: statement_list:} ws?) -> {}
+	section      <- '### ' ({:tag: '' -> 'section':} {:name: identifier:} {:attributes: attribute_list:} {:statements: statement_list:} ws?) -> {}
+
+	attribute_list <- ({:tag: '' -> 'attribute_list':} attribute*) -> {}
+	attribute      <- '|' ws? ({:tag: '' -> 'attribute':} {:name: identifier:} ':' ws? {:value: numeric:}) -> {}
+
 
 	-- statements
 	statement_list <- ({:tag: '' -> 'statement_list':} statement*) -> {}
@@ -93,6 +97,7 @@ p = re.compile[[
 	multiline_comment       <- '/*' multiline_comment_close
 	multiline_comment_close <- '*/' / . multiline_comment_close
 	--	I am little unhappy with above rule, but couldn't get this to work: (!'*/')* '*/'
+	-- hey... '!' is not the not operator
 
 ]]
 

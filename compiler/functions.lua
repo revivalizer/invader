@@ -9,4 +9,12 @@ functions =
 		["return_type"] = "sample",
 		["description"] = "Simple oscillator.",
 	},
+	{
+		["name"] = "map_midi_channel",
+		["id"] = 2,
+		["arguments"] = {"num", "num"},
+		["return_type"] = "void",
+		["description"] = "Map channel to instrument.",
+	},
 }
+

@@ -160,6 +160,44 @@ function check_attributes(program)
 	end
 end
 
+function create_literal_int(value)
+	local literal_int = {}
+	literal_int.value = value
+	literal_int.tag = "literal_int"
+	return literal_int
+end
+
+function create_identifier(name)
+	local identifier = {}
+	identifier.value = name
+	identifier.tag   = "identifier"
+	return identifier
+end
+
+function create_function_call_statement(name, arguments)
+	local statement = {
+		["tag"] = "function_call",
+		["identifier"] = create_identifier(name),
+		["arguments"] = arguments,
+	}
+
+	return statement
+end
+
+function generate_midi_mapping_code(program)
+	for i,section in ipairs(program.ast.sections) do
+		if (is_instrument(section)) then
+			local arguments = {
+				create_literal_int(program.named_attributes[section].channel.value.value),
+				create_literal_int(tostring(get_instrument_id(section)))
+			}
+
+			local statement = create_function_call_statement("map_midi_channel", arguments)
+			table.insert(program.named_sections.const_global.statements, statement)
+		end
+	end
+end
+
 
 -- generate linked list of parent scopes
 -- each assign statement generates a new scope
@@ -398,6 +436,10 @@ function infer_types(program)
 				assert(type=="sample", "Type mismatch in return statement, must return sample..")
 
 				statement.type = type
+			elseif (statement.tag=="function_call") then
+				local type = infer_types_recursive(program, statement)
+
+				statement.type = type
 			end
 		end
 	end
@@ -485,6 +527,12 @@ function generate_bytecode(program, node)
 	end
 end
 
+function get_instrument_id(section)
+	assert(is_instrument(section))
+
+	return section.id - 2 -- subtract const_global and global
+end
+
 function generate_section_ids(program)
 	local count = 0
 
@@ -536,8 +584,10 @@ function compile(str)
 	program.dot_sibling_refs  = {}
 
 	check_sections(program)
+	generate_section_ids(program)
 
 	check_attributes(program)
+	generate_midi_mapping_code(program)
 
 	generate_scope_lists(program)
 
@@ -553,9 +603,9 @@ function compile(str)
 	program.labels              = create_table()
 	program.global_storage_size = 0
 
-	generate_section_ids(program)
 	generate_section_variables(program)
 
+	print(serialize_table(program.ast))
 	generate_bytecode(program, program.ast)
 
 	program.constants = program.constants:to_table()

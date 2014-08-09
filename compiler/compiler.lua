@@ -188,7 +188,7 @@ function generate_midi_mapping_code(program)
 	for i,section in ipairs(program.ast.sections) do
 		if (is_instrument(section)) then
 			local arguments = {
-				create_literal_int(program.named_attributes[section].channel.value.value),
+				create_literal_int(program.named_attributes[section].channel.value.value-1), -- minus 1 because MIDI channels are 0-15 in VST standard, but 1-16 in most GUIs
 				create_literal_int(tostring(get_instrument_id(section)))
 			}
 

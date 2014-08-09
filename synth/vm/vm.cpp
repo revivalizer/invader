@@ -307,6 +307,13 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									stack->Push(out);
 									break;
 								}
+							case 2: // map_midi_channel(channel, instrument)
+								{
+									auto instrument = uint32_t(stack->Pop<num_t>());
+									auto channel    = uint32_t(stack->Pop<num_t>());
+									synth->midiChannelToInstrumentMap[channel] = synth->GetInstrument(instrument);
+									break;
+								}
 						}
 					}
 

@@ -8,6 +8,8 @@ class ZSynthVirtualMachine;
 
 typedef opcode_t section_id_t;
 
+enum { kNumMIDIChannels = 16 };
+
 class ZSynth : public align16
 {
 public:
@@ -25,7 +27,9 @@ public:
 
 	ZInstrument** instruments;
 	ZInstrument* GetInstrument(uint32_t i) { return instruments[i]; }
-	ZInstrument* GetInstrumentFromMIDI(uint32_t channel, uint32_t note) { channel; note; return instruments[0]; }
+	ZInstrument* GetInstrumentFromMIDI(uint32_t channel, uint32_t note) { note; return midiChannelToInstrumentMap[channel]; }
+
+	ZInstrument* midiChannelToInstrumentMap[kNumMIDIChannels];
 
 	ZMutex renderMutex;
 

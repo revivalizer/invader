@@ -1,5 +1,5 @@
-add bytecodes to const section
-execute const section
+execute const section bytecode for midi mapping
+create function_call_statement
 
 add function to ZVMProgram to get section id for different sections
 

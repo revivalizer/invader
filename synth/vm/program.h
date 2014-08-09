@@ -10,6 +10,8 @@ public:
 	static ZVMProgram* FromBlob(char* data) { return (ZVMProgram*)data; }
 	ZVMProgram* Pack();
 	ZVMProgram* Unpack();
+	section_id_t GetSynthSectionID()                   { return section_id_t(numSections-1); }
+	section_id_t GetInstrumentSectionID(uint32_t i)    { return section_id_t(i+2); }
 
 	size_t      programSize;
 	size_t      bytecodeSize;

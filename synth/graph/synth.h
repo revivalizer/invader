@@ -6,8 +6,6 @@ class ZInstrument;
 class ZVMProgram;
 class ZSynthVirtualMachine;
 
-typedef opcode_t section_id_t;
-
 enum { kNumMIDIChannels = 16 };
 
 class ZSynth : public align16

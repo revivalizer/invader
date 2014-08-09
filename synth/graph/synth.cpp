@@ -11,13 +11,13 @@ ZSynth::ZSynth(ZVMProgram* program)
 
 	for (uint32_t i=0; i<numInstruments; i++)
 	{
-		instruments[i] = new ZInstrument(this, program, section_id_t(i), vm.globalStorage);
+		instruments[i] = new ZInstrument(this, program, program->GetInstrumentSectionID(i), vm.globalStorage);
 	}
 
 	for (uint32_t i=0; i<kNumMIDIChannels; i++)
 		midiChannelToInstrumentMap[i] = nullptr;
 
-	section = section_id_t(program->numSections-1);
+	section = program->GetSynthSectionID(); 
 
 	vm.CreateNodeInstances(program, section); // last section is master section
 

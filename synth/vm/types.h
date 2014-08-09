@@ -9,6 +9,9 @@ typedef opcode_t nodetype_t;
 typedef opcode_t label_t;
 typedef double   num_t;
 
+typedef opcode_t section_id_t;
+
+
 enum { kInvalidOpcode      = 0xFFFF };
 enum { kInvalidArgument    = 0xFFFF };
 enum { kInvalidOpcodeIndex = 0xFFFF };

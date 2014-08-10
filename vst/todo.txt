@@ -1,10 +1,4 @@
-execute const section bytecode for midi mapping
 create function_call_statement
-
-add function to ZVMProgram to get section id for different sections
-
-Mapping of MIDI input to chann	   | max: C-5els
-	GetInstrumentFromMIDI(channel, note)->NoteOn(note, velocity, deltaSamples);
 
 Compiler pos errors
 		Grab pos on everything

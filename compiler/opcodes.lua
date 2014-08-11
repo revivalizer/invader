@@ -21,14 +21,19 @@ kOpJump         = 0x800
 kOpJumpEqual    = 0x810
 kOpJumpNotEqual = 0x820
 
-kOpIsNum    = 0
-kOpIsSample = 1
+kOpIsNum      = 0
+kOpIsSample   = 1
+kOpIsSpectrum = 2
 
 function op_modifier(type_string)
 	if (type_string=="num") then
 		return kOpIsNum
 	elseif (type_string=="sample") then
 		return kOpIsSample
+	elseif (type_string=="spectrum") then
+		return kOpIsSpectrum
+	else
+		error(type_string.." type not handled in op_modifier")
 	end
 end
 
@@ -96,4 +101,9 @@ end
 
 -- Node opcodes
 kOpNodeADSR = 0x101 + kOpcodeMaskIsNode
+
+-- Spectrum opcodes
+kOpAddSaw = 0x201
+
+
 

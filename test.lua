@@ -3,6 +3,7 @@ str = [[
 ### strings
 	| channel: 1
 	num test = 1
+	spectrum spec = spectrum()
 	out osc().ADSR(0.1, 0.1, -6, 1.0)
 ### master
 	out strings

@@ -11,6 +11,7 @@ require("util.util")
 -- byte size of types
 local kNumSize = 8
 local kSampleSize = 2*8*16*2 -- stereo * double size * block size * oversampling
+local kSpectrumSize = 8 -- needs to be adjusted
 
 function create_label(program)
 	local label = {}
@@ -466,6 +467,10 @@ function generate_bytecode(program, node)
 			node.global_address = allocate_global_storage(program, kNumSize, 8)
 		elseif (node.type=="sample") then
 			node.global_address = allocate_global_storage(program, kSampleSize, 16)
+		elseif (node.type=="spectrum") then
+			node.global_address = allocate_global_storage(program, kSpectrumSize, 8)
+		else
+			error("Type note handled in assign_statement: "..node.type)
 		end
 
 		generate_bytecode(program, node.operand)

@@ -21,9 +21,10 @@ p = re.compile[[
 	return_statement <- ({:tag: '' -> 'return_statement':} 'out' ws? {:operand: expression:}) -> {}
 
 	-- types
-	type <- sample_type / num_type
-	sample_type <- 'sample'
-	num_type    <- 'num'
+	type <- sample_type / num_type / spectrum_type
+	sample_type            <- 'sample'
+	num_type               <- 'num'
+	spectrum_type          <- 'spectrum'
 
 	--- expressions, functions
 	expression  <- logical_or

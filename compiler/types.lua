@@ -14,4 +14,15 @@ types = {
 			},
 		},
 	},
+	["spectrum"] = {
+		["methods"] = {
+			{
+				["name"] = "ADSR",
+				["id"] = kOpAddSaw,
+				["arguments"] = {"num", "num"},
+				["return_type"] = "spectrum",
+				["description"] = "Adds saw to spectrum. Arguments: (num harmonic, num gain)",
+			},
+		},
+	},
 }

@@ -16,5 +16,12 @@ functions =
 		["return_type"] = "void",
 		["description"] = "Map channel to instrument.",
 	},
+	{
+		["name"] = "spectrum",
+		["id"] = 3,
+		["arguments"] = {},
+		["return_type"] = "spectrum",
+		["description"] = "Create spectrum.",
+	},
 }
 

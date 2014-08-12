@@ -6,7 +6,7 @@ namespace invader {
 		, isActive(false)
 		, dcTrap(new ZOnepoleFilter)
 		, levelFollower(new ZLevelFollower)
-		, vm(program, new ZVMStack((uintptr_t)zalignedalloc(10000, 16)), globalStorage)
+		, vm(program, new ZVMStack((uintptr_t)zalignedalloc(10*1024*1024, 16)), globalStorage)
 		, program(program)
 		, section(section)
 	{

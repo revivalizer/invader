@@ -63,17 +63,26 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 				case kOpPushGlobal | kOpTypeSample:
 					stack->Push(globalStorage->Load<ZBlockBufferInternal>(*ip++));
 					break;
+				case kOpPushGlobal | kOpTypeSpectrum:
+					stack->Push(globalStorage->Load<ZRealSpectrum>(*ip++));
+					break;
 				case kOpPopGlobal | kOpTypeNum:
 					globalStorage->Store<num_t>(*ip++, stack->Pop<num_t>());
 					break;
 				case kOpPopGlobal | kOpTypeSample:
 					globalStorage->Store<ZBlockBufferInternal>(*ip++, stack->Pop<ZBlockBufferInternal>());
 					break;
+				case kOpPopGlobal | kOpTypeSpectrum:
+					globalStorage->Store<ZRealSpectrum>(*ip++, stack->Pop<ZRealSpectrum>());
+					break;
 				case kOpResetGlobal | kOpTypeNum:
 					globalStorage->Reset<num_t>(*ip++);
 					break;
 				case kOpResetGlobal | kOpTypeSample:
 					globalStorage->Reset<ZBlockBufferInternal>(*ip++);
+					break;
+				case kOpResetGlobal | kOpTypeSpectrum:
+					globalStorage->Reset<ZRealSpectrum>(*ip++);
 					break;
 				/*case kOpJump:
 					ip = program->labels[argument];
@@ -294,7 +303,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 					{
 						switch (*ip++)
 						{
-							case 1: // Osc
+							case 1: // osc()
 								{
 									ZBlockBufferInternal out;
 
@@ -312,6 +321,27 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto instrument = uint32_t(stack->Pop<num_t>());
 									auto channel    = uint32_t(stack->Pop<num_t>());
 									synth->midiChannelToInstrumentMap[channel] = synth->GetInstrument(instrument);
+									break;
+								}
+							case 3: // spectrum()
+								{
+									ZRealSpectrum spec;
+									for (uint32_t i=0; i<spec.size; i++)
+										spec.data[i] = 0.;
+									stack->Push(spec);
+									break;
+								}
+							case 0x201: // spectrum.addSaw(num harmonic, num gainDB)
+								{
+									auto gain = dbToGain(stack->Pop<num_t>());
+									auto harmonic = uint32_t(zifloord(stack->Pop<num_t>()));
+
+									ZASSERT(harmonic >= 0 && harmonic<spec.size)
+
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									for (uint32_t i=harmonic; i<spec.size; i++)
+										spec.data[i] = 1.0 / double(i+1-harmonic) * gain;
+									stack->Push(spec);
 									break;
 								}
 						}

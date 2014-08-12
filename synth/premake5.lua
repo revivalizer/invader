@@ -16,6 +16,7 @@ project "invader_synth"
 	files { "./math/onepolefilter.h", "./math/onepolefilter.cpp" }
 	files { "./math/resampler2x.h", "./math/resampler2x.cpp" }
 	files { "./math/adsrenvelope.h", "./math/adsrenvelope.cpp" }
+	files { "./math/spectrum.h", "./math/spectrum.cpp" }
 	files { "./math/shapingtransform.h" }
 	files { "./math/onepolefilterfast.h" }
 	files { "./math/util.h", "./math/util.cpp" }

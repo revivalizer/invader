@@ -1,4 +1,6 @@
 create function_call_statement
+ASSERTS not working :)
+delayed initialization of nodeInstances, to spare bytecode iterator?
 
 Compiler pos errors
 		Grab pos on everything

@@ -17,7 +17,7 @@ types = {
 	["spectrum"] = {
 		["methods"] = {
 			{
-				["name"] = "ADSR",
+				["name"] = "addSaw",
 				["id"] = kOpAddSaw,
 				["arguments"] = {"num", "num"},
 				["return_type"] = "spectrum",

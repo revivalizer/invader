@@ -18,6 +18,7 @@
 #include "math/resampler2x.h"
 #include "math/shapingtransform.h"
 #include "math/adsrenvelope.h"
+#include "math/spectrum.h"
 
 #include "graph/synth.h"
 #include "graph/instrument.h"

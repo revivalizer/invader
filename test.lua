@@ -1,12 +1,16 @@
 str = [[
-### global
+/*### global
 ### strings
 	| channel: 1
-	num test = 1
+	const num test = 1
 	spectrum spec = spectrum().addSaw(0, -6)
 	out osc().ADSR(0.1, 0.1, -6, 1.0)
 ### master
-	out strings
+	out strings*/
+### global
+### master
+	const num a = 1
+	out osc()
 ]]
 
 package.path = ";compiler/?.lua"..package.path

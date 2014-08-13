@@ -74,6 +74,7 @@ end
 
 function check_sections(program)
 	-- check global is first and master last
+	assert(program.ast.sections[1], "no sections found")
 	assert(program.ast.sections[1].name.value=="global", "first section must be 'global'")
 	assert(program.ast.sections[#program.ast.sections].name.value=="master", "last section must be 'master'")
 
@@ -581,6 +582,7 @@ end
 function compile(str)
 	local program = {}
 	program.ast = parse(str)
+	print(serialize_table(program.ast))
 
 	program.section_refs      = {}
 	program.variable_refs     = {}

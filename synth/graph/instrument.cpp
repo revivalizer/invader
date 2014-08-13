@@ -2,12 +2,12 @@
 
 namespace invader {
 
-	ZInstrument::ZInstrument( ZSynth* synth, ZVMProgram* program, section_id_t section, ZVMStorage* globalStorage ) : synth(synth)
-		, hasProgram(false)
-		, isActive(false)
-		, section(section)
-		, globalStorage(globalStorage)
-	{
+ZInstrument::ZInstrument( ZSynth* synth, ZVMProgram* program, section_id_t section, ZVMStorage* globalStorage ) : synth(synth)
+	, hasProgram(false)
+	, isActive(false)
+	, section(section)
+	, globalStorage(globalStorage)
+{
 	for (uint32_t i=0; i<kNumVoices; i++)
 	{
 		voices[i] = new ZVoice(synth, this, program, section, globalStorage);

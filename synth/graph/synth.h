@@ -35,7 +35,6 @@ public:
 
 	ZSyncInfo sync; 
 
-	opcode_index_t bytecodeStart, bytecodeEnd;
 	ZVMProgram* program;
 
 	section_id_t section;

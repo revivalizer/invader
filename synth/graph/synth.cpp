@@ -17,7 +17,7 @@ ZSynth::ZSynth(ZVMProgram* program)
 	for (uint32_t i=0; i<kNumMIDIChannels; i++)
 		midiChannelToInstrumentMap[i] = nullptr;
 
-	section = program->GetSynthSectionID(); 
+	section = program->GetMasterSectionID(); 
 
 	vm.CreateNodeInstances(program, section); // last section is master section
 
@@ -25,8 +25,8 @@ ZSynth::ZSynth(ZVMProgram* program)
 	vm.instrument = nullptr;
 	vm.voice      = nullptr;
 
-	bytecodeStart = program->sections[section];
-	bytecodeEnd   = program->sections[section+1];
+	// Execute const global section
+	vm.Run(program->sections[program->GetConstGlobalSectionID()], program);
 }
 
 ZSynth::~ZSynth(void)
@@ -61,13 +61,18 @@ void ZSynth::ControlChange(uint32_t channel, uint32_t number, uint32_t value, ui
 
 void ZSynth::ProcessBlock(void)
 {
+	// Run global section
+	vm.Run(program->sections[program->GetGlobalSectionID()], program);
+
+	// Run instruments
 	for (uint32_t i=0; i<numInstruments; i++)
 	{
 		instruments[i]->sync = sync;
 		instruments[i]->ProcessBlock();
 	}
 
-	vm.Run(bytecodeStart, program);
+	// Run master section
+	vm.Run(program->sections[program->GetMasterSectionID()], program);
 
 	sync.AdvanceBlock();
 }

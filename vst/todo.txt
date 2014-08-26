@@ -8,6 +8,9 @@ Compiler pos errors
 Parser pos error
 String line must require newline
 
+error checking for out statements is a little wobbly, can be simplified
+split compiler.lua into subparts?
+
 db, semis, % suffix, ms
 
 are return types always "sample"? check return_statement bytecode generation

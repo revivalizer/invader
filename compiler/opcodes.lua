@@ -26,14 +26,14 @@ kOpIsSample   = 1
 kOpIsSpectrum = 2
 
 function op_modifier(type_string)
-	if (type_string=="num") then
+	if (type_string.name=="num") then
 		return kOpIsNum
-	elseif (type_string=="sample") then
+	elseif (type_string.name=="sample") then
 		return kOpIsSample
-	elseif (type_string=="spectrum") then
+	elseif (type_string.name=="spectrum") then
 		return kOpIsSpectrum
 	else
-		error(type_string.." type not handled in op_modifier")
+		error(type_to_string(type_string).." type not handled in op_modifier")
 	end
 end
 

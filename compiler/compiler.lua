@@ -1,8 +1,8 @@
 require 'parser'
 require 'export'
 require 'opcodes'
-require 'functions'
 require 'types'
+require 'functions'
 
 require("util.serialize")
 require("util.unique_set")
@@ -14,7 +14,7 @@ local kSampleSize = 2*8*16*2 -- stereo * double size * block size * oversampling
 local kSpectrumSize = 8*2048
 
 function create_label(program)
-	local label = {}
+	local label = create_table()
 	program.labels:insert(label)
 	label.id = #program.labels
 	label.address=-1
@@ -22,7 +22,7 @@ function create_label(program)
 end
 
 function create_label_ref(label)
-	local ref = {}
+	local ref = create_table()
 	ref.tag="label_ref"
 	ref.id=label.id
 	return ref
@@ -56,11 +56,11 @@ function update_labels(program)
 end
 
 function create_section(name)
-	local section = {}
+	local section = create_table()
 
 	section.tag = "section"
 
-	section.statements     = {}
+	section.statements     = create_table()
 	section.statements.tag = "statement_list"
 
 	section.name       = {}
@@ -96,7 +96,7 @@ function check_sections(program)
 		-- check uniquess of section names
 		assert(program.named_sections[section.name.value]==nil, "duplicate section '"..section.name.value.."' found")
 
-		-- check that every section has an output
+		-- check that section has an output
 		local didOutput = false
 
 		for j,statement in ipairs(section.statements) do
@@ -115,8 +115,10 @@ function check_sections(program)
 
 		-- warn if output is not last statement
 		-- this a little wrong... multiple outputs in section will still work I guess
+		-- TODO: rewrite to check multiple outs
+		--       out must be last statement in section
 		if (#section.statements > 0) then
-			warn(section.statements[#section.statements].tag=="return_statement", "statements after return in section '"..section.name.value.."', they will be ignored")
+			warn(section.statements[#section.statements].tag=="return_statement" or section.mustOutput==false, "statements after return in section '"..section.name.value.."', they will be ignored")
 		end
 
 		-- add to named sections
@@ -163,14 +165,14 @@ function check_attributes(program)
 end
 
 function create_literal_int(value)
-	local literal_int = {}
+	local literal_int = create_table()
 	literal_int.value = value
 	literal_int.tag = "literal_int"
 	return literal_int
 end
 
 function create_identifier(name)
-	local identifier = {}
+	local identifier = create_table()
 	identifier.value = name
 	identifier.tag   = "identifier"
 	return identifier
@@ -201,11 +203,35 @@ function generate_midi_mapping_code(program)
 end
 
 
+function find_last_assign_statement_in_section(section)
+	-- looping backwards. return first assign statement
+	for i=#section.statements,1,-1 do
+		if (section.statements[i].tag=="assign_statement") then
+			return section.statements[i]
+		end
+	end
+
+	return nil
+end
+
 -- generate linked list of parent scopes
 -- each assign statement generates a new scope
 function generate_scope_lists(program)
+	local section_parent_scope = find_last_assign_statement_in_section(program.named_sections.global) or find_last_assign_statement_in_section(program.named_sections.const_global)
+
 	for i,section in ipairs(program.ast.sections) do
 		local parent_scope = nil
+
+		if (i==1) then
+			-- no parent scope in const global
+		elseif (i==2) then
+			-- parent scope is const section in global section
+			parent_scope = find_last_assign_statement_in_section(program.named_sections.const_global)
+		else
+			-- for all other sections, the default parent scope is applicable
+			parent_scope = section_parent_scope
+		end
+
 		for j,statement in ipairs(section.statements) do
 			program.parent_scope_refs[statement] = parent_scope
 
@@ -282,6 +308,25 @@ function mark_section_refs(program)
 	end
 end
 
+function extract_const_assignments(program)
+	-- move const assignment statements from sections to const_global section
+	for i,section in ipairs(program.ast.sections) do
+		if (section ~= program.named_sections.const_global) then
+			local filtered_statements = create_table()
+
+			for j,statement in ipairs(section.statements) do
+				if (statement.tag=="assign_statement" and statement.type.const) then
+					program.named_sections.const_global.statements:insert(statement)
+				else
+					filtered_statements:insert(statement)
+				end
+			end
+
+			section.statements = filtered_statements
+		end
+	end
+end
+
 function mark_dot_operator(node)
 	if (node.tag=="binary_op" and node.operator.type==".") then
 		node.tag = "dot_op"
@@ -302,7 +347,7 @@ function arg_str_from_table(arguments)
 			s = s..", "
 		end
 
-		s = s..argument.type
+		s = s..type_to_string(argument.type)
 	end
 
 	return s
@@ -325,7 +370,7 @@ function match_function(program, node, function_list, error_generator)
 				local argMatch = true
 
 				for j,arg in ipairs(func.arguments) do
-					argMatch = argMatch and (arg==node.arguments[j].type)
+					argMatch = argMatch and (arg==node.arguments[j].type.name)
 				end
 
 				if (argMatch) then
@@ -342,7 +387,7 @@ function match_function(program, node, function_list, error_generator)
 			errorString = errorString.."\nPossible matches:"
 
 			for i,func in ipairs(nameMatches) do
-				errorString = errorString.."\n"..func.return_type.." "..func.name.."("..table.concat(func.arguments, ", ")..")"
+				errorString = errorString.."\n"..type_to_string(func.return_type).." "..func.name.."("..table.concat(func.arguments, ", ")..")"
 			end
 		end
 
@@ -350,7 +395,19 @@ function match_function(program, node, function_list, error_generator)
 	end
 
 	program.function_refs[node] = funcMatch
-	return funcMatch.return_type
+
+	-- determine if const (pure)
+	local returns_const = type_is_const(funcMatch.return_type) -- if the function returns a const, it really means that it is *pure*, effects no external state.
+
+	for i,arg in ipairs(node.arguments) do
+		returns_const = returns_const and type_is_const(arg.type)
+	end
+
+	if (returns_const) then
+		return make_const_type(funcMatch.return_type.name)
+	else
+		return funcMatch.return_type
+	end
 end
 
 -- Type inference
@@ -361,7 +418,7 @@ function infer_types_recursive(program, node)
 		type = program.variable_refs[node].type
 
 	elseif (node.tag=="section_ref") then
-		type = "sample"
+		type = make_type("sample")
 
 	elseif (node.tag=="dot_op") then
 		-- dot operator
@@ -380,13 +437,13 @@ function infer_types_recursive(program, node)
 			infer_types_recursive(program, node.operand1)
 			infer_types_recursive(program, node.operand2)
 
-			local intype = node.operand1.type.."*"..node.operand2.type
-			print(node.operator.type)
+			local intype = node.operand1.type.name.."*"..node.operand2.type.name
+
 			local op = binary_opcodes[node.operator.type][intype]
 
-			assert(op, "Type mismatch for operator '"..node.operator.type.."', doesn't support '"..node.operand1.type.."' x '"..node.operand2.type.."'.")
+			assert(op, "Type mismatch for operator '"..node.operator.type.."', doesn't support '"..type_to_string(node.operand1.type).."' x '"..type_to_string(node.operand2.type).."'.")
 
-			type = op[1]
+			type = relaxed_type_combination(node.operand1.type, node.operand2.type)
 
 			node.op = op
 
@@ -397,19 +454,19 @@ function infer_types_recursive(program, node)
 
 			assert(op, "Type mismatch for operator '"..node.operator.type.."', doesn't support '"..node.operand.type.."'.")
 
-			type = op[1]
+			type = node.operand.type
 
 			node.op = op
 
 	elseif (node.tag=="literal_int") then
-		type = "num"
+		type = make_const_type("num")
 
 	elseif (node.tag=="literal_float") then
-		type = "num"
+		type = make_const_type("num")
 
 	elseif (node.tag=="method_call") then
 		local sibling = program.dot_sibling_refs[node]
-		local funcs = types[sibling.type].methods
+		local funcs = types[sibling.type.name].methods
 
 		type = match_function(program, node, funcs, function(node) return "Couldn't match method "..node.identifier.value.."("..arg_str_from_table(node.arguments)..")." end)
 
@@ -429,13 +486,13 @@ function infer_types(program)
 			if (statement.tag=="assign_statement") then
 				local type = infer_types_recursive(program, statement.operand)
 
-				assert(type==statement.type, "Type mismatch in assign statement, trying to assign "..type.." to "..statement.type..".")
+				assert(types_compatible(statement.type, type), "Type mismatch in assign statement, trying to assign '"..type_to_string(type).."' to '"..type_to_string(statement.type).."'.")
 
-				statement.type = type
+--				statement.type = type
 			elseif (statement.tag=="return_statement") then
 				local type = infer_types_recursive(program, statement.operand)
 
-				assert(type=="sample", "Type mismatch in return statement, must return sample..")
+				assert(type.name=="sample", "Type mismatch in return statement, must return sample..")
 
 				statement.type = type
 			elseif (statement.tag=="function_call") then
@@ -464,14 +521,14 @@ function generate_bytecode(program, node)
 		program.bytecode:insert(kOpReturn)
 
 	elseif (node.tag=="assign_statement") then
-		if (node.type=="num") then
+		if (node.type.name=="num") then
 			node.global_address = allocate_global_storage(program, kNumSize, 8)
-		elseif (node.type=="sample") then
+		elseif (node.type.name=="sample") then
 			node.global_address = allocate_global_storage(program, kSampleSize, 16)
-		elseif (node.type=="spectrum") then
+		elseif (node.type.name=="spectrum") then
 			node.global_address = allocate_global_storage(program, kSpectrumSize, 16)
 		else
-			error("Type note handled in assign_statement: "..node.type)
+			error("Type note handled in assign_statement: "..type_to_string(node.type))
 		end
 
 		generate_bytecode(program, node.operand)
@@ -480,7 +537,7 @@ function generate_bytecode(program, node)
 		program.bytecode:insert(node.global_address) -- (index is 1 offset)
 
 	elseif (node.tag=="return_statement") then
-		assert(node.type=="sample") -- isn't this true?
+		assert(node.type.name=="sample") -- isn't this true?
 
 		generate_bytecode(program, node.operand)
 
@@ -499,7 +556,7 @@ function generate_bytecode(program, node)
 	elseif (node.tag=="section_ref") then
 		local section = program.section_refs[node]
 
-		program.bytecode:insert(kOpPushGlobal + op_modifier("sample"))
+		program.bytecode:insert(kOpPushGlobal + op_modifier(make_type("sample")))
 		program.bytecode:insert(section.global_address)
 
 	elseif (node.tag=="dot_op") then
@@ -604,6 +661,8 @@ function compile(str)
 	mark_dot_operator(program.ast)
 
 	infer_types(program)
+
+	extract_const_assignments(program)
 
 	program.constants           = create_unique_set()
 	program.bytecode            = create_table()

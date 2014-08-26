@@ -37,3 +37,7 @@ function serialize_table(t, indent)
 	return str
 end
 
+-- shortcut for print table
+function pt(t)
+	print(serialize_table(t))
+end

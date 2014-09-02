@@ -1,6 +1,8 @@
 #pragma once
-// Compile time sin/cos
 
+namespace invader {
+
+// Compile time sin/cos
 template<unsigned M, unsigned N, unsigned B, unsigned A>
 struct SinCosSeries {
 	static double value() {
@@ -492,3 +494,5 @@ namespace real
 	};
 
 }
+
+} // namespace invader

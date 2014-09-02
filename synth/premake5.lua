@@ -20,9 +20,12 @@ project "invader_synth"
 	files { "./math/shapingtransform.h" }
 	files { "./math/onepolefilterfast.h" }
 	files { "./math/util.h", "./math/util.cpp" }
+	files { "./math/fft.h", "./math/fft.cpp" }
 	files { "./nodes/adsrgain.h", "./nodes/adsrgain.cpp" }
+	files { "./nodes/wavetableosc.h", "./nodes/wavetableosc.cpp" }
 	files { "./pch.h", "./pch.cpp" }
 	files { "./synth.h" }
+	files { "./wavetable/*" }
 --	files { "./**.h", "./**.cpp" }
 --	files { "invader.def" }
 	excludes { "./vm/synthvm*" }

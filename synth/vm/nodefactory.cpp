@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "../nodes/adsrgain.h"
+#include "../nodes/wavetableosc.h"
 
 namespace invader {
 
@@ -8,6 +9,8 @@ ZNode* ZVirtualMachine::CreateNodeFromOpcode(nodetype_t type)
 {
 	switch (type)
 	{
+		case kOpWavetableOsc:
+			return new ZWavetableOsc(type);
 		case kOpNodeADSR:
 			return new ZADSRGain(type);
 		default:

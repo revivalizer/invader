@@ -19,7 +19,13 @@
 #include "math/shapingtransform.h"
 #include "math/adsrenvelope.h"
 #include "math/spectrum.h"
+#include "math/fft.h"
 
 #include "graph/synth.h"
 #include "graph/instrument.h"
 #include "graph/voice.h"
+
+#include "wavetable/wave.h"
+#include "wavetable/wavetable.h"
+#include "wavetable/waveformwavetable.h"
+#include "wavetable/firinterpolator.h"

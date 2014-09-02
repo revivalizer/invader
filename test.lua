@@ -5,7 +5,7 @@ str = [[
 	| channel: 1
 	const num test = 1 + a
 	const spectrum spec = spectrum().addSaw(0, -6)
-	out osc().ADSR(0.1, 0.1, -6, 1.0)
+	out wavetableosc().ADSR(0.1, 0.1, -6, 1.0)
 ### master
 	out strings
 ]]

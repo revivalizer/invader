@@ -1,7 +1,9 @@
 #include "pch.h"
 
- namespace complex
- {
+namespace invader {
+
+namespace complex
+{
 	uint32_t bitrev(uint32_t x, uint32_t numBits)
 	{
 		// http://stackoverflow.com/questions/746171/best-algorithm-for-bit-reversal-from-msb-lsb-to-lsb-msb-in-c
@@ -16,4 +18,6 @@
 	    x = (((x & 0xff00ff00) >> 8) | ((x & 0x00ff00ff) << 8));
 	    return((x >> 16) | (x << 16));
 	};
- };
+};
+
+} // namespace invader

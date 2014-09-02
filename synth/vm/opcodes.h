@@ -43,7 +43,8 @@ enum
 	kOpMinus = 0x420,
 
 	// Nodes
-	kOpNodeADSR = 0x101 | kOpcodeMaskIsNode,
+	kOpNodeADSR     = 0x101 | kOpcodeMaskIsNode,
+	kOpWavetableOsc = 0x102 | kOpcodeMaskIsNode,
 };
 
 // Type identifier

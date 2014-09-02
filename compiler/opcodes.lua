@@ -100,7 +100,8 @@ function OpcodeIsNode(op)
 end
 
 -- Node opcodes
-kOpNodeADSR = 0x101 + kOpcodeMaskIsNode
+kOpNodeADSR         = 0x101 + kOpcodeMaskIsNode
+kOpNodeWavetableOsc = 0x102 + kOpcodeMaskIsNode
 
 -- Spectrum opcodes
 kOpAddSaw = 0x201

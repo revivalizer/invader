@@ -67,6 +67,9 @@ VSTInstrument::VSTInstrument(audioMasterCallback audioMaster) : AudioEffectX(aud
 
 //	vm->SetGlobalVariable("editor", "VSTEditor *", vstEditor);
 
+	invader::ZFIRInterpolator inter;
+	inter.Init();
+
 	// Create Synth
 	programFile.Update();
 	auto prog = invader::ZVMProgram::FromBlob(programFile.data);

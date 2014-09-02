@@ -23,5 +23,12 @@ functions =
 		["return_type"] = make_const_type("spectrum"),
 		["description"] = "Create spectrum.",
 	},
+	{
+		["name"] = "wavetableosc",
+		["id"] = kOpNodeWavetableOsc,
+		["arguments"] = {},
+		["return_type"] = make_type("sample"),
+		["description"] = "Wavetable oscillator.",
+	},
 }
 

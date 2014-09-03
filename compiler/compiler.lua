@@ -373,7 +373,7 @@ function match_function(program, node, function_list, error_generator)
 
 				for j,arg in ipairs(func.arguments) do
 					print(arg)
-					argMatch = argMatch and (arg==node.arguments[j].type.name)
+					argMatch = argMatch and (arg.name==node.arguments[j].type.name)
 				end
 
 				if (argMatch) then

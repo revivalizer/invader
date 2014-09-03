@@ -12,7 +12,7 @@ functions =
 	{
 		["name"] = "map_midi_channel",
 		["id"] = 2,
-		["arguments"] = {"num", "num"},
+		["arguments"] = {make_type("num"), make_type("num")},
 		["return_type"] = make_type("void"),
 		["description"] = "Map channel to instrument.",
 	},

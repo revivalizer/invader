@@ -93,7 +93,7 @@ types = {
 			{
 				["name"] = "ADSR",
 				["id"] = kOpNodeADSR,
-				["arguments"] = {"num", "num", "num", "num"},
+				["arguments"] = {make_type("num"), make_type("num"), make_type("num"), make_type("num")},
 				["return_type"] = make_type("sample"),
 				["description"] = "Basic ADSR envelope.",
 			},
@@ -104,7 +104,7 @@ types = {
 			{
 				["name"] = "addSaw",
 				["id"] = kOpAddSaw,
-				["arguments"] = {"num", "num"},
+				["arguments"] = {make_type("num"), make_type("num")},
 				["return_type"] = make_const_type("spectrum"),
 				["description"] = "Adds saw to spectrum. Arguments: (num harmonic, num gain)",
 			},

@@ -23,7 +23,7 @@ public:
 		}
 	}
 
-	ZWave* GetWave(double pitch)
+	ZWave<size>* GetWave(double pitch)
 	{
 		uint32_t i = zifloord(pitch);
 

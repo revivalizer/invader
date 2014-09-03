@@ -21,7 +21,7 @@ p = re.compile[[
 	return_statement <- ({:tag: '' -> 'return_statement':} 'out' ws? {:operand: expression:}) -> {}
 
 	-- types
-	type <- ( {:const: ('const' ws) -> 'true':}? {:name: ('sample' / 'num' / 'spectrum'):} ) -> {}
+	type <- ( {:const: ('const' ws) -> 'true':}? {:name: ('sample' / 'num' / 'spectrum' / 'wavetable'):} ) -> {}
 --	sample_type            <- {'sample'}
 --	num_type               <- {'num'}
 --	spectrum_type          <- {'spectrum'}

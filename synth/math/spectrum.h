@@ -10,6 +10,6 @@ public:
 	static const uint32_t size = S;
 };
 
-typedef ZSpectrum<double, 2048> ZRealSpectrum;
+typedef ZSpectrum<complex_t, 2048> ZRealSpectrum;
 
 } // namespace invader

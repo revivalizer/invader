@@ -21,9 +21,10 @@ kOpJump         = 0x800
 kOpJumpEqual    = 0x810
 kOpJumpNotEqual = 0x820
 
-kOpIsNum      = 0
-kOpIsSample   = 1
-kOpIsSpectrum = 2
+kOpIsNum       = 0
+kOpIsSample    = 1
+kOpIsSpectrum  = 2
+kOpIsWavetable = 3
 
 function op_modifier(type_string)
 	if (type_string.name=="num") then
@@ -32,6 +33,8 @@ function op_modifier(type_string)
 		return kOpIsSample
 	elseif (type_string.name=="spectrum") then
 		return kOpIsSpectrum
+	elseif (type_string.name=="wavetable") then
+		return kOpIsWavetable
 	else
 		error(type_to_string(type_string).." type not handled in op_modifier")
 	end
@@ -104,7 +107,8 @@ kOpNodeADSR         = 0x101 + kOpcodeMaskIsNode
 kOpNodeWavetableOsc = 0x102 + kOpcodeMaskIsNode
 
 -- Spectrum opcodes
-kOpAddSaw = 0x201
+kOpMakeWavetable = 0x201
+kOpAddSaw        = 0x203
 
 
 

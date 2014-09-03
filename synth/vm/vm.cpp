@@ -316,6 +316,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									stack->Push(out);
 									break;
 								}
+
 							case 2: // map_midi_channel(channel, instrument)
 								{
 									auto instrument = uint32_t(stack->Pop<num_t>());
@@ -323,15 +324,24 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									synth->midiChannelToInstrumentMap[channel] = synth->GetInstrument(instrument);
 									break;
 								}
+
 							case 3: // spectrum()
 								{
 									ZRealSpectrum spec;
 									for (uint32_t i=0; i<spec.size; i++)
-										spec.data[i] = 0.;
+										spec.data[i] = complex_t(0.0);
 									stack->Push(spec);
 									break;
 								}
-							case 0x201: // spectrum.addSaw(num harmonic, num gainDB)
+
+							case 0x201: // spectrum.toWavetable
+								{
+									ZRealSpectrum& spectrum = stack->Pop<ZRealSpectrum>();
+									ZWaveformWavetable<> wavetable(spectrum);
+									stack->Push(spectrum);
+								}
+
+							case 0x203: // spectrum.addSaw(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
 									auto harmonic = uint32_t(zifloord(stack->Pop<num_t>()));
@@ -340,7 +350,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
 									for (uint32_t i=harmonic; i<spec.size; i++)
-										spec.data[i] = 1.0 / double(i+1-harmonic) * gain;
+										spec.data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
 									stack->Push(spec);
 									break;
 								}

@@ -108,6 +108,17 @@ types = {
 				["return_type"] = make_const_type("spectrum"),
 				["description"] = "Adds saw to spectrum. Arguments: (num harmonic, num gain)",
 			},
+			{
+				["name"] = "toWavetable",
+				["id"] = kOpAddSaw,
+				["arguments"] = {},
+				["return_type"] = make_const_type("wavetable"),
+				["description"] = "Make wavetable from spectrum.",
+			},
+		},
+	},
+	["wavetable"] = {
+		["methods"] = {
 		},
 	},
 }

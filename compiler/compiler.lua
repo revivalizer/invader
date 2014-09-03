@@ -12,6 +12,8 @@ require("util.util")
 local kNumSize = 8
 local kSampleSize = 2*8*16*2 -- stereo * double size * block size * oversampling
 local kSpectrumSize = 8*2048
+local kWavetableSize = 128*4 + kSpectrumSize
+
 
 function create_label(program)
 	local label = create_table()
@@ -370,6 +372,7 @@ function match_function(program, node, function_list, error_generator)
 				local argMatch = true
 
 				for j,arg in ipairs(func.arguments) do
+					print(arg)
 					argMatch = argMatch and (arg==node.arguments[j].type.name)
 				end
 
@@ -387,7 +390,12 @@ function match_function(program, node, function_list, error_generator)
 			errorString = errorString.."\nPossible matches:"
 
 			for i,func in ipairs(nameMatches) do
-				errorString = errorString.."\n"..type_to_string(func.return_type).." "..func.name.."("..table.concat(func.arguments, ", ")..")"
+				arguments_type_name = create_table()
+				for i,argument_type in ipairs(func.arguments) do
+					arguments_type_name:insert(type_to_string(argument_type))
+				end
+
+				errorString = errorString.."\n"..type_to_string(func.return_type).." "..func.name.."("..table.concat(arguments_type_name, ", ")..")"
 			end
 		end
 
@@ -527,8 +535,10 @@ function generate_bytecode(program, node)
 			node.global_address = allocate_global_storage(program, kSampleSize, 16)
 		elseif (node.type.name=="spectrum") then
 			node.global_address = allocate_global_storage(program, kSpectrumSize, 16)
+		elseif (node.type.name=="wavetable") then
+			node.global_address = allocate_global_storage(program, kWavetableSize, 16)
 		else
-			error("Type note handled in assign_statement: "..type_to_string(node.type))
+			error("Type not handled in assign_statement: "..type_to_string(node.type))
 		end
 
 		generate_bytecode(program, node.operand)

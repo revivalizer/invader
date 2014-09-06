@@ -50,9 +50,10 @@ enum
 // Type identifier
 enum
 {
-	kOpTypeNum      = 0,
-	kOpTypeSample   = 1,
-	kOpTypeSpectrum = 2,
+	kOpTypeNum       = 0,
+	kOpTypeSample    = 1,
+	kOpTypeSpectrum  = 2,
+	kOpTypeWavetable = 3,
 };
 
 } // namespace invader

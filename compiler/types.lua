@@ -110,7 +110,7 @@ types = {
 			},
 			{
 				["name"] = "toWavetable",
-				["id"] = kOpAddSaw,
+				["id"] = kOpMakeWavetable,
 				["arguments"] = {},
 				["return_type"] = make_const_type("wavetable"),
 				["description"] = "Make wavetable from spectrum.",

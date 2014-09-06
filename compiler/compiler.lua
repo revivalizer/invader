@@ -11,9 +11,9 @@ require("util.util")
 -- byte size of types
 local kNumSize = 8
 local kSampleSize = 2*8*16*2 -- stereo * double size * block size * oversampling
-local kSpectrumSize = 8*2048
-local kWavetableSize = 128*4 + kSpectrumSize
-
+local kSpectrumSize = 8*2*2048
+--local kWavetableSize = 128*4 + kSpectrumSize + 2*4
+local kWavetableSize = 33292
 
 function create_label(program)
 	local label = create_table()
@@ -691,7 +691,7 @@ function compile(str)
 	print(serialize_table(program.ast))
 
 	-- print bytecode in hex
-	if (false) then
+	if (true) then
 		print(serialize_table(program.bytecode))
 		for i,v in ipairs(program.bytecode) do
 			if (type(v)=="number") then

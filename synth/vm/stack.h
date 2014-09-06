@@ -32,6 +32,12 @@ public:
 		offset -= sizeof(T);
 		return *((T*)(mem+offset));
 	}
+
+	template <class T>
+	T& Top()
+	{
+		return *((T*)(mem+offset-sizeof(T)));
+	}
 };
 
 } // namespace invader

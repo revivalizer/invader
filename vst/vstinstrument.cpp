@@ -76,9 +76,6 @@ VSTInstrument::VSTInstrument(audioMasterCallback audioMaster) : AudioEffectX(aud
 	prog->Unpack();
 	synth = new invader::ZSynth(prog);
 
-	// Run const global init section
-	synth->vm.Run(prog->sections[0], prog);
-
 //i	vm->SetGlobalVariable("synth", "ZSynth *", synth);
 //	vm->LoadDefaultProgram();
 

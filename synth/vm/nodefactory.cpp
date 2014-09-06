@@ -15,7 +15,8 @@ ZNode* ZVirtualMachine::CreateNodeFromOpcode(nodetype_t type)
 			return new ZADSRGain(type);
 		default:
 			MessageBoxA(nullptr, "Unhandled Case in CreateNodeFromOpcode", "Fatal Error", 0);
-			ExitProcess(9);
+//			ExitProcess(9);
+			return nullptr;
 			break;
 	}
 }

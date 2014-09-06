@@ -2,6 +2,8 @@ create function_call_statement
 ASSERTS not working :)
 delayed initialization of nodeInstances, to spare bytecode iterator?
 
+in the VM, unify global load/store/reset with pointer and size stuff
+
 Compiler pos errors
 		Grab pos on everything
 		Convert pos to line/col

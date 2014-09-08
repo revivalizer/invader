@@ -9,7 +9,7 @@ ZWavetableOsc::ZWavetableOsc(nodetype_t type) : ZNode(type)
 
 void ZWavetableOsc::Process(ZVirtualMachine* vm)
 {
-//	auto frequency = vm->stack->Pop<num_t>();
+	auto frequency = vm->stack->Pop<ZWaveformWavetable<>>();
 
 	ZBlockBufferInternal block;
 

@@ -40,7 +40,18 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 		if (opcode & kOpcodeMaskIsNode)
 		{
 			trace("%04x call node, type %x", ip-program->bytecode-1, nodeInstances[ip-program->bytecode-1]);
-			nodeInstances[ip-program->bytecode-1]->Process(this);
+
+			auto node = nodeInstances[ip-program->bytecode-1]; 
+
+			if (!node)
+			{
+				node = nodeInstances[ip-program->bytecode-1] = CreateNodeFromOpcode(ip[-1]);
+
+				if (voice)
+					node->NoteOn(voice->pitch, voice->note, voice->velocity, voice->deltaSamples);
+			}
+
+			node->Process(this);
 		}
 		else
 		{
@@ -444,13 +455,15 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 void ZVirtualMachine::CreateNodeInstances(ZVMProgram* program, uint32_t section)
 {
-	opcode_index_t start = program->sections[section], end = program->sections[section+1];
+	section;
+	//opcode_index_t start = program->sections[section], end = program->sections[section+1];
 
 	// Create array
 	nodeInstances = new ZNode*[program->bytecodeSize];
 
 	// Reset pointers
 	zzeromem(nodeInstances, sizeof(ZNode*)*program->bytecodeSize);
+	/*
 
 	// Create node instances where applicable
 	ZVMBytecodeIterator it(*program, start, end); 
@@ -459,6 +472,7 @@ void ZVirtualMachine::CreateNodeInstances(ZVMProgram* program, uint32_t section)
 		if (it.opcode & kOpcodeMaskIsNode)
 			nodeInstances[it.i] = CreateNodeFromOpcode(it.opcode);
 	}
+	*/
 }
 
 } // namespace invader

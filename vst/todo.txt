@@ -7,6 +7,7 @@ interpolator specs are wrong
 phase needs to be transformed to wavetable movement
 impulse normalization -- center==1? normalize each?
 ensure that group delays work on interp... currently 6 samples it seems
+We can do a little better in the FIR filter iteration by lowering limits a bit when constraining, but not when computing error. This will make it converge faster. Supposedly.
 
 the *= operator in complex_t is WRONG, does not do complex multiplication, but multiplies components
 

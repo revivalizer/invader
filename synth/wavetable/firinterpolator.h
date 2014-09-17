@@ -72,12 +72,15 @@ public:
 
 	void Init()
 	{
+		double passBandEnd   = 0.90 * 0.5 / numPhases;
+		double stopBandStart = 1.55 * 0.5 / numPhases;
+
 		// Reset spectrum
 		for (uint32_t i=0; i<n/2; i++)
 			oversampledSpectrum[i] = complex_t(0.0);
 
 		// Constrain spectrum with zero tolerance, this will generate initial guess
-		ConstrainSpectrum(oversampledSpectrum, filterSize, numTaps, oversampling, 0.1, 0.3, 1.0, 0.0);
+		ConstrainSpectrum(oversampledSpectrum, filterSize, numTaps, oversampling, passBandEnd, stopBandStart, 1.0, 0.0);
 		
 		complex::GFFT<13> transform;
 
@@ -90,7 +93,7 @@ public:
 
 			// Transform to spectrum and constrain
 			transform.realfft(oversampledImpulse, oversampledSpectrum);
-			double error = ConstrainSpectrum(oversampledSpectrum, filterSize, numTaps, oversampling, 0.1, 0.3, dbToGain(0.08), dbToGain(-85.0));
+			double error = ConstrainSpectrum(oversampledSpectrum, filterSize, numTaps, oversampling, passBandEnd, stopBandStart, dbToGain(0.08), dbToGain(-85.0));
 
 			// Output error
 			_zmsg("%f", error);

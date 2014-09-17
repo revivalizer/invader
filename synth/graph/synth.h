@@ -38,6 +38,8 @@ public:
 	ZVMProgram* program;
 
 	section_id_t section;
+
+	ZFIRInterpolator firInterpolator;
 };
 
 } // namespace invader

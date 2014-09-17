@@ -2,11 +2,15 @@
 
 namespace invader {
 
+//ZFIRInterpolator firInterpolator;
+
 ZSynth::ZSynth(ZVMProgram* program)
 	: vm(program, new ZVMStack((uintptr_t)zalignedalloc(10*1024*1024, 16)), new ZVMStorage((uintptr_t)zalignedalloc(program->globalStorageSize, 16)))
 	, program(program)
 	, numInstruments(program->numSections-1)
 {
+	firInterpolator.Init();
+
 	instruments = new ZInstrument*[numInstruments];
 
 	for (uint32_t i=0; i<numInstruments; i++)

@@ -17,13 +17,15 @@ public:
 	int16_t   data[(size+32)*2]; // allocate 16 samples at either end - stereo
 	int16_t*  paddedData;
 
+	double reps; // number of repetitions of the waveform
+
 	void GeneratePadding()
 	{
 		for (int32_t i=-32; i<0; i++)
-			wave[i] = wave[ i+size*2];
+			paddedData[i] = paddedData[ i+size*2];
 
 		for (int32_t i=0; i<32; i++)
-			wave[i+size*2] = wave[i];
+			paddedData[i+size*2] = paddedData[i];
 	}
 	
 private:

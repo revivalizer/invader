@@ -7,6 +7,7 @@ class ZWavetable : public align16
 {
 public:
 	static const uint32_t kNumWaves = 128;
+	static const uint32_t size = size;
 
 	ZWavetable()
 	{
@@ -28,7 +29,10 @@ public:
 		uint32_t i = zifloord(pitch);
 
 		if (!wave[i])
+		{
 			wave[i] = Generate(i);
+			wave[i]->GeneratePadding();
+		}
 
 		return wave[i];
 	}

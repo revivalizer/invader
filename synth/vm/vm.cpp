@@ -23,7 +23,7 @@ ZVirtualMachine::~ZVirtualMachine(void)
 // TODO: FIGURE OUT WHY THIS IS NECCESARY
 #pragma warning(disable: 4127)
 
-#if 1
+#if 0
 	#define trace(...) _zmsg(__VA_ARGS__)
 #else
 	#define trace(...) void(0)
@@ -91,7 +91,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 					break;
 				case kOpPushGlobal | kOpTypeWavetable:
 					trace("0x%04x push global wavetable, address: 0x%04x", ip-program->bytecode-1, *ip);
-					stack->Push(globalStorage->Load<ZWaveformWavetable<>>(*ip++));
+					stack->Push(globalStorage->Load<ZWaveformWavetable<>*>(*ip++));
 					break;
 				case kOpPopGlobal | kOpTypeNum:
 					trace("0x%04x pop global num, address: 0x%04x", ip-program->bytecode-1, *ip);
@@ -107,7 +107,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 					break;
 				case kOpPopGlobal | kOpTypeWavetable:
 					trace("0x%04x pop global wavetable, address: 0x%04x", ip-program->bytecode-1, *ip);
-					globalStorage->Store<ZWaveformWavetable<>>(*ip++, stack->Pop<ZWaveformWavetable<>>());
+					globalStorage->Store<ZWaveformWavetable<>*>(*ip++, stack->Pop<ZWaveformWavetable<>*>());
 					break;
 				case kOpResetGlobal | kOpTypeNum:
 					trace("0x%04x reet global num, address: 0x%04x", ip-program->bytecode-1, *ip);
@@ -121,10 +121,11 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 					trace("0x%04x reet global spectrum, address: 0x%04x", ip-program->bytecode-1, *ip);
 					globalStorage->Reset<ZRealSpectrum>(*ip++);
 					break;
-				case kOpResetGlobal | kOpTypeWavetable:
+/*				case kOpResetGlobal | kOpTypeWavetable:
 					trace("0x%04x reet global wavetable, address: 0x%04x", ip-program->bytecode-1, *ip);
 					globalStorage->Reset<ZWaveformWavetable<>>(*ip++);
 					break;
+				*/
 				/*case kOpJump:
 					ip = program->labels[argument];
 					break;
@@ -403,7 +404,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 							case 0x201: // spectrum.toWavetable
 								{
 									ZRealSpectrum& spectrum = stack->Pop<ZRealSpectrum>();
-									ZWaveformWavetable<> wavetable(spectrum);
+									auto wavetable = new ZWaveformWavetable<>(spectrum);
 									stack->Push(wavetable);
 									trace("0x%04x spectrum.toWavetable()", ip-program->bytecode-1);
 									break;
@@ -412,13 +413,19 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 							case 0x203: // spectrum.addSaw(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
+									gain;
 									auto harmonic = uint32_t(zifloord(stack->Pop<num_t>()));
 
 									ZASSERT(harmonic >= 0 && harmonic<spec.size)
 
 									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									//for (uint32_t i=harmonic; i<spec.size; i++)
+									//	spec.data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
 									for (uint32_t i=harmonic; i<spec.size; i++)
-										spec.data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
+										spec.data[i] = complex_t(0.0);
+
+									spec.data[0] = complex_t(1.0);
+
 									stack->Push(spec);
 									trace("0x%04x spectrum.addSaw(%d, %f)", ip-program->bytecode-1, harmonic, gain);
 									break;

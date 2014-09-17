@@ -1,3 +1,18 @@
+is ifft normalizing correctly?
+	seems like factor 8 for N=2048 which doesn't make a lot of sense.... 32 (sqrt N) would make a lot more sense
+is offset 0 DC?
+	no. that seems a little weird :)
+	should have documented the fft code better
+interpolator specs are wrong
+phase needs to be transformed to wavetable movement
+impulse normalization -- center==1? normalize each?
+ensure that group delays work on interp... currently 6 samples it seems
+
+the *= operator in complex_t is WRONG, does not do complex multiplication, but multiplies components
+
+
+
+
 create function_call_statement
 ASSERTS not working :)
 delayed initialization of nodeInstances, to spare bytecode iterator?

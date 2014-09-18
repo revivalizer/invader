@@ -145,6 +145,14 @@ public:
 				interleavedTaps[i][j][0] /= sum;
 		}
 
+		// Compute deltas to next phase and store in index 1
+		for (uint32_t i=0; i<numPhases; i++)
+		{
+			for (uint32_t j=0; j<numTapsPerPhase; j++)
+			{
+				interleavedTaps[i][j][1] = interleavedTaps[(i + 1) % numPhases][j][0] - interleavedTaps[i][j][0];
+			}
+		}
 	}
 	
 private:

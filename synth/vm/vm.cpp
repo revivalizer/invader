@@ -401,7 +401,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case 0x201: // spectrum.toWavetable
+							case 0xB01: // spectrum.toWavetable
 								{
 									ZRealSpectrum& spectrum = stack->Pop<ZRealSpectrum>();
 									auto wavetable = new ZWaveformWavetable<>(spectrum);
@@ -410,7 +410,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case 0x203: // spectrum.addSaw(num harmonic, num gainDB)
+							case 0xB03: // spectrum.addSaw(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
 									gain;
@@ -419,12 +419,13 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									ZASSERT(harmonic >= 0 && harmonic<spec.size)
 
 									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									//for (uint32_t i=harmonic; i<spec.size; i++)
-									//	spec.data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
 									for (uint32_t i=harmonic; i<spec.size; i++)
+										spec.data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
+									/*for (uint32_t i=harmonic; i<spec.size; i++)
 										spec.data[i] = complex_t(0.0);
 
 									spec.data[0] = complex_t(1.0);
+									*/
 
 									stack->Push(spec);
 									trace("0x%04x spectrum.addSaw(%d, %f)", ip-program->bytecode-1, harmonic, gain);

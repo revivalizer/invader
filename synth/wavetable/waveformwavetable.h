@@ -12,7 +12,7 @@ public:
 	}
 	
 private:
-	virtual ZWave<size>* Generate(uint32_t i)
+	virtual ZWave<size>* Generate(const uint32_t i)
 	{
 		uint32_t oct = i/12;
 		//uint32_t shift = (2^oct) >> 1; // 0, 1, 2, 4, 8, ...

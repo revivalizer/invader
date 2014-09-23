@@ -103,12 +103,42 @@ function OpcodeIsNode(op)
 end
 
 -- Node opcodes
-kOpNodeADSR         = 0x101 + kOpcodeMaskIsNode
-kOpNodeWavetableOsc = 0x102 + kOpcodeMaskIsNode
+kOpNodeADSR         = 0xA01 + kOpcodeMaskIsNode
+kOpNodeWavetableOsc = 0xA02 + kOpcodeMaskIsNode
 
 -- Spectrum opcodes
-kOpMakeWavetable = 0x201
-kOpAddSaw        = 0x203
+--[[
+	&noOp,
+	&mulWhiteNoise,
+	&mulWhiteNoiseDB,
+	&spectrumNoise,
+	&lowpass,
+	&highpass,
+	&bandpass,
+	&peakNotch,
+	&addCopy,
+	&addPitchedCopy,
+	&addLayers,
+	&addPitchedLayers,
+	&keepPowX,
+	&keepEvery,
+	&removeEvery,
+	&removeRandomAbove,
+	&removeRandomBelow,
+	&removePowX,
+	&reverse,
+	&mirror,
+	&comb,
+	&inverseComb,
+]]
+
+kOpMakeWavetable        = 0xB01
+kOpAddSine              = 0xB03
+kOpAddSaw               = 0xB03
+kOpAddSquare            = 0xB03
+kOpAddTriangle          = 0xB03
+kOpAddThirds            = 0xB03
+kOpAddWhite             = 0xB03
 
 
 

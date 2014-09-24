@@ -12,35 +12,46 @@ public:
 	}
 	
 private:
-	virtual ZWave<size>* Generate(const uint32_t i)
+	virtual ZWave<size>* Generate(const uint32_t harmonic)
 	{
-		uint32_t oct = i/12;
-		//uint32_t shift = (2^oct) >> 1; // 0, 1, 2, 4, 8, ...
-		uint32_t shift = 1 << (oct) >> 1; // 0, 1, 2, 4, 8, ...
-		uint32_t repetitions = 1 << oct; // number of times the wave repreats
-
 		ZRealSpectrum shiftedSpectrum;
 
-		for (uint32_t i=0; i<shift; i++)
-			shiftedSpectrum.data[i] = complex_t(0.0);
+		// Create spectrum with shifted harmonics
+		uint32_t oct = harmonic/12;
 
-		for (uint32_t i=shift; i<shiftedSpectrum.size; i++)
-			shiftedSpectrum.data[i] = spectrum.data[i-shift] * complex_t(0.0, -1.0); // rotate to create sin spec, rather than cos spec. not sure why this has to be -1, thought it would be +1
+		uint32_t factor = 1 << oct; // mul/spread factor for harmonics
 
+		for (uint32_t harmonic=0; harmonic<shiftedSpectrum.size; harmonic++)
+		{
+			if ((harmonic % factor)==0)
+				shiftedSpectrum.data[harmonic] = spectrum.data[harmonic/factor] * complex_t(0.0, -1.0); 
+			else
+				shiftedSpectrum.data[harmonic] = complex_t(0.0);
+		}
+
+		// Transform to waveform
 		double waveform[2048];
 
-		//TOO MUCH 11?
 		complex::GFFT<10> transform;
 		transform.realifft(shiftedSpectrum.data, waveform); // 11 -> 2^11 -> 2048
 		
 		auto wave = new ZWave<size>;
-		wave->reps = repetitions;
+		wave->reps = factor;
 
-		for (uint32_t i=0; i<2048; i++)
+		// Normalize wave
+		double max = 0.0;
+		for (uint32_t harmonic=0; harmonic<2048; harmonic++)
+			max = zmax(max, zfabsd(waveform[harmonic]));
+
+		for (uint32_t harmonic=0; harmonic<2048; harmonic++)
+			waveform[harmonic] /= max;
+
+		// Convert to 16 bit
+		for (uint32_t harmonic=0; harmonic<2048; harmonic++)
 		{
-			double clampedVal = zclamp(waveform[i]*32767.0, -32767.0, 32767.0);
-			wave->paddedData[i*2+0] = int16_t(clampedVal);
-			wave->paddedData[i*2+1] = int16_t(clampedVal);
+			double clampedVal = zclamp(waveform[harmonic]*32767.0, -32767.0, 32767.0);
+			wave->paddedData[harmonic*2+0] = int16_t(clampedVal);
+			wave->paddedData[harmonic*2+1] = int16_t(clampedVal);
 		}
 
 		return wave;

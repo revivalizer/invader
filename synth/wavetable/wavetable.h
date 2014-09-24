@@ -38,7 +38,7 @@ public:
 	}
 
 private:
-	virtual ZWave<size>* Generate(uint32_t i) = 0;
+	virtual ZWave<size>* Generate(const uint32_t i) = 0;
 	
 	ZWave<size>* wave[kNumWaves];
 };

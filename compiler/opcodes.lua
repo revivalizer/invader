@@ -107,38 +107,42 @@ kOpNodeADSR         = 0xA01 + kOpcodeMaskIsNode
 kOpNodeWavetableOsc = 0xA02 + kOpcodeMaskIsNode
 
 -- Spectrum opcodes
---[[
-	&noOp,
-	&mulWhiteNoise,
-	&mulWhiteNoiseDB,
-	&spectrumNoise,
-	&lowpass,
-	&highpass,
-	&bandpass,
-	&peakNotch,
-	&addCopy,
-	&addPitchedCopy,
-	&addLayers,
-	&addPitchedLayers,
-	&keepPowX,
-	&keepEvery,
-	&removeEvery,
-	&removeRandomAbove,
-	&removeRandomBelow,
-	&removePowX,
-	&reverse,
-	&mirror,
-	&comb,
-	&inverseComb,
-]]
-
 kOpMakeWavetable        = 0xB01
+
 kOpAddSine              = 0xB03
-kOpAddSaw               = 0xB03
-kOpAddSquare            = 0xB03
-kOpAddTriangle          = 0xB03
-kOpAddThirds            = 0xB03
-kOpAddWhite             = 0xB03
+kOpAddSaw               = 0xB04
+kOpAddSquare            = 0xB05
+kOpAddTriangle          = 0xB06
+kOpAddThirds            = 0xB07
+kOpAddWhite             = 0xB08
+
+kMulWhiteNoise          = 0xB10
+kMulWhiteNoiseDB        = 0xB11
+kSpectrumNoise          = 0xB12
+
+kComb                   = 0xB20
+kInverseComb            = 0xB21
+
+kLowpass                = 0xB30
+kHighpass               = 0xB31
+kBandpass               = 0xB32
+kPeak                   = 0xB33
+
+kKeepPowX               = 0xB40
+kKeepEvery              = 0xB41
+kRemoveEvery            = 0xB42
+kRemoveRandomAbove      = 0xB43
+kRemoveRandomBelow      = 0xB44
+kRemovePowX             = 0xB45
+
+kAddCopy                = 0xB50
+kAddPitchedCopy         = 0xB51
+kAddLayers              = 0xB52
+kAddPitchedLayers       = 0xB53
+
+kReverse                = 0xB60
+kMirror                 = 0xB61
+
 
 
 

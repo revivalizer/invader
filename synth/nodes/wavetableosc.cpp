@@ -14,7 +14,8 @@ sample_t GetInterpolatedValue(const double phase, const ZWave<2048>* const wave,
 	double fracPhase = phase - i;
 
 	uint32_t interpolatorPhase = zifloord(fracPhase * interpolator.numPhases);
-//	double fracInterpolatorPhase = fracPhase * interpolator.numPhases - interpolatorPhase; // this must used to interpolate coeffs
+	double fracInterpolatorPhase = fracPhase * interpolator.numPhases - interpolatorPhase; // this must used to interpolate coeffs
+	fracInterpolatorPhase;
 
 //	SWITCH YO SYNTH INTERP
 
@@ -25,8 +26,8 @@ sample_t GetInterpolatedValue(const double phase, const ZWave<2048>* const wave,
 		int32_t offset = i+j-interpolator.numTapsPerPhase/2;
 		sample_t sample = sample_t(double(wave->paddedData[offset*2+0])/32768.0, double(wave->paddedData[offset*2+1])/32768.0);
 		//out += sample_t(interpolator.interleavedTaps[interpolatorPhase][j][0])*sample_t(double(wave->paddedData[i+j-interpolator.numTapsPerPhase/2])/32768.0);
-//		out += sample_t(interpolator.interleavedTaps[interpolatorPhase][j][0] + fracInterpolatorPhase*interpolator.interleavedTaps[interpolatorPhase][j][1])*sample;
-		out += sample_t(interpolator.interleavedTaps[interpolatorPhase][j][0])*sample;
+		out += sample_t(interpolator.interleavedTaps[interpolatorPhase][j][0] + fracInterpolatorPhase*interpolator.interleavedTaps[interpolatorPhase][j][1])*sample;
+		//out += sample_t(interpolator.interleavedTaps[interpolatorPhase][j][0])*sample;
 	}
 
 	return out;

@@ -410,22 +410,29 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case 0xB03: // spectrum.addSaw(num harmonic, num gainDB)
+							case 0xB03: // spectrum.addSine(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
-									gain;
 									auto harmonic = uint32_t(zifloord(stack->Pop<num_t>()));
 
-									ZASSERT(harmonic >= 0 && harmonic<spec.size)
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+
+									if (harmonic>0 && harmonic<spec.size)
+										spec.data[harmonic] = complex_t(gain);
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.addSine(%d, %f)", ip-program->bytecode-1, harmonic, gain);
+									break;
+								}
+
+							case 0xB04: // spectrum.addSaw(num harmonic, num gainDB)
+								{
+									auto gain = dbToGain(stack->Pop<num_t>());
+									auto harmonic = int32_t(zifloord(stack->Pop<num_t>()));
 
 									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									for (uint32_t i=harmonic; i<spec.size; i++)
+									for (int32_t i=zmax(harmonic, 1); i<spec.size; i++)
 										spec.data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
-									/*for (uint32_t i=harmonic; i<spec.size; i++)
-										spec.data[i] = complex_t(0.0);
-
-									spec.data[0] = complex_t(1.0);
-									*/
 
 									stack->Push(spec);
 									trace("0x%04x spectrum.addSaw(%d, %f)", ip-program->bytecode-1, harmonic, gain);

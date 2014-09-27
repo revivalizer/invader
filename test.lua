@@ -4,7 +4,7 @@ str = [[
 ### strings
 	| channel: 1
 	const num test = 1 + a
-	const spectrum spec = spectrum().addSaw(1, 0)
+	const spectrum spec = spectrum().addSine(1, 0).addSaw(3, 0)
 	const wavetable wt = spec.toWavetable()
 	out wavetableosc(wt).ADSR(0.1, 0.1, -6, 1.0)
 ### master

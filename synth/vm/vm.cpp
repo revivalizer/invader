@@ -438,6 +438,66 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									trace("0x%04x spectrum.addSaw(%d, %f)", ip-program->bytecode-1, harmonic, gain);
 									break;
 								}
+
+							case 0xB05: // spectrum.addSquare(num harmonic, num gainDB)
+								{
+									auto gain = dbToGain(stack->Pop<num_t>());
+									auto harmonic = int32_t(zifloord(stack->Pop<num_t>()));
+
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									for (int32_t i=zmax(harmonic, 1); i<spec.size; i+=2)	
+										spec.data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.addSaw(%d, %f)", ip-program->bytecode-1, harmonic, gain);
+									break;
+								}
+
+							case 0xB06: // spectrum.addTriangle(num harmonic, num gainDB)
+								{
+									auto gain = dbToGain(stack->Pop<num_t>());
+									auto harmonic = int32_t(zifloord(stack->Pop<num_t>()));
+
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									for (int32_t i=zmax(harmonic, 1); i<spec.size; i+=2)	
+									{
+										double n = double(i+1-harmonic);
+										double sign = zfmodd((n+1)/2, 2)*2.0-1.0; // alternating sign for harmonics
+										spec.data[i] = complex_t(sign / (n*n) * gain);
+									}
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.addTriangle(%d, %f)", ip-program->bytecode-1, harmonic, gain);
+									break;
+								}
+
+							case 0xB07: // spectrum.addThirds(num harmonic, num gainDB)
+								{
+									auto gain = dbToGain(stack->Pop<num_t>());
+									auto harmonic = int32_t(zifloord(stack->Pop<num_t>()));
+
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									for (int32_t i=zmax(harmonic, 1); i<spec.size; i+=3)	
+										spec.data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.addThirds(%d, %f)", ip-program->bytecode-1, harmonic, gain);
+									break;
+								}
+
+							case 0xB08: // spectrum.addWhite(num harmonic, num gainDB)
+								{
+									auto gain = dbToGain(stack->Pop<num_t>());
+									auto harmonic = int32_t(zifloord(stack->Pop<num_t>()));
+
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									for (int32_t i=zmax(harmonic, 1); i<spec.size; i+=1)	
+										spec.data[i] = complex_t(gain);
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.addWhite(%d, %f)", ip-program->bytecode-1, harmonic, gain);
+									break;
+								}
 						}
 					}
 

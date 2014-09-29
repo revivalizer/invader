@@ -498,6 +498,186 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									trace("0x%04x spectrum.addWhite(%d, %f)", ip-program->bytecode-1, harmonic, gain);
 									break;
 								}
+
+							case 0xB10: // spectrum.mulWhiteNoise(num seed)
+								{
+									auto seed = uint32_t(zifloord(stack->Pop<num_t>()));
+
+									ZRandom r(seed);
+
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									for (int32_t i=1; i<spec.size; i++)	
+										spec.data[i] *= r.NextUniformDouble();
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.mulWhiteNoise(%d)", ip-program->bytecode-1, seed);
+									break;
+								}
+
+							case 0xB11: // spectrum.mulWhiteNoiseDB(num seed, num dB)
+								{
+									auto db = stack->Pop<num_t>();
+									auto seed = uint32_t(zifloord(stack->Pop<num_t>()));
+
+									ZRandom r(seed);
+
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									for (int32_t i=1; i<spec.size; i++)	
+										spec.data[i] *= dbToGain(r.NextUniformDouble()*db);
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.mulWhiteNoiseDB(%d, %f)", ip-program->bytecode-1, seed, gain);
+									break;
+								}
+
+							case 0xB12: // spectrum.spectrumNoise(num seed, num wavelength, num dB)
+								{
+									auto db = stack->Pop<num_t>();
+									auto wavelength = stack->Pop<num_t>();
+									auto seed = uint32_t(zifloord(stack->Pop<num_t>()));
+
+									ZRandom r(seed);
+
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									for (double i=wavelength/2; i<spec.size+wavelength/2; i+=wavelength)	
+										spec.ApplyPeak(i, wavelength/2.0, r.NextGaussianDouble()*db);
+										// this is a liottle different from quiver
+											// quiver -> amplitude passed as gain, not db
+												// needs test
+
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.spectrumNoise(%d, %d, %f, %f)", ip-program->bytecode-1, seed, wavelength, db);
+									break;
+								}
+
+							case 0xB20: // spectrum.comb(num phase, num frequency)
+								{
+									auto freq = stack->Pop<num_t>();
+									auto phaseOffset = stack->Pop<num_t>();
+
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									for (int32_t i=1; i<spec.size; i++)	
+									{
+										double phase = double(i) * freq / spec.size - phaseOffset;
+										phase = zfmodd(phase*kM_PI, kM_PI);
+										spec.data[i] *= zsind(phase);
+									}
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.comb(%d, %f, %f)", ip-program->bytecode-1, phase, frequency);
+									break;
+								}
+
+							case 0xB21: // spectrum.inverseComb(num phase, num frequency)
+								{
+									auto freq = stack->Pop<num_t>();
+									auto phaseOffset = stack->Pop<num_t>();
+
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									for (int32_t i=1; i<spec.size; i++)	
+									{
+										double phase = double(i) * freq / spec.size - phaseOffset;
+										phase = zfmodd(phase*kM_PI, kM_PI);
+										spec.data[i] *= 1.0 - zsind(phase);
+									}
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.inverseComb(%d, %f, %f)", ip-program->bytecode-1, phase, frequency);
+									break;
+								}
+
+							case 0xB30: // spectrum.lowpass(num cutoff, num dbPerOctave)
+								{
+									auto dbPerOctave = stack->Pop<num_t>();
+									auto cutoff      = stack->Pop<num_t>();
+
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									spec.ApplyLowpass(cutoff, dbPerOctave);
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.lowpass(%d, %f, %f)", ip-program->bytecode-1, cutoff, dbPerOctave);
+									break;
+								}
+
+							case 0xB31: // spectrum.highpass(num cutoff, num dbPerOctave)
+								{
+									auto dbPerOctave = stack->Pop<num_t>();
+									auto cutoff      = stack->Pop<num_t>();
+
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									spec.ApplyHighpass(cutoff, dbPerOctave);
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.highpass(%d, %f, %f)", ip-program->bytecode-1, cutoff, dbPerOctave);
+									break;
+								}
+
+							case 0xB32: // spectrum.bandpass(num lowCutoff, num highCutoff, num dbPerOctave)
+								{
+									auto dbPerOctave   = stack->Pop<num_t>();
+									auto highCutoff    = stack->Pop<num_t>();
+									auto lowCutoff     = stack->Pop<num_t>();
+
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									spec.ApplyHighpass(highCutoff, dbPerOctave);
+									spec.ApplyLowpass(lowCutoff, dbPerOctave);
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.bandpass(%d, %f, %f, %f)", ip-program->bytecode-1, lowCutoff, highCutoff, dbPerOctave);
+									break;
+								}
+
+							case 0xB33: // spectrum.peak(num harmonic, num width, num db gain)
+								{
+									auto dbGain   = stack->Pop<num_t>();
+									auto width    = stack->Pop<num_t>();
+									auto harmonic = stack->Pop<num_t>();
+
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									spec.ApplyPeak(harmonic, width, dbGain);
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.peak(%d, %f, %f, %f)", ip-program->bytecode-1, harmonic, width, dbGain);
+									break;
+								}
+
+							case 0xB40: // spectrum.keepPowX(num harmonic, num factor, num power)
+								{
+									auto power    = stack->Pop<num_t>();
+									auto factor   = stack->Pop<num_t>();
+									auto harmonic = stack->Pop<num_t>();
+
+									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+
+									int32_t prevLog = -2;
+
+									for (uint32_t i=zifloord(harmonic); i<spec.size; i++)
+									{
+										int32_t curLog = zifloord(zlogd((double)(i-harmonic+2) / factor) / zlogd(power));
+										
+										if (curLog != prevLog)
+										{
+											prevLog = curLog;
+										}
+										else
+										{
+											spec.data[i] = complex_t(0.0);
+										}
+									}
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.keepPowX(%d, %f, %f, %f)", ip-program->bytecode-1, harmonic, factor, power);
+									break;
+								}
+									/*
+kKeepPowX               = 0xB40
+kKeepEvery              = 0xB41
+kRemoveEvery            = 0xB42
+kRemoveRandomAbove      = 0xB43
+kRemoveRandomBelow      = 0xB44
+kRemovePowX             = 0xB45
+*/
 						}
 					}
 

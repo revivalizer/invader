@@ -1,31 +1,30 @@
 #include "pch.h"
 #include "filter.h"
 
-ZFilter::ZFilter(nodetype_t type) : ZSynthNode(type)
+namespace invader {
+
+ZFilter::ZFilter(nodetype_t type) : ZNode(type)
 {
 	filter.Reset();
 }
 
-void ZFilter::Process(ZVirtualMachine* vm, argument_t argument)
+void ZFilter::Process(ZVirtualMachine* vm)
 {
-	vm; argument;
-	ZSynthVirtualMachine* synthvm = static_cast<ZSynthVirtualMachine*>(vm);
+	// Get arguments
+	auto resonance = vm->stack->Pop<num_t>();
+	auto cutoff = vm->stack->Pop<num_t>();
+	auto type = zifloord(vm->stack->Pop<num_t>());
 
-	ZBlockBufferInternal& block = synthvm->blockStack->Top();
-	
-	uint32_t type    = static_cast<uint32_t>(vm->stack[-3]);
-	double cutoff    = vm->stack[-2];
-	double resonance = vm->stack[-1] / 100.0;
-	vm->stack -= 3;
-
-	if (argument == 1) // cutoff given in relative semitones to voice pitch
-		cutoff = pitchToFrequency(synthvm->voice->pitch + cutoff);
-
-	cutoff    = zclamp(cutoff, 5.0, kSampleRate*0.4);
+	// Clamp values
+	cutoff    = zclamp(cutoff, -36.0, 132.0); // 132 -> 16744Hz, -36 -> 1.02Hz
 	resonance = zclamp(resonance, 0.0, 1.0);
 
 	filter.SetParameters(type, cutoff, resonance);
+
+	// Process
+	ZBlockBufferInternal& block = vm->stack->Pop<ZBlockBufferInternal>();
 	filter.Process(block);
+	vm->stack->Push(block);
 }
 
 void ZFilter::NoteOn(double pitch, uint32_t note, uint32_t velocity, uint32_t deltaSamples)
@@ -33,3 +32,10 @@ void ZFilter::NoteOn(double pitch, uint32_t note, uint32_t velocity, uint32_t de
 	pitch; note; velocity; deltaSamples;
 	filter.Reset();
 }
+
+void ZFilter::NoteOff(uint32_t deltaSamples)
+{
+	deltaSamples;
+}
+
+} // namespace invader

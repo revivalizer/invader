@@ -43,11 +43,15 @@ enum
 	kOpMinus = 0x420,
 
 	// Nodes
-	kOpNodeADSR     = 0xA01 | kOpcodeMaskIsNode,
-	kOpWavetableOsc = 0xA02 | kOpcodeMaskIsNode,
+	kOpNodeADSR         = 0xA01 | kOpcodeMaskIsNode,
+	kOpNodeWavetableOsc = 0xA02 | kOpcodeMaskIsNode,
+	kOpNodeFilter1      = 0xA03 | kOpcodeMaskIsNode,
 
 	// Spectrum
 	// 0xBxx range
+
+	// Voice funcs
+	kOpVoicePitch = 0xC01,
 };
 
 // Type identifier

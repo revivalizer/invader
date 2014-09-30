@@ -21,8 +21,10 @@ project "invader_synth"
 	files { "./math/onepolefilterfast.h" }
 	files { "./math/util.h", "./math/util.cpp" }
 	files { "./math/fft.h", "./math/fft.cpp" }
+	files { "./math/filterzd24.*" }
 	files { "./nodes/adsrgain.h", "./nodes/adsrgain.cpp" }
 	files { "./nodes/wavetableosc.h", "./nodes/wavetableosc.cpp" }
+	files { "./nodes/filter.*" }
 	files { "./pch.h", "./pch.cpp" }
 	files { "./synth.h" }
 	files { "./wavetable/*" }

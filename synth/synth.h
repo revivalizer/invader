@@ -20,6 +20,7 @@
 #include "math/adsrenvelope.h"
 #include "math/spectrum.h"
 #include "math/fft.h"
+#include "math/filterzd24.h"
 
 #include "wavetable/wave.h"
 #include "wavetable/wavetable.h"

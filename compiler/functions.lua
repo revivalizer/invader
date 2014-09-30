@@ -24,6 +24,13 @@ functions =
 		["description"] = "Create spectrum.",
 	},
 	{
+		["name"] = "voicepitch",
+		["id"] = kOpVoicePitch,
+		["arguments"] = {},
+		["return_type"] = make_type("num"),
+		["description"] = "Returns pitch of the active voice in semitones.",
+	},
+	{
 		["name"] = "wavetableosc",
 		["id"] = kOpNodeWavetableOsc,
 		["arguments"] = { make_const_type("wavetable") },

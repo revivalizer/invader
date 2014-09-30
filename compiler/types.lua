@@ -97,6 +97,13 @@ types = {
 				["return_type"] = make_type("sample"),
 				["description"] = "Basic ADSR envelope.",
 			},
+			{
+				["name"] = "filter1",
+				["id"] = kOpNodeFilter1,
+				["arguments"] = {make_type("num"), make_type("num"), make_type("num")},
+				["return_type"] = make_type("sample"),
+				["description"] = "Basic 4-pole zero delay filter. Arguments: type, cutoff, resonance.",
+			},
 		},
 	},
 	["spectrum"] = {

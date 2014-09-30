@@ -678,6 +678,12 @@ kRemoveRandomAbove      = 0xB43
 kRemoveRandomBelow      = 0xB44
 kRemovePowX             = 0xB45
 */
+							case kOpVoicePitch: // num
+								{
+									stack->Push(voice->pitch);
+									trace("0x%04x push voice pitch", ip-program->bytecode-1, voice->pitch);
+									break;
+								}
 						}
 					}
 

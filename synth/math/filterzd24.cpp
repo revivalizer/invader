@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "filterzd24.h"
 
+namespace invader {
 
 ZFilterZD24::ZFilterZD24(void)
 {
@@ -30,26 +31,33 @@ static double typeCoeffs[][5] = {
 
 void ZFilterZD24::SetParameters(uint32_t type, double cutoff, double resonance)
 {
-	this->type      = type;
-	this->cutoff    = cutoff;
-	this->resonance = resonance;
+	if (this->cutoff != cutoff || this->resonance != resonance)
+	{
+		this->cutoff    = cutoff;
+		this->resonance = resonance;
 
-	f  = ztand(kM_PI * cutoff / kSampleRate);
-	f2 = 1.0 / (1.0 + f);
-	t  = 1.0 + f;
+		f  = ztand(kM_PI * pitchToFrequency(cutoff) / kSampleRate);
+		f2 = 1.0 / (1.0 + f);
+		t  = 1.0 + f;
 
-	g0 = t*t*t;
-	g1 = f * t*t;
-	g2 = f*f * t;
-	g3 = f*f*f; 
-	g4 = f*f*f*f;
-	g5 = t*t*t*t + f*f*f*f * resonance*4.0;
+		g0 = t*t*t;
+		g1 = f * t*t;
+		g2 = f*f * t;
+		g3 = f*f*f; 
+		g4 = f*f*f*f;
+		g5 = t*t*t*t + f*f*f*f * resonance*4.0;
+	}
 
-	c0 = typeCoeffs[type][0];
-	c1 = typeCoeffs[type][1];
-	c2 = typeCoeffs[type][2];
-	c3 = typeCoeffs[type][3];
-	c4 = typeCoeffs[type][4];
+	if (this->type != type)
+	{
+		this->type      = type;
+
+		c0 = typeCoeffs[type][0];
+		c1 = typeCoeffs[type][1];
+		c2 = typeCoeffs[type][2];
+		c3 = typeCoeffs[type][3];
+		c4 = typeCoeffs[type][4];
+	}
 
 }
 
@@ -92,3 +100,5 @@ void ZFilterZD24::Process(ZBlockBufferInternal& block)
 		block.samples[i] = c0*input + c1*out1 + c2*out2 + c3*out3 + c4*out4;
 	}
 }
+
+} // namespace invader

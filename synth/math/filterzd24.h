@@ -1,5 +1,7 @@
 #pragma once
 
+namespace invader {
+
 enum
 {
 	kFilterTypeLP6 = 0,
@@ -29,12 +31,14 @@ public:
 	void Process(ZBlockBufferInternal& block);
 
 	uint32_t   type;
-	sample_t   cutoff;
-	sample_t   resonance;
+	double     cutoff;
+	double     resonance;
 
 	sample_t buffer[4];
 
 	sample_t f, f2, t, g0, g1, g2, g3, g4, g5;
 	sample_t c0, c1, c2, c3, c4;
 };
+
+} // namespace invader
 

@@ -105,6 +105,7 @@ end
 -- Node opcodes
 kOpNodeADSR         = 0xA01 + kOpcodeMaskIsNode
 kOpNodeWavetableOsc = 0xA02 + kOpcodeMaskIsNode
+kOpNodeFilter1      = 0xA03 + kOpcodeMaskIsNode
 
 -- Spectrum opcodes
 kOpMakeWavetable        = 0xB01
@@ -143,6 +144,9 @@ kAddPitchedLayers       = 0xB53
 kReverse                = 0xB60
 kMirror                 = 0xB61
 
-
+-- Voice functions
+kOpVoicePitch  = 0xC01
+--kOpVoiceTime   = 0xC02
+--kOpVoicePos    = 0xC03
 
 

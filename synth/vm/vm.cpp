@@ -690,14 +690,13 @@ kRemovePowX             = 0xB45
 									num_t width = stack->Pop<num_t>();
 									ZBlockBufferInternal& block = stack->Pop<ZBlockBufferInternal>();
 
-									for (uint32_t i=0; i<op1.numSamples; i++)
+									for (uint32_t i=0; i<block.numSamples; i++)
 									{
-										num_t mean = (block.samples[i][0] + block.samples[i][1])/2.0;
-										num_t diff = (block.samples[i][1] - block.samples[i][0]) * width * 0.5;
+										num_t mean = (block.samples[i].d[0] + block.samples[i].d[1])/2.0;
+										num_t diff = (block.samples[i].d[1] - block.samples[i].d[0]) * width * 0.5;
 
 										block.samples[i] = sample_t(mean - diff, mean + diff);
 									}
-										op1.samples[i] += s;
 
 									stack->Push(block);
 									trace("0x%04x stereowidth(%f)", ip-program->bytecode-1, width);

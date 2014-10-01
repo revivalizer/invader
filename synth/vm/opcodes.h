@@ -52,6 +52,10 @@ enum
 
 	// Voice funcs
 	kOpVoicePitch = 0xC01,
+
+	// Other
+	kOpStereoWidth = 0xC11,
+	kOpPan         = 0xC12,
 };
 
 // Type identifier

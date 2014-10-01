@@ -149,4 +149,9 @@ kOpVoicePitch  = 0xC01
 --kOpVoiceTime   = 0xC02
 --kOpVoicePos    = 0xC03
 
+-- Other
+kOpStereoWidth = 0xC11
+kOpPan         = 0xC12
+
+
 

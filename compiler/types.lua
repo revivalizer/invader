@@ -104,6 +104,20 @@ types = {
 				["return_type"] = make_type("sample"),
 				["description"] = "Basic 4-pole zero delay filter. Arguments: type, cutoff, resonance.",
 			},
+			{
+				["name"] = "stereowidth",
+				["id"] = kOpStereoWidth,
+				["arguments"] = {make_type("num")},
+				["return_type"] = make_type("sample"),
+				["description"] = "Stereo width. Argument: num. 0 -> mono, 1 -> no change, more than 1 -> more stereo.",
+			},
+			{
+				["name"] = "pan",
+				["id"] = kOpPan,
+				["arguments"] = {make_type("num"), make_type("num")},
+				["return_type"] = make_type("sample"),
+				["description"] = "Pan. First argument is panning law, second is pan (0 for left, 1 for right).",
+			},
 		},
 	},
 	["spectrum"] = {

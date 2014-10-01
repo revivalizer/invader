@@ -684,6 +684,25 @@ kRemovePowX             = 0xB45
 									trace("0x%04x push voice pitch", ip-program->bytecode-1, voice->pitch);
 									break;
 								}
+
+							case kOpStereoWidth: // sample -> sample
+								{
+									num_t width = stack->Pop<num_t>();
+									ZBlockBufferInternal& block = stack->Pop<ZBlockBufferInternal>();
+
+									for (uint32_t i=0; i<op1.numSamples; i++)
+									{
+										num_t mean = (block.samples[i][0] + block.samples[i][1])/2.0;
+										num_t diff = (block.samples[i][1] - block.samples[i][0]) * width * 0.5;
+
+										block.samples[i] = sample_t(mean - diff, mean + diff);
+									}
+										op1.samples[i] += s;
+
+									stack->Push(block);
+									trace("0x%04x stereowidth(%f)", ip-program->bytecode-1, width);
+									break;
+								}
 						}
 					}
 

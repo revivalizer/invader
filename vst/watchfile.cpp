@@ -18,14 +18,14 @@ ZWatchFile::~ZWatchFile(void)
 	//CloseHandle(hFile);
 }
 
-void ZWatchFile::Update(void)
+bool ZWatchFile::DidUpdate(void)
 {
 	FILETIME ftCreate, ftAccess, ftWrite;
 
 	hFile = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if (hFile==INVALID_HANDLE_VALUE)
-		return; // we'll pick it up next time
+		return false; // we'll pick it up next time
 
 	// Retrieve the file times for the file.
 	GetFileTime(hFile, &ftCreate, &ftAccess, &ftWrite);
@@ -55,8 +55,9 @@ void ZWatchFile::Update(void)
 		ftLastRead.dwHighDateTime = ftWrite.dwHighDateTime;
 
 		CloseHandle(hFile);
-		return;
+		return true;
 	}
 
 	CloseHandle(hFile);
+	return false;
 }

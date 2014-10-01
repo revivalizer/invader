@@ -55,6 +55,8 @@ private:
 	invader::ZSynth* synth;
 
 	ZWatchFile programFile;
+	ZMutex renderMutex;
+
 
 //	VSTEditor* vstEditor;
 };

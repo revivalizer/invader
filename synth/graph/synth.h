@@ -29,8 +29,6 @@ public:
 
 	ZInstrument* midiChannelToInstrumentMap[kNumMIDIChannels];
 
-	ZMutex renderMutex;
-
 	ZVirtualMachine vm;
 
 	ZSyncInfo sync; 

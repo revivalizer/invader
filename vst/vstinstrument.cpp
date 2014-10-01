@@ -17,6 +17,7 @@ VSTInstrument::VSTInstrument(audioMasterCallback audioMaster) : AudioEffectX(aud
 , downsampler(new invader::ZResampler2x)
 //, vstEditor(nullptr)
 , programFile(zstrdup(ZScopedRegistryKey("InvaderProgramPath").str))
+, synth(nullptr)
 {
 	if (audioMaster)
 	{
@@ -70,12 +71,6 @@ VSTInstrument::VSTInstrument(audioMasterCallback audioMaster) : AudioEffectX(aud
 	//invader::ZFIRInterpolator inter;
 	//inter.Init();
 
-	// Create Synth
-	programFile.Update();
-	auto prog = invader::ZVMProgram::FromBlob(programFile.data);
-	prog->Unpack();
-	synth = new invader::ZSynth(prog);
-
 //i	vm->SetGlobalVariable("synth", "ZSynth *", synth);
 //	vm->LoadDefaultProgram();
 
@@ -120,8 +115,17 @@ VSTInstrument::VSTInstrument(audioMasterCallback audioMaster) : AudioEffectX(aud
 
 VSTInstrument::~VSTInstrument()
 {
-	delete synth;
-	delete downsampler;
+	if (synth)
+	{
+		delete synth;
+		synth = nullptr;
+	}
+
+	if (downsampler)
+	{
+		delete downsampler;
+		downsampler = nullptr;
+	}
 }
 
 VstInt32 VSTInstrument::getChunk(void **data, bool isPreset)
@@ -156,10 +160,25 @@ void VSTInstrument::suspend()
 
 void VSTInstrument::processReplacing(float** inputs, float** outputs, VstInt32 sampleFrames)
 {
-	// Before rendering, set rounding flags, and denormal flags
-	ZFPUState fpuState(ZFPUState::kRoundToZero);
+	renderMutex.Lock();
 
-	synth->renderMutex.Lock();
+		// Before rendering, set rounding flags, and denormal flags
+		ZFPUState fpuState(ZFPUState::kRoundToZero);
+
+		// If neccesary, create or reload synth
+		if (programFile.DidUpdate())
+		{
+			auto prog = invader::ZVMProgram::FromBlob(programFile.data);
+			prog->Unpack();
+
+			if (synth)
+			{
+				delete synth;
+				synth = nullptr;
+			}
+
+			synth = new invader::ZSynth(prog);
+		}
 
 		eventQueueMutex.Lock();
 			int32_t numSamplesToRender = ((int32_t)sampleFrames)-((int32_t)sampleBuffer.SamplesAvailable());
@@ -243,7 +262,7 @@ void VSTInstrument::processReplacing(float** inputs, float** outputs, VstInt32 s
 
 		eventQueueMutex.Unlock();
 
-	synth->renderMutex.Unlock();
+	renderMutex.Unlock();
 
 	// Deinterleave output into buffers
 	for (int32_t i=0; i<sampleFrames; i++)

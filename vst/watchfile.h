@@ -6,7 +6,7 @@ public:
 	ZWatchFile(const char* path);
 	~ZWatchFile(void);
 
-	void Update(void);
+	bool DidUpdate(void);
 
 	char* data;
 

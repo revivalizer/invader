@@ -35,16 +35,30 @@ ZSynth::ZSynth(ZVMProgram* program)
 
 ZSynth::~ZSynth(void)
 {
-	for (uint32_t i=0; i<numInstruments; i++)
-		delete instruments[i];
+	// This is only done by synth, since only once globalstorage exists
+	if (vm.globalStorage)
+	{
+		zalignedfree((void*)vm.globalStorage->mem);
+		vm.globalStorage->mem = 0;
 
-	delete instruments;
-	
-	zalignedfree((void*)vm.globalStorage->mem);
-	delete vm.globalStorage;
+		delete vm.globalStorage;
+		vm.globalStorage = nullptr;
+	}
 
-	zalignedfree((void*)vm.stack->mem);
-	delete vm.stack;
+	if (instruments)
+	{
+		for (uint32_t i=0; i<numInstruments; i++)
+		{
+			if (instruments[i])
+			{
+				delete instruments[i];
+				instruments[i] = nullptr;
+			}
+		}
+
+		delete instruments;
+		instruments = nullptr;
+	}
 }
 
 void ZSynth::NoteOn(uint32_t channel, uint32_t note, uint32_t velocity, uint32_t deltaSamples)

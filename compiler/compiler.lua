@@ -372,7 +372,6 @@ function match_function(program, node, function_list, error_generator)
 				local argMatch = true
 
 				for j,arg in ipairs(func.arguments) do
-					print(arg)
 					argMatch = argMatch and (arg.name==node.arguments[j].type.name)
 				end
 
@@ -649,7 +648,7 @@ end
 function compile(str)
 	local program = {}
 	program.ast = parse(str)
-	print(serialize_table(program.ast))
+--	print(serialize_table(program.ast))
 
 	program.section_refs      = {}
 	program.variable_refs     = {}
@@ -681,17 +680,17 @@ function compile(str)
 
 	generate_section_variables(program)
 
-	print(serialize_table(program.ast))
+--	print(serialize_table(program.ast))
 	generate_bytecode(program, program.ast)
 
 	program.constants = program.constants:to_table()
 
 	generate_section_start_table(program)
 
-	print(serialize_table(program.ast))
+--	print(serialize_table(program.ast))
 
 	-- print bytecode in hex
-	if (true) then
+	if (false) then
 		print(serialize_table(program.bytecode))
 		for i,v in ipairs(program.bytecode) do
 			if (type(v)=="number") then

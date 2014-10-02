@@ -26,11 +26,17 @@ namespace invader {
 
 ZVoice::~ZVoice(void)
 {
-	delete dcTrap;
-	delete levelFollower;
-	
-	zalignedfree((void*)vm.stack->mem);
-	delete vm.stack;
+	if (dcTrap)
+	{
+		delete dcTrap;
+		dcTrap = nullptr;
+	}
+
+	if (levelFollower)
+	{
+		delete levelFollower;
+		levelFollower = nullptr;
+	}
 }
 
 void ZVoice::NoteOn(double pitch, uint32_t note, uint32_t velocity, uint32_t deltaSamples)

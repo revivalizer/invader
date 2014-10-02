@@ -168,14 +168,14 @@ void VSTInstrument::processReplacing(float** inputs, float** outputs, VstInt32 s
 		// If neccesary, create or reload synth
 		if (programFile.DidUpdate())
 		{
-			auto prog = invader::ZVMProgram::FromBlob(programFile.data);
-			prog->Unpack();
-
 			if (synth)
 			{
 				delete synth;
 				synth = nullptr;
 			}
+
+			auto prog = invader::ZVMProgram::FromBlob(programFile.data);
+			prog->Unpack();
 
 			synth = new invader::ZSynth(prog);
 		}

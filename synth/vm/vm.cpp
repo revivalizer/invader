@@ -15,8 +15,29 @@ ZVirtualMachine::~ZVirtualMachine(void)
 {
 	if (nodeInstances)
 	{
+		for (uint32_t i=0; i<program->bytecodeSize; i++)
+		{
+			if (nodeInstances[i])
+			{
+				delete nodeInstances[i];
+				nodeInstances[i] = nullptr;
+			}
+		}
+
 		delete nodeInstances;
 		nodeInstances = nullptr;
+	}
+
+	// Only one global storage exists, freed by synth
+	globalStorage = nullptr;
+
+	if (stack)
+	{
+		zalignedfree((void*)stack->mem);
+		stack->mem = 0;
+
+		delete stack;
+		stack = nullptr;
 	}
 }
 

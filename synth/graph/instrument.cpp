@@ -22,7 +22,13 @@ ZInstrument::ZInstrument( ZSynth* synth, ZVMProgram* program, section_id_t secti
 ZInstrument::~ZInstrument(void)
 {
 	for (uint32_t i=0; i<kNumVoices; i++)
-		delete voices[i];
+	{
+		if (voices[i])
+		{
+			delete voices[i];
+			voices[i] = nullptr;
+		}
+	}
 }
 
 void ZInstrument::NoteOn(uint32_t note, uint32_t velocity, uint32_t deltaSamples)

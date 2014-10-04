@@ -3,9 +3,8 @@
 namespace invader {
 
 ZNode::ZNode(nodetype_t type)
-//	: type(type)
+	: type(type)
 {
-	type;
 }
 
 ZNode::~ZNode()

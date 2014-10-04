@@ -723,6 +723,24 @@ kRemovePowX             = 0xB45
 									trace("0x%04x stereowidth(%f)", ip-program->bytecode-1, width);
 									break;
 								}
+
+							case kOpPan: // sample -> sample
+								{
+									num_t width = stack->Pop<num_t>();
+									ZBlockBufferInternal& block = stack->Pop<ZBlockBufferInternal>();
+
+									for (uint32_t i=0; i<block.numSamples; i++)
+									{
+										num_t mean = (block.samples[i].d[0] + block.samples[i].d[1])/2.0;
+										num_t diff = (block.samples[i].d[1] - block.samples[i].d[0]) * width * 0.5;
+
+										block.samples[i] = sample_t(mean - diff, mean + diff);
+									}
+
+									stack->Push(block);
+									trace("0x%04x stereowidth(%f)", ip-program->bytecode-1, width);
+									break;
+								}
 						}
 					}
 

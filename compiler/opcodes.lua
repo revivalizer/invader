@@ -150,8 +150,11 @@ kOpVoicePitch  = 0xC01
 --kOpVoicePos    = 0xC03
 
 -- Other
-kOpStereoWidth = 0xC11
-kOpPan         = 0xC12
+kOpStereoWidth           = 0xC11
+kOpPan                   = 0xC12
+kOpNodeCompress          = 0xC13
+kOpNodeSidechainCompress = 0xC14
+kOpNodeReverb            = 0xC15
 
 
 

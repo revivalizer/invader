@@ -18,6 +18,8 @@ void ZCompressor::Process(ZVirtualMachine* vm)
 	// http://www.kvraudio.com/forum/viewtopic.php?f=33&t=362249&p=5099943&hilit=envelope+follower#p5099943
 	// http://www.kvraudio.com/forum/viewtopic.php?f=33&t=368416&p=5179767&hilit=envelope+follower#p5179767
 
+	ZBlockBufferInternal* sidechain = (type==kOpNodeSidechainCompress) ? &vm->stack->Pop<ZBlockBufferInternal>() : nullptr;
+
 	auto decay     = vm->stack->Pop<num_t>();
 	auto attack    = vm->stack->Pop<num_t>();
 	auto ratio     = vm->stack->Pop<num_t>();
@@ -30,6 +32,9 @@ void ZCompressor::Process(ZVirtualMachine* vm)
 
 	ZBlockBufferInternal& block = vm->stack->Pop<ZBlockBufferInternal>();
 
+	if (sidechain==nullptr)
+		sidechain = &block;
+
 	double slopePower = 1 - 1.0/ratio;
 
 	// NOTES:
@@ -37,7 +42,7 @@ void ZCompressor::Process(ZVirtualMachine* vm)
 
 	for (uint32_t i=0; i<block.numSamples; i++)
 	{
-		double s = 0.5*(block.samples[i].d[0]*block.samples[i].d[0] + block.samples[i].d[1]*block.samples[i].d[1]);
+		double s = 0.5*(sidechain->samples[i].d[0]*sidechain->samples[i].d[0] + sidechain->samples[i].d[1]*sidechain->samples[i].d[1]);
 
 		rmsSquared = envelopeTau*rmsSquared + (1.0-envelopeTau)*s;
 		double rms = zsqrtd(rmsSquared);

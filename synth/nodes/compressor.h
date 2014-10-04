@@ -2,12 +2,15 @@
 
 namespace invader {
 
-class ZReverb : public ZNode
+class ZCompressor : public ZNode
 {
 public:
-	ZReverb(nodetype_t type);
+	ZCompressor(nodetype_t type);
 
 	virtual void Process(ZVirtualMachine* vm);
+
+	double rmsSquared;
+	double envelope;
 };
 
 

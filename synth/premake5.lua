@@ -25,6 +25,8 @@ project "invader_synth"
 	files { "./nodes/adsrgain.h", "./nodes/adsrgain.cpp" }
 	files { "./nodes/wavetableosc.h", "./nodes/wavetableosc.cpp" }
 	files { "./nodes/filter.*" }
+	files { "./nodes/compressor.*" }
+	files { "./nodes/reverb.*" }
 	files { "./pch.h", "./pch.cpp" }
 	files { "./synth.h" }
 	files { "./wavetable/*" }

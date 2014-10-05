@@ -726,19 +726,27 @@ kRemovePowX             = 0xB45
 
 							case kOpPan: // sample -> sample
 								{
-									num_t width = stack->Pop<num_t>();
+									num_t panRight = stack->Pop<num_t>();
+									num_t panLawdB = stack->Pop<num_t>();
+
+									auto panLaw = dbToGain(panLawdB);
+									
+									auto pan = sample_t(1.0 - panRight, panRight);
+
+									auto scale = sample_t(2.0 - 4.0 * panLaw);
+									auto boost = sample_t(1.0 / panLaw);
+
+									auto panMul = boost*(scale*pan*pan + (sample_t(1.0)-scale)*pan);
+
 									ZBlockBufferInternal& block = stack->Pop<ZBlockBufferInternal>();
 
 									for (uint32_t i=0; i<block.numSamples; i++)
 									{
-										num_t mean = (block.samples[i].d[0] + block.samples[i].d[1])/2.0;
-										num_t diff = (block.samples[i].d[1] - block.samples[i].d[0]) * width * 0.5;
-
-										block.samples[i] = sample_t(mean - diff, mean + diff);
+										block.samples[i] *= panMul;
 									}
 
 									stack->Push(block);
-									trace("0x%04x stereowidth(%f)", ip-program->bytecode-1, width);
+									trace("0x%04x pan(%f, %f)", ip-program->bytecode-1, panLawdB, panRight);
 									break;
 								}
 						}

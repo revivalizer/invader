@@ -13,7 +13,7 @@ void ZFilter::Process(ZVirtualMachine* vm)
 	// Get arguments
 	auto resonance = vm->stack->Pop<num_t>();
 	auto cutoff = vm->stack->Pop<num_t>();
-	auto type = zifloord(vm->stack->Pop<num_t>());
+	auto type = zitruncd(vm->stack->Pop<num_t>());
 
 	// Clamp values
 	cutoff    = zclamp(cutoff, -36.0, 132.0); // 132 -> 16744Hz, -36 -> 1.02Hz

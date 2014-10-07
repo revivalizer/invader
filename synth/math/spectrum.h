@@ -23,7 +23,7 @@ public:
 	{
 		double harmonicOctave = zlog2d(harmonic + 1.0);
 		
-		for (int i=zifloord(harmonic); i<size; i++)
+		for (int i=zitruncd(harmonic); i<size; i++)
 		{
 			data[i] *= dbToGain((zlog2d(i + 1.0) - harmonicOctave)*dbPerOctave);
 		};
@@ -34,7 +34,7 @@ public:
 		double harmonicOctave = zlog2d(harmonic + 1.0);
 		
 		// TODO: This is slightly incorrect, actually needs to be ceil, but not available
-		for (int i=zifloord(harmonic); i<size; i++)
+		for (int i=zitruncd(harmonic); i<size; i++)
 		{
 			data[i] *= dbToGain((harmonicOctave - zlog2d(i + 1.0))*dbPerOctave);
 		};

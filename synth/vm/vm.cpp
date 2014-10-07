@@ -395,7 +395,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									for (double i=0.0; i<out.numSamples; i++)
 									{
 										double time = voice->timeSinceNoteOn + i/kSampleRate;
-										out.samples[zifloord(i)] = sample_t(zsind(time*pitchToFrequency(voice->pitch)*kM_PI2));
+										out.samples[zitruncd(i)] = sample_t(zsind(time*pitchToFrequency(voice->pitch)*kM_PI2));
 									}
 
 									stack->Push(out);
@@ -434,7 +434,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 							case 0xB03: // spectrum.addSine(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
-									auto harmonic = uint32_t(zifloord(stack->Pop<num_t>()));
+									auto harmonic = uint32_t(zitruncd(stack->Pop<num_t>()));
 
 									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
 
@@ -449,7 +449,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 							case 0xB04: // spectrum.addSaw(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
-									auto harmonic = int32_t(zifloord(stack->Pop<num_t>()));
+									auto harmonic = int32_t(zitruncd(stack->Pop<num_t>()));
 
 									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
 									for (int32_t i=zmax(harmonic, 1); i<spec.size; i++)
@@ -463,7 +463,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 							case 0xB05: // spectrum.addSquare(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
-									auto harmonic = int32_t(zifloord(stack->Pop<num_t>()));
+									auto harmonic = int32_t(zitruncd(stack->Pop<num_t>()));
 
 									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
 									for (int32_t i=zmax(harmonic, 1); i<spec.size; i+=2)	
@@ -477,7 +477,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 							case 0xB06: // spectrum.addTriangle(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
-									auto harmonic = int32_t(zifloord(stack->Pop<num_t>()));
+									auto harmonic = int32_t(zitruncd(stack->Pop<num_t>()));
 
 									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
 									for (int32_t i=zmax(harmonic, 1); i<spec.size; i+=2)	
@@ -495,7 +495,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 							case 0xB07: // spectrum.addThirds(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
-									auto harmonic = int32_t(zifloord(stack->Pop<num_t>()));
+									auto harmonic = int32_t(zitruncd(stack->Pop<num_t>()));
 
 									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
 									for (int32_t i=zmax(harmonic, 1); i<spec.size; i+=3)	
@@ -509,7 +509,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 							case 0xB08: // spectrum.addWhite(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
-									auto harmonic = int32_t(zifloord(stack->Pop<num_t>()));
+									auto harmonic = int32_t(zitruncd(stack->Pop<num_t>()));
 
 									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
 									for (int32_t i=zmax(harmonic, 1); i<spec.size; i+=1)	
@@ -522,7 +522,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 							case 0xB10: // spectrum.mulWhiteNoise(num seed)
 								{
-									auto seed = uint32_t(zifloord(stack->Pop<num_t>()));
+									auto seed = uint32_t(zitruncd(stack->Pop<num_t>()));
 
 									ZRandom r(seed);
 
@@ -538,7 +538,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 							case 0xB11: // spectrum.mulWhiteNoiseDB(num seed, num dB)
 								{
 									auto db = stack->Pop<num_t>();
-									auto seed = uint32_t(zifloord(stack->Pop<num_t>()));
+									auto seed = uint32_t(zitruncd(stack->Pop<num_t>()));
 
 									ZRandom r(seed);
 
@@ -555,7 +555,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 								{
 									auto db = stack->Pop<num_t>();
 									auto wavelength = stack->Pop<num_t>();
-									auto seed = uint32_t(zifloord(stack->Pop<num_t>()));
+									auto seed = uint32_t(zitruncd(stack->Pop<num_t>()));
 
 									ZRandom r(seed);
 
@@ -673,9 +673,9 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 									int32_t prevLog = -2;
 
-									for (uint32_t i=zifloord(harmonic); i<spec.size; i++)
+									for (uint32_t i=zitruncd(harmonic); i<spec.size; i++)
 									{
-										int32_t curLog = zifloord(zlogd((double)(i-harmonic+2) / factor) / zlogd(power));
+										int32_t curLog = zitruncd(zlogd((double)(i-harmonic+2) / factor) / zlogd(power));
 										
 										if (curLog != prevLog)
 										{

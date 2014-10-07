@@ -26,7 +26,7 @@ public:
 
 	ZWave<size>* GetWave(double pitch)
 	{
-		uint32_t i = zifloord(pitch);
+		uint32_t i = zitruncd(pitch);
 
 		if (!wave[i])
 		{

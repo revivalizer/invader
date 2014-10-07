@@ -10,10 +10,10 @@ ZWavetableOsc::ZWavetableOsc(nodetype_t type) : ZNode(type)
 
 sample_t GetInterpolatedValue(const double phase, const ZWave<2048>* const wave, const ZFIRInterpolator& interpolator)
 {
-	uint32_t i = zifloord(phase);
+	uint32_t i = zitruncd(phase);
 	double fracPhase = phase - i;
 
-	uint32_t interpolatorPhase = zifloord(fracPhase * interpolator.numPhases);
+	uint32_t interpolatorPhase = zitruncd(fracPhase * interpolator.numPhases);
 	double fracInterpolatorPhase = fracPhase * interpolator.numPhases - interpolatorPhase; // this must used to interpolate coeffs
 	fracInterpolatorPhase;
 

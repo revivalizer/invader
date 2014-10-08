@@ -44,7 +44,7 @@ ZVirtualMachine::~ZVirtualMachine(void)
 // TODO: FIGURE OUT WHY THIS IS NECCESARY
 #pragma warning(disable: 4127)
 
-#if 1
+#if 0
 	#define trace(...) _zmsg(__VA_ARGS__)
 #else
 	#define trace(...) void(0)
@@ -110,7 +110,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 					break;
 				case kOpPushGlobal | kOpTypeSpectrum:
 					trace("0x%04x push global spectrum, address: 0x%04x", opcodeOffset, *ip);
-					stack->Push(globalStorage->Load<ZRealSpectrum>(*ip++));
+					stack->Push(globalStorage->Load<ZRealSpectrum*>(*ip++));
 					break;
 				case kOpPushGlobal | kOpTypeWavetable:
 					trace("0x%04x push global wavetable, address: 0x%04x", opcodeOffset, *ip);
@@ -126,7 +126,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 					break;
 				case kOpPopGlobal | kOpTypeSpectrum:
 					trace("0x%04x pop global spectrum, address: 0x%04x", opcodeOffset, *ip);
-					globalStorage->Store<ZRealSpectrum>(*ip++, stack->Pop<ZRealSpectrum>());
+					globalStorage->Store<ZRealSpectrum*>(*ip++, stack->Pop<ZRealSpectrum*>());
 					break;
 				case kOpPopGlobal | kOpTypeWavetable:
 					trace("0x%04x pop global wavetable, address: 0x%04x", opcodeOffset, *ip);
@@ -142,7 +142,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 					break;
 				case kOpResetGlobal | kOpTypeSpectrum:
 					trace("0x%04x reet global spectrum, address: 0x%04x", opcodeOffset, *ip);
-					globalStorage->Reset<ZRealSpectrum>(*ip++);
+					globalStorage->Reset<ZRealSpectrum*>(*ip++);
 					break;
 /*				case kOpResetGlobal | kOpTypeWavetable:
 					trace("0x%04x reet global wavetable, address: 0x%04x", opcodeOffset, *ip);
@@ -416,9 +416,9 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 							case 3: // spectrum()
 								{
-									ZRealSpectrum spec;
-									for (uint32_t i=0; i<spec.size; i++)
-										spec.data[i] = complex_t(0.0);
+									auto spec = new ZRealSpectrum;
+									for (uint32_t i=0; i<spec->size; i++)
+										spec->data[i] = complex_t(0.0);
 									stack->Push(spec);
 									trace("0x%04x spectrum()", opcodeOffset);
 									break;
@@ -426,8 +426,8 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 							case 0xB01: // spectrum.toWavetable
 								{
-									ZRealSpectrum& spectrum = stack->Pop<ZRealSpectrum>();
-									auto wavetable = new ZWaveformWavetable<>(spectrum);
+									ZRealSpectrum* spectrum = stack->Pop<ZRealSpectrum*>();
+									auto wavetable = new ZWaveformWavetable<>(*spectrum);
 									stack->Push(wavetable);
 									trace("0x%04x spectrum.toWavetable()", opcodeOffset);
 									break;
@@ -438,10 +438,10 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto gain = dbToGain(stack->Pop<num_t>());
 									auto harmonic = uint32_t(zitruncd(stack->Pop<num_t>()));
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									auto spec = stack->Pop<ZRealSpectrum*>();
 
-									if (harmonic>0 && harmonic<spec.size)
-										spec.data[harmonic] = complex_t(gain);
+									if (harmonic>0 && harmonic<spec->size)
+										spec->data[harmonic] = complex_t(gain);
 
 									stack->Push(spec);
 									trace("0x%04x spectrum.addSine(%d, %f)", opcodeOffset, harmonic, gain);
@@ -453,9 +453,9 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto gain = dbToGain(stack->Pop<num_t>());
 									auto harmonic = int32_t(zitruncd(stack->Pop<num_t>()));
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									for (int32_t i=zmax(harmonic, 1); i<spec.size; i++)
-										spec.data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									for (int32_t i=zmax(harmonic, 1); i<spec->size; i++)
+										spec->data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
 
 									stack->Push(spec);
 									trace("0x%04x spectrum.addSaw(%d, %f)", opcodeOffset, harmonic, gain);
@@ -467,9 +467,9 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto gain = dbToGain(stack->Pop<num_t>());
 									auto harmonic = int32_t(zitruncd(stack->Pop<num_t>()));
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									for (int32_t i=zmax(harmonic, 1); i<spec.size; i+=2)	
-										spec.data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									for (int32_t i=zmax(harmonic, 1); i<spec->size; i+=2)	
+										spec->data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
 
 									stack->Push(spec);
 									trace("0x%04x spectrum.addSaw(%d, %f)", opcodeOffset, harmonic, gain);
@@ -481,12 +481,12 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto gain = dbToGain(stack->Pop<num_t>());
 									auto harmonic = int32_t(zitruncd(stack->Pop<num_t>()));
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									for (int32_t i=zmax(harmonic, 1); i<spec.size; i+=2)	
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									for (int32_t i=zmax(harmonic, 1); i<spec->size; i+=2)	
 									{
 										double n = double(i+1-harmonic);
 										double sign = zfmodd((n+1)/2, 2)*2.0-1.0; // alternating sign for harmonics
-										spec.data[i] = complex_t(sign / (n*n) * gain);
+										spec->data[i] = complex_t(sign / (n*n) * gain);
 									}
 
 									stack->Push(spec);
@@ -499,9 +499,9 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto gain = dbToGain(stack->Pop<num_t>());
 									auto harmonic = int32_t(zitruncd(stack->Pop<num_t>()));
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									for (int32_t i=zmax(harmonic, 1); i<spec.size; i+=3)	
-										spec.data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									for (int32_t i=zmax(harmonic, 1); i<spec->size; i+=3)	
+										spec->data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
 
 									stack->Push(spec);
 									trace("0x%04x spectrum.addThirds(%d, %f)", opcodeOffset, harmonic, gain);
@@ -513,9 +513,9 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto gain = dbToGain(stack->Pop<num_t>());
 									auto harmonic = int32_t(zitruncd(stack->Pop<num_t>()));
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									for (int32_t i=zmax(harmonic, 1); i<spec.size; i+=1)	
-										spec.data[i] = complex_t(gain);
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									for (int32_t i=zmax(harmonic, 1); i<spec->size; i+=1)	
+										spec->data[i] = complex_t(gain);
 
 									stack->Push(spec);
 									trace("0x%04x spectrum.addWhite(%d, %f)", opcodeOffset, harmonic, gain);
@@ -528,9 +528,9 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 									ZRandom r(seed);
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									for (int32_t i=1; i<spec.size; i++)	
-										spec.data[i] *= r.NextUniformDouble();
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									for (int32_t i=1; i<spec->size; i++)	
+										spec->data[i] *= r.NextUniformDouble();
 
 									stack->Push(spec);
 									trace("0x%04x spectrum.mulWhiteNoise(%d)", opcodeOffset, seed);
@@ -544,9 +544,9 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 									ZRandom r(seed);
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									for (int32_t i=1; i<spec.size; i++)	
-										spec.data[i] *= dbToGain(r.NextUniformDouble()*db);
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									for (int32_t i=1; i<spec->size; i++)	
+										spec->data[i] *= dbToGain(r.NextUniformDouble()*db);
 
 									stack->Push(spec);
 									trace("0x%04x spectrum.mulWhiteNoiseDB(%d, %f)", opcodeOffset, seed, db);
@@ -561,9 +561,9 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 									ZRandom r(seed);
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									for (double i=wavelength/2; i<spec.size+wavelength/2; i+=wavelength)	
-										spec.ApplyPeak(i, wavelength/2.0, r.NextGaussianDouble()*db);
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									for (double i=wavelength/2; i<spec->size+wavelength/2; i+=wavelength)	
+										spec->ApplyPeak(i, wavelength/2.0, r.NextGaussianDouble()*db);
 										// this is a liottle different from quiver
 											// quiver -> amplitude passed as gain, not db
 												// needs test
@@ -579,12 +579,12 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto freq = stack->Pop<num_t>();
 									auto phaseOffset = stack->Pop<num_t>();
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									for (int32_t i=1; i<spec.size; i++)	
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									for (int32_t i=1; i<spec->size; i++)	
 									{
-										double phase = double(i) * freq / spec.size - phaseOffset;
+										double phase = double(i) * freq / spec->size - phaseOffset;
 										phase = zfmodd(phase*kM_PI, kM_PI);
-										spec.data[i] *= zsind(phase);
+										spec->data[i] *= zsind(phase);
 									}
 
 									stack->Push(spec);
@@ -597,12 +597,12 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto freq = stack->Pop<num_t>();
 									auto phaseOffset = stack->Pop<num_t>();
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									for (int32_t i=1; i<spec.size; i++)	
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									for (int32_t i=1; i<spec->size; i++)	
 									{
-										double phase = double(i) * freq / spec.size - phaseOffset;
+										double phase = double(i) * freq / spec->size - phaseOffset;
 										phase = zfmodd(phase*kM_PI, kM_PI);
-										spec.data[i] *= 1.0 - zsind(phase);
+										spec->data[i] *= 1.0 - zsind(phase);
 									}
 
 									stack->Push(spec);
@@ -615,8 +615,8 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto dbPerOctave = stack->Pop<num_t>();
 									auto cutoff      = stack->Pop<num_t>();
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									spec.ApplyLowpass(cutoff, dbPerOctave);
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									spec->ApplyLowpass(cutoff, dbPerOctave);
 
 									stack->Push(spec);
 									trace("0x%04x spectrum.lowpass(%d, %f, %f)", opcodeOffset, cutoff, dbPerOctave);
@@ -628,8 +628,8 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto dbPerOctave = stack->Pop<num_t>();
 									auto cutoff      = stack->Pop<num_t>();
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									spec.ApplyHighpass(cutoff, dbPerOctave);
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									spec->ApplyHighpass(cutoff, dbPerOctave);
 
 									stack->Push(spec);
 									trace("0x%04x spectrum.highpass(%d, %f, %f)", opcodeOffset, cutoff, dbPerOctave);
@@ -642,9 +642,9 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto highCutoff    = stack->Pop<num_t>();
 									auto lowCutoff     = stack->Pop<num_t>();
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									spec.ApplyHighpass(highCutoff, dbPerOctave);
-									spec.ApplyLowpass(lowCutoff, dbPerOctave);
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									spec->ApplyHighpass(highCutoff, dbPerOctave);
+									spec->ApplyLowpass(lowCutoff, dbPerOctave);
 
 									stack->Push(spec);
 									trace("0x%04x spectrum.bandpass(%d, %f, %f, %f)", opcodeOffset, lowCutoff, highCutoff, dbPerOctave);
@@ -657,8 +657,8 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto width    = stack->Pop<num_t>();
 									auto harmonic = stack->Pop<num_t>();
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
-									spec.ApplyPeak(harmonic, width, dbGain);
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									spec->ApplyPeak(harmonic, width, dbGain);
 
 									stack->Push(spec);
 									trace("0x%04x spectrum.peak(%d, %f, %f, %f)", opcodeOffset, harmonic, width, dbGain);
@@ -671,11 +671,11 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto factor   = stack->Pop<num_t>();
 									auto harmonic = stack->Pop<num_t>();
 
-									ZRealSpectrum& spec = stack->Pop<ZRealSpectrum>();
+									auto spec = stack->Pop<ZRealSpectrum*>();
 
 									int32_t prevLog = -2;
 
-									for (uint32_t i=zitruncd(harmonic); i<spec.size; i++)
+									for (uint32_t i=zitruncd(harmonic); i<spec->size; i++)
 									{
 										int32_t curLog = zitruncd(zlogd((double)(i-harmonic+2) / factor) / zlogd(power));
 										
@@ -685,7 +685,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 										}
 										else
 										{
-											spec.data[i] = complex_t(0.0);
+											spec->data[i] = complex_t(0.0);
 										}
 									}
 

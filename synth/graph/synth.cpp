@@ -7,7 +7,7 @@ namespace invader {
 ZSynth::ZSynth(ZVMProgram* program)
 	: vm(program, new ZVMStack((uintptr_t)zalignedalloc(10*1024*1024, 16)), new ZVMStorage((uintptr_t)zalignedalloc(program->globalStorageSize, 16)))
 	, program(program)
-	, numInstruments(program->numSections-1)
+	, numInstruments(program->numSections-3)
 {
 	firInterpolator.Init();
 

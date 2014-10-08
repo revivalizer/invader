@@ -44,7 +44,7 @@ ZVirtualMachine::~ZVirtualMachine(void)
 // TODO: FIGURE OUT WHY THIS IS NECCESARY
 #pragma warning(disable: 4127)
 
-#if 0
+#if 1
 	#define trace(...) _zmsg(__VA_ARGS__)
 #else
 	#define trace(...) void(0)
@@ -56,17 +56,19 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 	while (true)
 	{
+		opcode_index_t opcodeOffset = opcode_index_t(ip-program->bytecode); // used for trace
+
 		opcode_t opcode = *ip++;
 
 		if (opcode & kOpcodeMaskIsNode)
 		{
-			trace("%04x call node, type %x", ip-program->bytecode-1, nodeInstances[ip-program->bytecode-1]);
+			trace("0x%04x call node, type %x", opcodeOffset, nodeInstances[opcodeOffset]);
 
-			auto node = nodeInstances[ip-program->bytecode-1]; 
+			auto node = nodeInstances[opcodeOffset]; 
 
 			if (!node)
 			{
-				node = nodeInstances[ip-program->bytecode-1] = CreateNodeFromOpcode(ip[-1]);
+				node = nodeInstances[opcodeOffset] = CreateNodeFromOpcode(ip[-1]);
 
 				if (voice)
 					node->NoteOn(voice->pitch, voice->note, voice->velocity, voice->deltaSamples);
@@ -79,10 +81,10 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 			switch (opcode)
 			{
 				case kOpReturn:
-					trace("0x%04x halt", ip-program->bytecode-1);
+					trace("0x%04x halt", opcodeOffset);
 					return;
 				case kOpPush | kOpTypeNum:
-					trace("0x%04x push constant num id %d, value: %f", ip-program->bytecode-1, *ip, program->constants[*ip]);
+					trace("0x%04x push constant num id %d, value: %f", opcodeOffset, *ip, program->constants[*ip]);
 					stack->Push<num_t>(program->constants[*ip++]);
 					break;
 				/*case kOpPop:
@@ -99,51 +101,51 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 					ip+=1;
 					break;*/
 				case kOpPushGlobal | kOpTypeNum:
-					trace("0x%04x push global num, address: 0x%04x", ip-program->bytecode-1, *ip);
+					trace("0x%04x push global num, address: 0x%04x", opcodeOffset, *ip);
 					stack->Push(globalStorage->Load<num_t>(*ip++));
 					break;
 				case kOpPushGlobal | kOpTypeSample:
-					trace("0x%04x push global sample, address: 0x%04x", ip-program->bytecode-1, *ip);
+					trace("0x%04x push global sample, address: 0x%04x", opcodeOffset, *ip);
 					stack->Push(globalStorage->Load<ZBlockBufferInternal>(*ip++));
 					break;
 				case kOpPushGlobal | kOpTypeSpectrum:
-					trace("0x%04x push global spectrum, address: 0x%04x", ip-program->bytecode-1, *ip);
+					trace("0x%04x push global spectrum, address: 0x%04x", opcodeOffset, *ip);
 					stack->Push(globalStorage->Load<ZRealSpectrum>(*ip++));
 					break;
 				case kOpPushGlobal | kOpTypeWavetable:
-					trace("0x%04x push global wavetable, address: 0x%04x", ip-program->bytecode-1, *ip);
+					trace("0x%04x push global wavetable, address: 0x%04x", opcodeOffset, *ip);
 					stack->Push(globalStorage->Load<ZWaveformWavetable<>*>(*ip++));
 					break;
 				case kOpPopGlobal | kOpTypeNum:
-					trace("0x%04x pop global num, address: 0x%04x", ip-program->bytecode-1, *ip);
+					trace("0x%04x pop global num, address: 0x%04x", opcodeOffset, *ip);
 					globalStorage->Store<num_t>(*ip++, stack->Pop<num_t>());
 					break;
 				case kOpPopGlobal | kOpTypeSample:
-					trace("0x%04x pop global sample, address: 0x%04x", ip-program->bytecode-1, *ip);
+					trace("0x%04x pop global sample, address: 0x%04x", opcodeOffset, *ip);
 					globalStorage->Store<ZBlockBufferInternal>(*ip++, stack->Pop<ZBlockBufferInternal>());
 					break;
 				case kOpPopGlobal | kOpTypeSpectrum:
-					trace("0x%04x pop global spectrum, address: 0x%04x", ip-program->bytecode-1, *ip);
+					trace("0x%04x pop global spectrum, address: 0x%04x", opcodeOffset, *ip);
 					globalStorage->Store<ZRealSpectrum>(*ip++, stack->Pop<ZRealSpectrum>());
 					break;
 				case kOpPopGlobal | kOpTypeWavetable:
-					trace("0x%04x pop global wavetable, address: 0x%04x", ip-program->bytecode-1, *ip);
+					trace("0x%04x pop global wavetable, address: 0x%04x", opcodeOffset, *ip);
 					globalStorage->Store<ZWaveformWavetable<>*>(*ip++, stack->Pop<ZWaveformWavetable<>*>());
 					break;
 				case kOpResetGlobal | kOpTypeNum:
-					trace("0x%04x reet global num, address: 0x%04x", ip-program->bytecode-1, *ip);
+					trace("0x%04x reet global num, address: 0x%04x", opcodeOffset, *ip);
 					globalStorage->Reset<num_t>(*ip++);
 					break;
 				case kOpResetGlobal | kOpTypeSample:
-					trace("0x%04x reet global sample, address: 0x%04x", ip-program->bytecode-1, *ip);
+					trace("0x%04x reet global sample, address: 0x%04x", opcodeOffset, *ip);
 					globalStorage->Reset<ZBlockBufferInternal>(*ip++);
 					break;
 				case kOpResetGlobal | kOpTypeSpectrum:
-					trace("0x%04x reet global spectrum, address: 0x%04x", ip-program->bytecode-1, *ip);
+					trace("0x%04x reet global spectrum, address: 0x%04x", opcodeOffset, *ip);
 					globalStorage->Reset<ZRealSpectrum>(*ip++);
 					break;
 /*				case kOpResetGlobal | kOpTypeWavetable:
-					trace("0x%04x reet global wavetable, address: 0x%04x", ip-program->bytecode-1, *ip);
+					trace("0x%04x reet global wavetable, address: 0x%04x", opcodeOffset, *ip);
 					globalStorage->Reset<ZWaveformWavetable<>>(*ip++);
 					break;
 				*/
@@ -170,7 +172,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						num_t op2 = stack->Pop<num_t>();
 						num_t op1 = stack->Pop<num_t>();
 						stack->Push(op1 + op2);
-						trace("0x%04x add num x num, %f + %f = %f", ip-program->bytecode-1, op1, op2, op1 + op2);
+						trace("0x%04x add num x num, %f + %f = %f", opcodeOffset, op1, op2, op1 + op2);
 						break;
 					}
 
@@ -181,7 +183,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						for (uint32_t i=0; i<op1.numSamples; i++)
 							op1.samples[i] += op2.samples[i];
 						stack->Push(op1);
-						trace("0x%04x add sample x sample", ip-program->bytecode-1);
+						trace("0x%04x add sample x sample", opcodeOffset);
 						break;
 					}
 
@@ -193,7 +195,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						for (uint32_t i=0; i<op1.numSamples; i++)
 							op1.samples[i] += s;
 						stack->Push(op1);
-						trace("0x%04x add sample x num (%f)", ip-program->bytecode-1, op2);
+						trace("0x%04x add sample x num (%f)", opcodeOffset, op2);
 						break;
 					}
 
@@ -202,7 +204,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						num_t op2 = stack->Pop<num_t>();
 						num_t op1 = stack->Pop<num_t>();
 						stack->Push(op1 - op2);
-						trace("0x%04x subtract num x num, %f + %f = %f", ip-program->bytecode-1, op1, op2, op1 + op2);
+						trace("0x%04x subtract num x num, %f + %f = %f", opcodeOffset, op1, op2, op1 + op2);
 						break;
 					}
 
@@ -213,7 +215,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						for (uint32_t i=0; i<op1.numSamples; i++)
 							op1.samples[i] -= op2.samples[i];
 						stack->Push(op1);
-						trace("0x%04x subtract sample x sample", ip-program->bytecode-1);
+						trace("0x%04x subtract sample x sample", opcodeOffset);
 						break;
 					}
 
@@ -225,7 +227,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						for (uint32_t i=0; i<op1.numSamples; i++)
 							op1.samples[i] -= s;
 						stack->Push(op1);
-						trace("0x%04x subtract sample x num (%f)", ip-program->bytecode-1, op2);
+						trace("0x%04x subtract sample x num (%f)", opcodeOffset, op2);
 						break;
 					}
 
@@ -234,7 +236,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						num_t op2 = stack->Pop<num_t>();
 						num_t op1 = stack->Pop<num_t>();
 						stack->Push(op1 * op2);
-						trace("0x%04x mul num x num, %f * %f = %f", ip-program->bytecode-1, op1, op2, op1 * op2);
+						trace("0x%04x mul num x num, %f * %f = %f", opcodeOffset, op1, op2, op1 * op2);
 						break;
 					}
 
@@ -246,7 +248,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						for (uint32_t i=0; i<op1.numSamples; i++)
 							op1.samples[i] *= s;
 						stack->Push(op1);
-						trace("0x%04x mul sample x num (%f)", ip-program->bytecode-1, op2);
+						trace("0x%04x mul sample x num (%f)", opcodeOffset, op2);
 						break;
 					}
 
@@ -255,7 +257,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						num_t op2 = stack->Pop<num_t>();
 						num_t op1 = stack->Pop<num_t>();
 						stack->Push(op1 / op2);
-						trace("0x%04x div num x num, %f / %f = %f", ip-program->bytecode-1, op1, op2, stack->Top<num_t>());
+						trace("0x%04x div num x num, %f / %f = %f", opcodeOffset, op1, op2, stack->Top<num_t>());
 						break;
 					}
 
@@ -267,7 +269,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						for (uint32_t i=0; i<op1.numSamples; i++)
 							op1.samples[i] /= s;
 						stack->Push(op1);
-						trace("0x%04x div sample x num (%f)", ip-program->bytecode-1, stack->Top<num_t>());
+						trace("0x%04x div sample x num (%f)", opcodeOffset, stack->Top<num_t>());
 						break;
 					}
 
@@ -276,7 +278,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						num_t op2 = stack->Pop<num_t>();
 						num_t op1 = stack->Pop<num_t>();
 						stack->Push(zfmodd(op1, op2));
-						trace("0x%04x mod num x num, %f %% %f = %f", ip-program->bytecode-1, op1, op2, stack->Top<num_t>());
+						trace("0x%04x mod num x num, %f %% %f = %f", opcodeOffset, op1, op2, stack->Top<num_t>());
 						break;
 					}
 
@@ -285,7 +287,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						num_t op2 = stack->Pop<num_t>();
 						num_t op1 = stack->Pop<num_t>();
 						stack->Push((op1 == op2) ? 1. : 0.);
-						trace("0x%04x equal num x num, %f == %f = %f", ip-program->bytecode-1, op1, op2, stack->Top<num_t>());
+						trace("0x%04x equal num x num, %f == %f = %f", opcodeOffset, op1, op2, stack->Top<num_t>());
 						break;
 					}
 
@@ -294,7 +296,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						num_t op2 = stack->Pop<num_t>();
 						num_t op1 = stack->Pop<num_t>();
 						stack->Push((op1 != op2) ? 1. : 0.);
-						trace("0x%04x not equal num x num, %f != %f = %f", ip-program->bytecode-1, op1, op2, stack->Top<num_t>());
+						trace("0x%04x not equal num x num, %f != %f = %f", opcodeOffset, op1, op2, stack->Top<num_t>());
 						break;
 					}
 
@@ -303,7 +305,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						num_t op2 = stack->Pop<num_t>();
 						num_t op1 = stack->Pop<num_t>();
 						stack->Push((op1 < op2) ? 1. : 0.);
-						trace("0x%04x less than num x num, %f < %f = %f", ip-program->bytecode-1, op1, op2, stack->Top<num_t>());
+						trace("0x%04x less than num x num, %f < %f = %f", opcodeOffset, op1, op2, stack->Top<num_t>());
 						break;
 					}
 
@@ -312,7 +314,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						num_t op2 = stack->Pop<num_t>();
 						num_t op1 = stack->Pop<num_t>();
 						stack->Push((op1 <= op2) ? 1. : 0.);
-						trace("0x%04x less than or equal num x num, %f <= %f = %f", ip-program->bytecode-1, op1, op2, stack->Top<num_t>());
+						trace("0x%04x less than or equal num x num, %f <= %f = %f", opcodeOffset, op1, op2, stack->Top<num_t>());
 						break;
 					}
 
@@ -321,7 +323,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						num_t op2 = stack->Pop<num_t>();
 						num_t op1 = stack->Pop<num_t>();
 						stack->Push((op1 > op2) ? 1. : 0.);
-						trace("0x%04x greater than num x num, %f > %f = %f", ip-program->bytecode-1, op1, op2, stack->Top<num_t>());
+						trace("0x%04x greater than num x num, %f > %f = %f", opcodeOffset, op1, op2, stack->Top<num_t>());
 						break;
 					}
 
@@ -330,7 +332,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						num_t op2 = stack->Pop<num_t>();
 						num_t op1 = stack->Pop<num_t>();
 						stack->Push((op1 >= op2) ? 1. : 0.);
-						trace("0x%04x greater than or equal num x num, %f >= %f = %f", ip-program->bytecode-1, op1, op2, stack->Top<num_t>());
+						trace("0x%04x greater than or equal num x num, %f >= %f = %f", opcodeOffset, op1, op2, stack->Top<num_t>());
 						break;
 					}
 
@@ -339,7 +341,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						num_t op2 = stack->Pop<num_t>();
 						num_t op1 = stack->Pop<num_t>();
 						stack->Push((op1!=0. && op2!=0.) ? 1. : 0.);
-						trace("0x%04x and num x num, %f && %f = %f", ip-program->bytecode-1, op1, op2, stack->Top<num_t>());
+						trace("0x%04x and num x num, %f && %f = %f", opcodeOffset, op1, op2, stack->Top<num_t>());
 						break;
 					}
 
@@ -348,7 +350,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						num_t op2 = stack->Pop<num_t>();
 						num_t op1 = stack->Pop<num_t>();
 						stack->Push((op1!=0. || op2!=0.) ? 1. : 0.);
-						trace("0x%04x or num x num, %f || %f = %f", ip-program->bytecode-1, op1, op2, stack->Top<num_t>());
+						trace("0x%04x or num x num, %f || %f = %f", opcodeOffset, op1, op2, stack->Top<num_t>());
 						break;
 					}
 
@@ -356,7 +358,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 					{
 						num_t op = stack->Pop<num_t>();
 						stack->Push((op==0.) ? 1. : 0.);
-						trace("0x%04x not num, !%f = %f", ip-program->bytecode-1, op, stack->Top<num_t>());
+						trace("0x%04x not num, !%f = %f", opcodeOffset, op, stack->Top<num_t>());
 						break;
 					}
 
@@ -370,7 +372,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 					{
 						num_t op = stack->Pop<num_t>();
 						stack->Push(-op);
-						trace("0x%04x minus num, -%f = %f", ip-program->bytecode-1, op, stack->Top<num_t>());
+						trace("0x%04x minus num, -%f = %f", opcodeOffset, op, stack->Top<num_t>());
 						break;
 					}
 
@@ -380,7 +382,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						for (uint32_t i=0; i<op.numSamples; i++)
 							op.samples[i] *= sample_t(-1.0); // TODO: Use constant!
 						stack->Push(op);
-						trace("0x%04x minus sample", ip-program->bytecode-1);
+						trace("0x%04x minus sample", opcodeOffset);
 						break;
 					}
 
@@ -399,16 +401,16 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									}
 
 									stack->Push(out);
-									trace("0x%04x osc()", ip-program->bytecode-1);
+									trace("0x%04x osc()", opcodeOffset);
 									break;
 								}
 
 							case 2: // map_midi_channel(channel, instrument)
 								{
-									auto instrument = uint32_t(stack->Pop<num_t>());
-									auto channel    = uint32_t(stack->Pop<num_t>());
+									auto instrument = zitruncd(stack->Pop<num_t>());
+									auto channel    = zitruncd(stack->Pop<num_t>());
 									synth->midiChannelToInstrumentMap[channel] = synth->GetInstrument(instrument);
-									trace("0x%04x map_midi_channel(%f, %f)", ip-program->bytecode-1, instrument, channel);
+									trace("0x%04x map_midi_channel(%f, %f)", opcodeOffset, instrument, channel);
 									break;
 								}
 
@@ -418,7 +420,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									for (uint32_t i=0; i<spec.size; i++)
 										spec.data[i] = complex_t(0.0);
 									stack->Push(spec);
-									trace("0x%04x spectrum()", ip-program->bytecode-1);
+									trace("0x%04x spectrum()", opcodeOffset);
 									break;
 								}
 
@@ -427,7 +429,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									ZRealSpectrum& spectrum = stack->Pop<ZRealSpectrum>();
 									auto wavetable = new ZWaveformWavetable<>(spectrum);
 									stack->Push(wavetable);
-									trace("0x%04x spectrum.toWavetable()", ip-program->bytecode-1);
+									trace("0x%04x spectrum.toWavetable()", opcodeOffset);
 									break;
 								}
 
@@ -442,7 +444,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 										spec.data[harmonic] = complex_t(gain);
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.addSine(%d, %f)", ip-program->bytecode-1, harmonic, gain);
+									trace("0x%04x spectrum.addSine(%d, %f)", opcodeOffset, harmonic, gain);
 									break;
 								}
 
@@ -456,7 +458,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 										spec.data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.addSaw(%d, %f)", ip-program->bytecode-1, harmonic, gain);
+									trace("0x%04x spectrum.addSaw(%d, %f)", opcodeOffset, harmonic, gain);
 									break;
 								}
 
@@ -470,7 +472,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 										spec.data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.addSaw(%d, %f)", ip-program->bytecode-1, harmonic, gain);
+									trace("0x%04x spectrum.addSaw(%d, %f)", opcodeOffset, harmonic, gain);
 									break;
 								}
 
@@ -488,7 +490,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									}
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.addTriangle(%d, %f)", ip-program->bytecode-1, harmonic, gain);
+									trace("0x%04x spectrum.addTriangle(%d, %f)", opcodeOffset, harmonic, gain);
 									break;
 								}
 
@@ -502,7 +504,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 										spec.data[i] = complex_t(1.0 / double(i+1-harmonic) * gain);
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.addThirds(%d, %f)", ip-program->bytecode-1, harmonic, gain);
+									trace("0x%04x spectrum.addThirds(%d, %f)", opcodeOffset, harmonic, gain);
 									break;
 								}
 
@@ -516,7 +518,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 										spec.data[i] = complex_t(gain);
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.addWhite(%d, %f)", ip-program->bytecode-1, harmonic, gain);
+									trace("0x%04x spectrum.addWhite(%d, %f)", opcodeOffset, harmonic, gain);
 									break;
 								}
 
@@ -531,7 +533,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 										spec.data[i] *= r.NextUniformDouble();
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.mulWhiteNoise(%d)", ip-program->bytecode-1, seed);
+									trace("0x%04x spectrum.mulWhiteNoise(%d)", opcodeOffset, seed);
 									break;
 								}
 
@@ -547,7 +549,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 										spec.data[i] *= dbToGain(r.NextUniformDouble()*db);
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.mulWhiteNoiseDB(%d, %f)", ip-program->bytecode-1, seed, gain);
+									trace("0x%04x spectrum.mulWhiteNoiseDB(%d, %f)", opcodeOffset, seed, db);
 									break;
 								}
 
@@ -568,7 +570,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.spectrumNoise(%d, %d, %f, %f)", ip-program->bytecode-1, seed, wavelength, db);
+									trace("0x%04x spectrum.spectrumNoise(%d, %d, %f, %f)", opcodeOffset, seed, wavelength, db);
 									break;
 								}
 
@@ -586,7 +588,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									}
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.comb(%d, %f, %f)", ip-program->bytecode-1, phase, frequency);
+									trace("0x%04x spectrum.comb(%d, %f, %f)", opcodeOffset, phaseOffset, freq);
 									break;
 								}
 
@@ -604,7 +606,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									}
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.inverseComb(%d, %f, %f)", ip-program->bytecode-1, phase, frequency);
+									trace("0x%04x spectrum.inverseComb(%d, %f, %f)", opcodeOffset, phaseOffset, freq);
 									break;
 								}
 
@@ -617,7 +619,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									spec.ApplyLowpass(cutoff, dbPerOctave);
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.lowpass(%d, %f, %f)", ip-program->bytecode-1, cutoff, dbPerOctave);
+									trace("0x%04x spectrum.lowpass(%d, %f, %f)", opcodeOffset, cutoff, dbPerOctave);
 									break;
 								}
 
@@ -630,7 +632,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									spec.ApplyHighpass(cutoff, dbPerOctave);
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.highpass(%d, %f, %f)", ip-program->bytecode-1, cutoff, dbPerOctave);
+									trace("0x%04x spectrum.highpass(%d, %f, %f)", opcodeOffset, cutoff, dbPerOctave);
 									break;
 								}
 
@@ -645,7 +647,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									spec.ApplyLowpass(lowCutoff, dbPerOctave);
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.bandpass(%d, %f, %f, %f)", ip-program->bytecode-1, lowCutoff, highCutoff, dbPerOctave);
+									trace("0x%04x spectrum.bandpass(%d, %f, %f, %f)", opcodeOffset, lowCutoff, highCutoff, dbPerOctave);
 									break;
 								}
 
@@ -659,7 +661,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									spec.ApplyPeak(harmonic, width, dbGain);
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.peak(%d, %f, %f, %f)", ip-program->bytecode-1, harmonic, width, dbGain);
+									trace("0x%04x spectrum.peak(%d, %f, %f, %f)", opcodeOffset, harmonic, width, dbGain);
 									break;
 								}
 
@@ -688,7 +690,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									}
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.keepPowX(%d, %f, %f, %f)", ip-program->bytecode-1, harmonic, factor, power);
+									trace("0x%04x spectrum.keepPowX(%d, %f, %f, %f)", opcodeOffset, harmonic, factor, power);
 									break;
 								}
 									/*
@@ -702,7 +704,7 @@ kRemovePowX             = 0xB45
 							case kOpVoicePitch: // num
 								{
 									stack->Push(voice->pitch);
-									trace("0x%04x push voice pitch", ip-program->bytecode-1, voice->pitch);
+									trace("0x%04x push voice pitch", opcodeOffset, voice->pitch);
 									break;
 								}
 
@@ -720,7 +722,7 @@ kRemovePowX             = 0xB45
 									}
 
 									stack->Push(block);
-									trace("0x%04x stereowidth(%f)", ip-program->bytecode-1, width);
+									trace("0x%04x stereowidth(%f)", opcodeOffset, width);
 									break;
 								}
 
@@ -746,7 +748,7 @@ kRemovePowX             = 0xB45
 									}
 
 									stack->Push(block);
-									trace("0x%04x pan(%f, %f)", ip-program->bytecode-1, panLawdB, panRight);
+									trace("0x%04x pan(%f, %f)", opcodeOffset, panLawdB, panRight);
 									break;
 								}
 						}

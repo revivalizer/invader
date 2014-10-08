@@ -6,9 +6,14 @@ str = [[
 	const num test = 1 + a
 	const spectrum spec = spectrum().addSaw(1, 0)
 	const wavetable wt = spec.toWavetable()
-	out wavetableosc(wt).filter1(3, voicepitch()+12, 0.2).ADSR(0.1, 0.1, -6, 1.0)
+	out wavetableosc(wt).filter1(3, voicepitch()+96, 0.2).ADSR(0.1, 0.1, -6, 1.0)
+### strings2
+	| channel: 2
+	const spectrum spec2 = spectrum().addSaw(1, 0)
+	const wavetable wt2 = spec2.toWavetable()
+	out wavetableosc(wt2).filter1(3, voicepitch()+12, 0.2).ADSR(0.1, 0.1, -6, 1.0)
 ### master
-	out strings
+	out strings + strings2
 ]]
 
 package.path = ";compiler/?.lua"..package.path

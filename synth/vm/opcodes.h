@@ -56,9 +56,9 @@ enum
 	// Other
 	kOpStereoWidth           = 0xC11,
 	kOpPan                   = 0xC12,
-	kOpNodeCompress          = 0xC13,
-	kOpNodeSidechainCompress = 0xC14,
-	kOpNodeReverb            = 0xC15,
+	kOpNodeCompress          = 0xC13 | kOpcodeMaskIsNode,
+	kOpNodeSidechainCompress = 0xC14 | kOpcodeMaskIsNode,
+	kOpNodeReverb            = 0xC15 | kOpcodeMaskIsNode,
 };
 
 // Type identifier

@@ -315,14 +315,11 @@ end
 function extract_const_assignments(program)
 	-- move const assignment statements from sections to const_global section
 	for i,section in ipairs(program.ast.sections) do
-		print("sec "..section.name.value)
 		if (section ~= program.named_sections.const_global) then
-			print("ok")
 			local filtered_statements = create_table()
 
 			for j,statement in ipairs(section.statements) do
 				if (statement.tag=="assign_statement" and statement.type.const) then
-					print("assign "..statement.identifier.value)
 					program.named_sections.const_global.statements:insert(statement)
 				else
 					filtered_statements:insert(statement)
@@ -520,7 +517,6 @@ function generate_bytecode(program, node)
 	-- Generate bytecode for this node, calling children recursively when appropriate
 	if (node.tag=="root") then
 		for i,section in ipairs(node.sections) do
-			print("Start sec "..section.name.value)
 			generate_bytecode(program, section)
 		end
 
@@ -545,7 +541,6 @@ function generate_bytecode(program, node)
 		else
 			error("Type not handled in assign_statement: "..type_to_string(node.type))
 		end
-		print("assign "..node.identifier.value.." at "..string.format("0x%04X", node.global_address))
 
 		generate_bytecode(program, node.operand)
 

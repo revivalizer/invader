@@ -128,7 +128,7 @@ types = {
 			{
 				["name"] = "compress",
 				["id"] = kOpNodeSidechainCompress,
-				["arguments"] = {make_type("num"), make_type("num"), make_type("num"), make_type("num"), make_type("sample")},
+				["arguments"] = {make_type("sample"), make_type("num"), make_type("num"), make_type("num"), make_type("num")},
 				["return_type"] = make_type("sample"),
 				["description"] = "Compress.",
 			},

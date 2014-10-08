@@ -18,12 +18,12 @@ void ZCompressor::Process(ZVirtualMachine* vm)
 	// http://www.kvraudio.com/forum/viewtopic.php?f=33&t=362249&p=5099943&hilit=envelope+follower#p5099943
 	// http://www.kvraudio.com/forum/viewtopic.php?f=33&t=368416&p=5179767&hilit=envelope+follower#p5179767
 
-	ZBlockBufferInternal* sidechain = (type==kOpNodeSidechainCompress) ? &vm->stack->Pop<ZBlockBufferInternal>() : nullptr;
-
 	auto decay     = vm->stack->Pop<num_t>();
 	auto attack    = vm->stack->Pop<num_t>();
 	auto ratio     = vm->stack->Pop<num_t>();
 	auto threshold = dbToGain(vm->stack->Pop<num_t>());
+
+	ZBlockBufferInternal* sidechain = (type==kOpNodeSidechainCompress) ? &vm->stack->Pop<ZBlockBufferInternal>() : nullptr;
 
 	auto decayPerSample  = (decay  <= 0.0) ? 0.0 : zexpd(-1.0 / (kSampleRate * decay  / 1000.0)); // this yields Exp[-1] = 0.36 after decay time
 	auto attackPerSample = (attack <= 0.0) ? 0.0 : zexpd(-1.0 / (kSampleRate * attack / 1000.0));

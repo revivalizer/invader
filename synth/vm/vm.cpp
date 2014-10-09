@@ -570,7 +570,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.spectrumNoise(%d, %d, %f, %f)", opcodeOffset, seed, wavelength, db);
+									trace("0x%04x spectrum.spectrumNoise(%d, %f, %f)", opcodeOffset, seed, wavelength, db);
 									break;
 								}
 
@@ -588,7 +588,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									}
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.comb(%d, %f, %f)", opcodeOffset, phaseOffset, freq);
+									trace("0x%04x spectrum.comb(%f, %f)", opcodeOffset, phaseOffset, freq);
 									break;
 								}
 
@@ -606,7 +606,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									}
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.inverseComb(%d, %f, %f)", opcodeOffset, phaseOffset, freq);
+									trace("0x%04x spectrum.inverseComb(%f, %f)", opcodeOffset, phaseOffset, freq);
 									break;
 								}
 
@@ -619,7 +619,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									spec->ApplyLowpass(cutoff, dbPerOctave);
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.lowpass(%d, %f, %f)", opcodeOffset, cutoff, dbPerOctave);
+									trace("0x%04x spectrum.lowpass(%f, %f)", opcodeOffset, cutoff, dbPerOctave);
 									break;
 								}
 
@@ -632,7 +632,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									spec->ApplyHighpass(cutoff, dbPerOctave);
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.highpass(%d, %f, %f)", opcodeOffset, cutoff, dbPerOctave);
+									trace("0x%04x spectrum.highpass(%f, %f)", opcodeOffset, cutoff, dbPerOctave);
 									break;
 								}
 
@@ -647,7 +647,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									spec->ApplyLowpass(lowCutoff, dbPerOctave);
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.bandpass(%d, %f, %f, %f)", opcodeOffset, lowCutoff, highCutoff, dbPerOctave);
+									trace("0x%04x spectrum.bandpass(%d, %f, %f)", opcodeOffset, lowCutoff, highCutoff, dbPerOctave);
 									break;
 								}
 
@@ -661,7 +661,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									spec->ApplyPeak(harmonic, width, dbGain);
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.peak(%d, %f, %f, %f)", opcodeOffset, harmonic, width, dbGain);
+									trace("0x%04x spectrum.peak(%d, %f, %f)", opcodeOffset, harmonic, width, dbGain);
 									break;
 								}
 
@@ -690,16 +690,115 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									}
 
 									stack->Push(spec);
-									trace("0x%04x spectrum.keepPowX(%d, %f, %f, %f)", opcodeOffset, harmonic, factor, power);
+									trace("0x%04x spectrum.keepPowX(%d, %f, %f)", opcodeOffset, harmonic, factor, power);
 									break;
 								}
-									/*
-kKeepPowX               = 0xB40
-kKeepEvery              = 0xB41
-kRemoveEvery            = 0xB42
-kRemoveRandomAbove      = 0xB43
-kRemoveRandomBelow      = 0xB44
-kRemovePowX             = 0xB45
+
+
+							case 0xB45: // spectrum.removePowX(num harmonic, num factor, num power)
+								{
+									auto power    = stack->Pop<num_t>();
+									auto factor   = stack->Pop<num_t>();
+									auto harmonic = stack->Pop<num_t>();
+
+									auto spec = stack->Pop<ZRealSpectrum*>();
+
+									int32_t prevLog = -2;
+
+									for (uint32_t i=zitruncd(harmonic); i<spec->size; i++)
+									{
+										int32_t curLog = zitruncd(zlogd((double)(i-harmonic+2) / factor) / zlogd(power));
+										
+										if (curLog != prevLog)
+										{
+											prevLog = curLog;
+											spec->data[i] = complex_t(0.0);
+										}
+									}
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.removePowX(%d, %f, %f)", opcodeOffset, harmonic, factor, power);
+									break;
+								}
+
+							case 0xB41: // spectrum.keepEvery(num harmonic, num factor)
+								{
+									auto n        = zitruncd(stack->Pop<num_t>());
+									auto harmonic = zitruncd(stack->Pop<num_t>());
+
+									auto spec = stack->Pop<ZRealSpectrum*>();
+
+									for (uint32_t i=harmonic; i<spec->size; i++)
+									{
+										double mult = (((i-harmonic) % n)==0)	? 1.0 : 0.0;
+										spec->data[i] *= mult;
+									}
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.keepEvery(%d, %d)", opcodeOffset, harmonic, n);
+									break;
+								}
+
+							case 0xB42: // spectrum.removeEvery(num harmonic, num factor)
+								{
+									auto n        = zitruncd(stack->Pop<num_t>());
+									auto harmonic = zitruncd(stack->Pop<num_t>());
+
+									auto spec = stack->Pop<ZRealSpectrum*>();
+
+									for (uint32_t i=harmonic; i<spec->size; i++)
+									{
+										double mult = (((i-harmonic) % n)==0)	? 0.0 : 1.0;
+										spec->data[i] *= mult;
+									}
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.keepEvery(%d, %d)", opcodeOffset, harmonic, n);
+									break;
+								}
+
+							case 0xB43: // spectrum.removeRandomAbove(num harmonic, num seed, num threshold)
+								{
+									auto threshold = stack->Pop<num_t>();
+									auto seed      = zitruncd(stack->Pop<num_t>());
+									auto harmonic  = zitruncd(stack->Pop<num_t>());
+
+									auto spec = stack->Pop<ZRealSpectrum*>();
+
+									ZRandom r(seed);
+
+									for (uint32_t i=zmax(0, harmonic)+1; i<spec->size; i++) // We don't remove the first harmonic
+									{
+										if (r.NextUniformDouble() < threshold)
+											spec->data[i] = complex_t(0.0);
+									}
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.removeRandomAbove(%d, %d, %f)", opcodeOffset, harmonic, seed, threshold);
+									break;
+								}
+
+							case 0xB44: // spectrum.removeRandomBelow(num harmonic, num seed, num threshold)
+								{
+									auto threshold = stack->Pop<num_t>();
+									auto seed      = zitruncd(stack->Pop<num_t>());
+									auto harmonic  = zitruncd(stack->Pop<num_t>());
+
+									auto spec = stack->Pop<ZRealSpectrum*>();
+
+									ZRandom r(seed);
+
+									for (int32_t i=1; i<harmonic && i<spec->size; i++) // We don't remove the first harmonic
+									{
+										if (r.NextUniformDouble() < threshold)
+											spec->data[i] = complex_t(0.0);
+									}
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.removeRandomBelow(%d, %d, %f)", opcodeOffset, harmonic, seed, threshold);
+									break;
+								}
+/*
 */
 							case kOpVoicePitch: // num
 								{

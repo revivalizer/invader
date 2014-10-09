@@ -60,7 +60,7 @@ private:
 	double alpha[4];
 
 	// Modulation
-	double modulationPhase;
+	double modulationPhase[4];
 	double modulationPhaseOmega;
 
 	double modulationOffset[4];

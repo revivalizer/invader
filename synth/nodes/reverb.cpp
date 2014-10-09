@@ -238,13 +238,13 @@ ZReverb::ZReverb(nodetype_t type) : ZNode(type)
 		delayLine[i] = new num_t[delayLineLength];
 
 	// Init modulation and filter
-	modulationPhase = 0;
-
 	for (uint32_t i=0; i<4; i++)
 	{
 		filter[i] = 0.f;
 		modulationOffset[i] = 0;
 		modulationOffsetFrac[i] = 0;
+
+		modulationPhase[i] = 0;
 	}
 
 	writeHead = 0;
@@ -292,7 +292,11 @@ void ZReverb::Process(ZVirtualMachine* vm)
 
 	double read[4], write[4];
 
-	double modulationPhaseDelta = kM_PI2 * modulationFreq / kSampleRate;
+	double modulationPhaseDelta[4];
+	for (uint32_t i=0; i<4; i++)
+	{
+		modulationPhaseDelta[i] = kM_PI2 * modulationFreq / kSampleRate * delayLineSeries[delayLengthSeries][i];
+	}
 
 	ZBlockBufferInternal& block = vm->stack->Pop<ZBlockBufferInternal>();
 
@@ -301,7 +305,7 @@ void ZReverb::Process(ZVirtualMachine* vm)
 	{
 		for (uint32_t i=0; i<4; i++)
 		{
-			modulationOffset[i]     = zsind(modulationPhase + (double)i * kM_PI_2 ) * modulationDepth * sampleDelay[0];
+			modulationOffset[i]     = zsind(modulationPhase[i] + (double)i * kM_PI_2 ) * modulationDepth * sampleDelay[0];
 			modulationOffsetFrac[i] = modulationOffset[i] - zifloord(modulationOffset[i]);
 
 			int read0 = (readHead[i] + zifloord(modulationOffset[i]) + 0) & delayLineLengthMask;
@@ -345,10 +349,13 @@ void ZReverb::Process(ZVirtualMachine* vm)
 		block.samples[n].d[1] = gainWet * outputRight + gainDry * inputRight;
 
 		// Update modulation phase
-		modulationPhase += modulationPhaseDelta;
+		for (uint32_t i=0; i<4; i++)
+		{
+			modulationPhase[i] += modulationPhaseDelta[i];
 
-		if (modulationPhase > kM_PI2)
-			modulationPhase -= kM_PI2;
+			if (modulationPhase[i] > kM_PI2)
+				modulationPhase[i] -= kM_PI2;
+		}
 
 	}
 

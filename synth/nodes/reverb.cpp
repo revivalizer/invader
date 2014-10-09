@@ -246,6 +246,8 @@ ZReverb::ZReverb(nodetype_t type) : ZNode(type)
 		modulationOffset[i] = 0;
 		modulationOffsetFrac[i] = 0;
 	}
+
+	writeHead = 0;
 }
 
 ZReverb::~ZReverb( void )
@@ -265,7 +267,7 @@ void ZReverb::Process(ZVirtualMachine* vm)
 	auto gainWet = dbToGain(vm->stack->Pop<num_t>());
 
 	auto modulationDepth      = vm->stack->Pop<num_t>();
-	auto modulationRate       = vm->stack->Pop<num_t>();
+	auto modulationFreq       = vm->stack->Pop<num_t>();
 
 	auto rotationOut      = vm->stack->Pop<num_t>();
 	auto rotationIn       = vm->stack->Pop<num_t>();
@@ -275,7 +277,7 @@ void ZReverb::Process(ZVirtualMachine* vm)
 	auto roomSize       = zclamp(vm->stack->Pop<num_t>(), 0.0, 160.0);
 
 	auto delayLengthSeries       = zitruncd(zclamp(vm->stack->Pop<num_t>(), 0.0, 1.0));
-	auto feedbackMatrixType      = zitruncd(zclamp(vm->stack->Pop<num_t>(), 0.0, 1.0));
+	auto feedbackMatrixType      = zitruncd(zclamp(vm->stack->Pop<num_t>(), 0.0, 16.0));
 
 	// Update state
 	UpdateDelayLengths(delayLengthSeries, roomSize);
@@ -286,11 +288,11 @@ void ZReverb::Process(ZVirtualMachine* vm)
 
 	// Compute write head positions
 	for (uint32_t i=0; i<4; i++)
-		readHead[i] = (writeHead - zitruncd(sampleDelay[i])) & delayLineLengthMask;
+		readHead[i] = (writeHead - zitruncd(sampleDelay[i]));
 
 	double read[4], write[4];
 
-	double modulationPhaseDelta = kM_PI2 * modulationRate / kSampleRate;
+	double modulationPhaseDelta = kM_PI2 * modulationFreq / kSampleRate;
 
 	ZBlockBufferInternal& block = vm->stack->Pop<ZBlockBufferInternal>();
 
@@ -313,8 +315,8 @@ void ZReverb::Process(ZVirtualMachine* vm)
 		double outputRight = read[0] * outputMatrix[0][1] + read[1] * outputMatrix[1][1] + read[2] * outputMatrix[2][1] + read[3] * outputMatrix[3][1];
 
 		// Apply feedback matrix
-	    for (int i=0; i<4; i++)
-	        write[i] = read[0] * feedbackMatrix[0][i] + read[1] * feedbackMatrix[1][i] + read[2] * feedbackMatrix[2][i] + read[3] * feedbackMatrix[3][i];
+		for (int i=0; i<4; i++)
+			write[i] = read[0] * feedbackMatrix[0][i] + read[1] * feedbackMatrix[1][i] + read[2] * feedbackMatrix[2][i] + read[3] * feedbackMatrix[3][i];
 
 		// Add input signal
 		double inputLeft  = block.samples[n].d[0];
@@ -327,12 +329,13 @@ void ZReverb::Process(ZVirtualMachine* vm)
 		for (int i=0; i<4; i++)
 			write[i] = gain[i] * (filter[i] += alpha[i] * (write[i] - filter[i] ));
 
+
 		// Write to delay line
 		for (int i=0; i<4; i++)
 			delayLine[i][writeHead] = write[i];
 
-		// Update read/write heads
-		for (int i=0; i<4; i++)
+		// Update read and write heads
+		for (uint32_t i = 0; i<4; i++)
 			readHead[i] = (readHead[i] + 1) & delayLineLengthMask;
 
 		writeHead = (writeHead + 1) & delayLineLengthMask;

@@ -132,6 +132,13 @@ types = {
 				["return_type"] = make_type("sample"),
 				["description"] = "Compress.",
 			},
+			{
+				["name"] = "reverb",
+				["id"] = kOpNodeReverb,
+				["arguments"] = {make_type("num"), make_type("num"), make_type("num"), make_type("num"), make_type("num"), make_type("num"), make_type("num"), make_type("num"), make_type("num"), make_type("num"), make_type("num")},
+				["return_type"] = make_type("sample"),
+				["description"] = "Compress.",
+			},
 		},
 	},
 	["spectrum"] = {

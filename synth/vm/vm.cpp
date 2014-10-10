@@ -798,8 +798,129 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									trace("0x%04x spectrum.removeRandomBelow(%d, %d, %f)", opcodeOffset, harmonic, seed, threshold);
 									break;
 								}
-/*
-*/
+
+							case 0xB50: // spectrum.addCopy(num harmonic, num dB)
+								{
+									auto gain      = dbToGain(stack->Pop<num_t>());
+									auto harmonic  = zmax(1, zitruncd(stack->Pop<num_t>()));
+
+									auto spec = stack->Pop<ZRealSpectrum*>();
+
+									uint32_t j = 0;
+
+									for (int32_t i=harmonic; i<spec->size; i++)
+									{
+										spec->data[i] += gain * spec->data[j];
+									}
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.addCopy(%d, %f)", opcodeOffset, harmonic, gain);
+									break;
+								}
+
+							case 0xB51: // spectrum.addPitchedCopy(num harmonic, num dB)
+								{
+									auto gain      = dbToGain(stack->Pop<num_t>());
+									auto harmonic  = zmax(1, zitruncd(stack->Pop<num_t>()));
+
+									auto spec = stack->Pop<ZRealSpectrum*>();
+
+									uint32_t j = 0;
+
+									for (int32_t i=harmonic; i<spec->size; i+=harmonic)
+									{
+										spec->data[i] += gain * spec->data[j];
+									}
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.addPitchedCopy(%d, %f)", opcodeOffset, harmonic, gain);
+									break;
+								}
+
+							case 0xB52: // spectrum.addLayers(num harmonic, num dB)
+								{
+									auto gain      = dbToGain(stack->Pop<num_t>());
+									auto harmonic  = zmax(1, zitruncd(stack->Pop<num_t>()));
+
+									auto spec = stack->Pop<ZRealSpectrum*>();
+
+									for (uint32_t layer = harmonic; layer<spec->size; layer+=harmonic)
+									{
+										uint32_t j = 0;
+
+										for (int32_t i=layer; i<spec->size; i++)
+										{
+											spec->data[i] += gain * spec->data[j];
+										}
+									}
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.addLayers(%d, %f)", opcodeOffset, harmonic, gain);
+									break;
+								}
+
+							case 0xB53: // spectrum.addPitchedLayers(num harmonic, num dB)
+								{
+									auto gain      = dbToGain(stack->Pop<num_t>());
+									auto harmonic  = zmax(1, zitruncd(stack->Pop<num_t>()));
+
+									auto spec = stack->Pop<ZRealSpectrum*>();
+
+									for (uint32_t layer = harmonic; layer<spec->size; layer+=harmonic)
+									{
+										uint32_t j = 0;
+
+										for (int32_t i=layer; i<spec->size; i+=layer)
+										{
+											spec->data[i] += gain * spec->data[j];
+										}
+									}
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.addPitchedLayers(%d, %f)", opcodeOffset, harmonic, gain);
+									break;
+								}
+
+							case 0xB60: // spectrum.reverse()
+								{
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									ZRealSpectrum in = *spec;
+
+									for (int32_t i=1; i<spec->size; i++)
+									{
+										spec->data[i] = in.data[in.size-i];
+									}
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.reverse()", opcodeOffset);
+									break;
+								}
+
+							case 0xB61: // spectrum.mirror(harmonic)
+								{
+									auto harmonic  = zmax(1, zitruncd(stack->Pop<num_t>()));
+
+									auto spec = stack->Pop<ZRealSpectrum*>();
+									ZRealSpectrum in = *spec;
+
+									uint32_t j=1;
+
+									for (int32_t i=harmonic-1; i>0; i--)
+									{
+										spec->data[j++] = in.data[i];
+									}
+
+									uint32_t j=1;
+									for (int32_t i=harmonic; i<spec->size; i++)
+									{
+										spec->data[i] = in.data[j++];
+									}
+
+									stack->Push(spec);
+									trace("0x%04x spectrum.mirror(%d)", opcodeOffset, harmonic);
+									break;
+								}
+
 							case kOpVoicePitch: // num
 								{
 									stack->Push(voice->pitch);

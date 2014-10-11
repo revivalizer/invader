@@ -31,11 +31,142 @@ functions =
 		["description"] = "Returns pitch of the active voice in semitones.",
 	},
 	{
-		["name"] = "voicepitch",
-		["id"] = kOpVoicePitch,
+		["name"] = "voicetime",
+		["id"] = kOpVoiceTime,
 		["arguments"] = {},
 		["return_type"] = make_type("num"),
-		["description"] = "",
+	},
+	{
+		["name"] = "voicepos",
+		["id"] = kOpVoicePos,
+		["arguments"] = {},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "voiceid",
+		["id"] = kOpVoiceId,
+		["arguments"] = {},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "globaltime",
+		["id"] = kOpGlobalTime,
+		["arguments"] = {},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "globalpos",
+		["id"] = kOpGlobalPos,
+		["arguments"] = {},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "bpm",
+		["id"] = kOpBPM,
+		["arguments"] = {},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "bps",
+		["id"] = kOpBPS,
+		["arguments"] = {},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "freqToPitch",
+		["id"] = kOpFreqToPitch,
+		["arguments"] = {make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "pitchToFreq",
+		["id"] = kOpPitchToFreq,
+		["arguments"] = {make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "trunc",
+		["id"] = kOpTrunc,
+		["arguments"] = {make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "round",
+		["id"] = kOpRound,
+		["arguments"] = {make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "ceil",
+		["id"] = kOpCeil,
+		["arguments"] = {make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "floor",
+		["id"] = kOpFloor,
+		["arguments"] = {make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "abs",
+		["id"] = kOpAbs,
+		["arguments"] = {make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "cos",
+		["id"] = kOpCos,
+		["arguments"] = {make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "sin",
+		["id"] = kOpSin,
+		["arguments"] = {make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "tan",
+		["id"] = kOpTan,
+		["arguments"] = {make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "sqrt",
+		["id"] = kOpSqrt,
+		["arguments"] = {make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "log",
+		["id"] = kOpLog,
+		["arguments"] = {make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "log2",
+		["id"] = kOpLog2,
+		["arguments"] = {make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "log10",
+		["id"] = kOpLog10,
+		["arguments"] = {make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "exp",
+		["id"] = kOpExp,
+		["arguments"] = {make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
+		["name"] = "pow",
+		["id"] = kOpPow,
+		["arguments"] = {make_type("num"), make_type("num")},
+		["return_type"] = make_type("num"),
 	},
 	{
 		["name"] = "wavetableosc",
@@ -45,33 +176,4 @@ functions =
 		["description"] = "Wavetable oscillator.",
 	},
 }
-
-kOpVoicePitch  = 0xC01
-kOpVoiceTime   = 0xC02
-kOpVoicePos    = 0xC03
-kOpVoiceId     = 0xC04
-kOpGlobalTime  = 0xC82
-kOpGlobalPos   = 0xC83
-
-kOpBPM         = 0xCE1
-kOpBPS         = 0xCE2
-
-kOpFreqToPitch = 0xD00
-kOpPitchToFreq = 0xD01
-kOpTrunc       = 0xD10
-kOpRound       = 0xD11
-kOpCeil        = 0xD12
-kOpFloor       = 0xD13
-kOpAbs         = 0xD14
-kOpCos         = 0xD20
-kOpSin         = 0xD21
-kOpTan         = 0xD22
-kOpSqrt        = 0xD30
-kOpLog         = 0xD40
-kOpLog2        = 0xD41
-kOpLog10       = 0xD42
-kOpExp         = 0xD43
-kOpPow         = 0xD44
-
-
 

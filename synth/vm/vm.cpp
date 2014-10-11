@@ -426,8 +426,12 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 							case 0xB01: // spectrum.toWavetable
 								{
+									auto amplitudeVariance = stack->Pop<num_t>();
+									auto phaseVariance     = stack->Pop<num_t>();
+									auto randomSeed        = zitruncd(stack->Pop<num_t>());
+
 									ZRealSpectrum* spectrum = stack->Pop<ZRealSpectrum*>();
-									auto wavetable = new ZWaveformWavetable<>(*spectrum);
+									auto wavetable = new ZWaveformWavetable<>(*spectrum, randomSeed, phaseVariance, amplitudeVariance);
 									stack->Push(wavetable);
 									trace("0x%04x spectrum.toWavetable()", opcodeOffset);
 									break;
@@ -584,7 +588,11 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									{
 										double phase = double(i) * freq / spec->size - phaseOffset;
 										phase = zfmodd(phase*kM_PI, kM_PI);
+
+										if (phase < 0.0)
+											phase += kM_PI;
 										spec->data[i] *= zsind(phase);
+
 									}
 
 									stack->Push(spec);
@@ -602,6 +610,10 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									{
 										double phase = double(i) * freq / spec->size - phaseOffset;
 										phase = zfmodd(phase*kM_PI, kM_PI);
+
+										if (phase < 0.0)
+											phase += kM_PI;
+
 										spec->data[i] *= 1.0 - zsind(phase);
 									}
 
@@ -921,13 +933,6 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case kOpVoicePitch: // num voicepitch()
-								{
-									stack->Push(voice->pitch);
-									trace("0x%04x push voice pitch", opcodeOffset, voice->pitch);
-									break;
-								}
-
 							case kOpStereoWidth: // sample -> sample
 								{
 									num_t width = stack->Pop<num_t>();
@@ -1007,6 +1012,13 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
+							case kOpGlobalPos: // num globalpos()
+								{
+									stack->Push(synth->sync.pos);
+									trace("0x%04x push globalpos(): %f", opcodeOffset, synth->sync.pos);
+									break;
+								}
+
 							case kOpBPM: // num bpm()
 								{
 									stack->Push(synth->sync.bpm);
@@ -1014,7 +1026,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case kOpBPM: // num bps()
+							case kOpBPS: // num bps()
 								{
 									stack->Push(synth->sync.bps);
 									trace("0x%04x push bps(): %f", opcodeOffset, synth->sync.bps);
@@ -1031,7 +1043,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case kOpPitchToFreq: // num pitchToFreq(num freq)
+							case kOpPitchToFreq: // num pitchToFreq(num pitch)
 								{
 									num_t x = stack->Pop<num_t>();
 									auto y = pitchToFrequency(x);
@@ -1151,7 +1163,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case kOpLog10: // num log(num x)
+							case kOpLog10: // num log10(num x)
 								{
 									num_t x = stack->Pop<num_t>();
 									auto y = zlog10d(x);
@@ -1161,7 +1173,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case kOpExp: // num log(num x)
+							case kOpExp: // num exp(num x)
 								{
 									num_t x = stack->Pop<num_t>();
 									auto y = zexpd(x);

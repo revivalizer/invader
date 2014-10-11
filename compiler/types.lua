@@ -336,7 +336,7 @@ types = {
 			{
 				["name"] = "toWavetable",
 				["id"] = kOpMakeWavetable,
-				["arguments"] = {},
+				["arguments"] = {make_type("num"), make_type("num"), make_type("num")},
 				["return_type"] = make_const_type("wavetable"),
 				["description"] = "Make wavetable from spectrum.",
 			},

@@ -896,7 +896,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case 0xB61: // spectrum.mirror(harmonic)
+							case 0xB61: // spectrum.mirror(num harmonic)
 								{
 									auto harmonic  = zmax(1, zitruncd(stack->Pop<num_t>()));
 
@@ -910,7 +910,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 										spec->data[j++] = in.data[i];
 									}
 
-									uint32_t j=1;
+									j=1;
 									for (int32_t i=harmonic; i<spec->size; i++)
 									{
 										spec->data[i] = in.data[j++];

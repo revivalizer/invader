@@ -146,8 +146,14 @@ kMirror                 = 0xB61
 
 -- Voice functions
 kOpVoicePitch  = 0xC01
---kOpVoiceTime   = 0xC02
---kOpVoicePos    = 0xC03
+kOpVoiceTime   = 0xC02
+kOpVoicePos    = 0xC03
+kOpVoiceId     = 0xC04
+kOpGlobalTime  = 0xC82
+kOpGlobalPos   = 0xC83
+
+kOpBPM         = 0xCE1
+kOpBPS         = 0xCE2
 
 -- Other
 kOpStereoWidth           = 0xC11
@@ -156,5 +162,23 @@ kOpNodeCompress          = 0xC13 + kOpcodeMaskIsNode
 kOpNodeSidechainCompress = 0xC14 + kOpcodeMaskIsNode
 kOpNodeReverb            = 0xC15 + kOpcodeMaskIsNode
 
+
+-- Math functions
+kOpFreqToPitch = 0xD00
+kOpPitchToFreq = 0xD01
+kOpTrunc       = 0xD10
+kOpRound       = 0xD11
+kOpCeil        = 0xD12
+kOpFloor       = 0xD13
+kOpAbs         = 0xD14
+kOpCos         = 0xD20
+kOpSin         = 0xD21
+kOpTan         = 0xD22
+kOpSqrt        = 0xD30
+kOpLog         = 0xD40
+kOpLog2        = 0xD41
+kOpLog10       = 0xD42
+kOpExp         = 0xD43
+kOpPow         = 0xD44
 
 

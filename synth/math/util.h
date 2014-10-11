@@ -5,6 +5,10 @@ ZINLINE double pitchToFrequency(double pitch)
 	return 440*zpowd(2, (pitch-69)/12);
 }
 
+ZINLINE double frequencyToPitch(double freq)
+{
+	return zlog2d(freq/440.0)*12 + 69;
+}
 
 ZINLINE double dbToGain(double dB)
 {
@@ -14,6 +18,15 @@ ZINLINE double dbToGain(double dB)
 ZINLINE double gainTodB(double gain)
 {
 	return 20.0 * zlog10d(gain);
+}
+
+template<class T>
+ZINLINE T zabs(const T& a)
+{
+	if (a < T(0))
+		return -a;
+	else
+		return a;
 }
 
 template<class T>

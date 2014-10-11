@@ -921,7 +921,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case kOpVoicePitch: // num
+							case kOpVoicePitch: // num voicepitch()
 								{
 									stack->Push(voice->pitch);
 									trace("0x%04x push voice pitch", opcodeOffset, voice->pitch);
@@ -969,6 +969,216 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 									stack->Push(block);
 									trace("0x%04x pan(%f, %f)", opcodeOffset, panLawdB, panRight);
+									break;
+								}
+
+							case kOpVoicePitch: // num voicepitch()
+								{
+									stack->Push(voice->pitch);
+									trace("0x%04x push voicepitch(): %f", opcodeOffset, voice->pitch);
+									break;
+								}
+
+							case kOpVoiceTime: // num voicetime()
+								{
+									stack->Push(voice->timeSinceNoteOn);
+									trace("0x%04x push voicetime(): %f", opcodeOffset, voice->timeSinceNoteOn);
+									break;
+								}
+
+							case kOpVoicePos: // num voicepos()
+								{
+									stack->Push(voice->timeSinceNoteOn*synth->sync.bps);
+									trace("0x%04x push voicepos(): %f", opcodeOffset, voice->timeSinceNoteOn*synth->sync.bps);
+									break;
+								}
+
+							case kOpVoiceId: // num voiceid()
+								{
+									stack->Push(voice->timeSinceNoteOn*synth->sync.bps);
+									trace("0x%04x push voiceid(): %f", opcodeOffset, voice->);
+									break;
+								}
+
+							case kOpGlobalTime: // num globaltime()
+								{
+									stack->Push(synth->sync.time);
+									trace("0x%04x push globaltime(): %f", opcodeOffset, synth->sync.time);
+									break;
+								}
+
+							case kOpBPM: // num bpm()
+								{
+									stack->Push(synth->sync.bpm);
+									trace("0x%04x push bpm(): %f", opcodeOffset, synth->sync.bpm);
+									break;
+								}
+
+							case kOpBPM: // num bps()
+								{
+									stack->Push(synth->sync.bps);
+									trace("0x%04x push bps(): %f", opcodeOffset, synth->sync.bps);
+									break;
+								}
+
+							case kOpFreqToPitch: // num freqToPitch(num freq)
+								{
+									num_t x = stack->Pop<num_t>();
+									auto y = frequencyToPitch(x);
+									stack->Push(y);
+
+									trace("0x%04x push freqToPitch(%f): %f", opcodeOffset, x, y);
+									break;
+								}
+
+							case kOpPitchToFreq: // num pitchToFreq(num freq)
+								{
+									num_t x = stack->Pop<num_t>();
+									auto y = pitchToFrequency(x);
+									stack->Push(y);
+
+									trace("0x%04x push pitchToFreq(%f): %f", opcodeOffset, x, y);
+									break;
+								}
+
+							case kOpTrunc: // num trunc(num x)
+								{
+									num_t x = stack->Pop<num_t>();
+									auto y = double(zitruncd(x));
+									stack->Push(y);
+
+									trace("0x%04x push trunc(%f): %f", opcodeOffset, x, y);
+									break;
+								}
+
+							case kOpRound: // num round(num x)
+								{
+									num_t x = stack->Pop<num_t>();
+									auto y = double(zifloord(x + 0.5));
+									stack->Push(y);
+
+									trace("0x%04x push round(%f): %f", opcodeOffset, x, y);
+									break;
+								}
+
+							case kOpCeil: // num ceil(num x)
+								{
+									num_t x = stack->Pop<num_t>();
+									auto y = double(ziceild(x));
+									stack->Push(y);
+
+									trace("0x%04x push ceil(%f): %f", opcodeOffset, x, y);
+									break;
+								}
+
+							case kOpFloor: // num floor(num x)
+								{
+									num_t x = stack->Pop<num_t>();
+									auto y = double(zifloord(x));
+									stack->Push(y);
+
+									trace("0x%04x push floor(%f): %f", opcodeOffset, x, y);
+									break;
+								}
+
+							case kOpAbs: // num abs(num x)
+								{
+									num_t x = stack->Pop<num_t>();
+									auto y = zabs(x);
+									stack->Push(y);
+
+									trace("0x%04x push zabs(%f): %f", opcodeOffset, x, y);
+									break;
+								}
+
+							case kOpCos: // num cos(num x)
+								{
+									num_t x = stack->Pop<num_t>();
+									auto y = zcosd(x);
+									stack->Push(y);
+
+									trace("0x%04x push cos(%f): %f", opcodeOffset, x, y);
+									break;
+								}
+
+							case kOpSin: // num sin(num x)
+								{
+									num_t x = stack->Pop<num_t>();
+									auto y = zsind(x);
+									stack->Push(y);
+
+									trace("0x%04x push sin(%f): %f", opcodeOffset, x, y);
+									break;
+								}
+
+							case kOpTan: // num tan(num x)
+								{
+									num_t x = stack->Pop<num_t>();
+									auto y = ztand(x);
+									stack->Push(y);
+
+									trace("0x%04x push tan(%f): %f", opcodeOffset, x, y);
+									break;
+								}
+
+							case kOpSqrt: // num sqrt(num x)
+								{
+									num_t x = stack->Pop<num_t>();
+									auto y = zsqrtd(x);
+									stack->Push(y);
+
+									trace("0x%04x push sqrt(%f): %f", opcodeOffset, x, y);
+									break;
+								}
+
+							case kOpLog: // num log(num x)
+								{
+									num_t x = stack->Pop<num_t>();
+									auto y = zlogd(x);
+									stack->Push(y);
+
+									trace("0x%04x push log(%f): %f", opcodeOffset, x, y);
+									break;
+								}
+
+							case kOpLog2: // num log2(num x)
+								{
+									num_t x = stack->Pop<num_t>();
+									auto y = zlog2d(x);
+									stack->Push(y);
+
+									trace("0x%04x push log2(%f): %f", opcodeOffset, x, y);
+									break;
+								}
+
+							case kOpLog10: // num log(num x)
+								{
+									num_t x = stack->Pop<num_t>();
+									auto y = zlog10d(x);
+									stack->Push(y);
+
+									trace("0x%04x push log10(%f): %f", opcodeOffset, x, y);
+									break;
+								}
+
+							case kOpExp: // num log(num x)
+								{
+									num_t x = stack->Pop<num_t>();
+									auto y = zexpd(x);
+									stack->Push(y);
+
+									trace("0x%04x push exp(%f): %f", opcodeOffset, x, y);
+									break;
+								}
+
+							case kOpPow: // num pow(num a, num x)
+								{
+									num_t x = stack->Pop<num_t>();
+									num_t a = stack->Pop<num_t>();
+									auto y = zpowd(a, x);
+									stack->Push(y);
+
+									trace("0x%04x push pow(%f, %f): %f", opcodeOffset, a, x, y);
 									break;
 								}
 						}

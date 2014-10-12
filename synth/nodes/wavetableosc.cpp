@@ -42,7 +42,7 @@ void ZWavetableOsc::Process(ZVirtualMachine* vm)
 		handleNoteOn = false;
 	}
 
-	auto wavetable = vm->stack->Pop<ZWaveformWavetable<>*>();
+	auto wavetable = vm->stack->Pop<ZWavetable*>();
 	wavetable;
 
 	ZBlockBufferInternal block;

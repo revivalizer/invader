@@ -9,6 +9,12 @@ public:
 	T data[S];
 	static const uint32_t size = S;
 
+	void Reset()
+	{
+		for (uint32_t i=0; i<size; i++)
+			data[0] = complex_t(0.0);
+	}
+
 	void ApplyPeak(double harmonic, double width, double dB)
 	{
 		for (int i=1; i<size; i++)
@@ -41,5 +47,6 @@ public:
 };
 
 typedef ZSpectrum<complex_t, 2048> ZRealSpectrum;
+typedef ZSpectrum<complex_t, 2048*32> ZPadSpectrum;
 
 } // namespace invader

@@ -43,7 +43,9 @@ require("compiler")
 --print(serialize_table(program))
 
 local curfilename = debug.getinfo(1, "S").source:sub(2)
+local t = os.clock()
 export_binary_and_header(curfilename, compile(str))
+print(os.clock()-t)
 
 --[[
 

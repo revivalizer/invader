@@ -114,7 +114,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 					break;
 				case kOpPushGlobal | kOpTypeWavetable:
 					trace("0x%04x push global wavetable, address: 0x%04x", opcodeOffset, *ip);
-					stack->Push(globalStorage->Load<ZWaveformWavetable<>*>(*ip++));
+					stack->Push(globalStorage->Load<ZWavetable*>(*ip++));
 					break;
 				case kOpPopGlobal | kOpTypeNum:
 					trace("0x%04x pop global num, address: 0x%04x", opcodeOffset, *ip);
@@ -130,7 +130,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 					break;
 				case kOpPopGlobal | kOpTypeWavetable:
 					trace("0x%04x pop global wavetable, address: 0x%04x", opcodeOffset, *ip);
-					globalStorage->Store<ZWaveformWavetable<>*>(*ip++, stack->Pop<ZWaveformWavetable<>*>());
+					globalStorage->Store<ZWavetable*>(*ip++, stack->Pop<ZWavetable*>());
 					break;
 				case kOpResetGlobal | kOpTypeNum:
 					trace("0x%04x reet global num, address: 0x%04x", opcodeOffset, *ip);
@@ -437,7 +437,27 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case 0xB03: // spectrum.addSine(num harmonic, num gainDB)
+							case 0xB02: // spectrum.toPadWavetable
+								{
+									auto detuneInharmonicity           = stack->Pop<num_t>();
+									auto detuneScale                   = stack->Pop<num_t>();
+									auto detune                        = stack->Pop<num_t>();
+									auto harmonicBandwidthPitchScale   = stack->Pop<num_t>();
+									auto harmonicBandwidthScale        = stack->Pop<num_t>();
+									auto harmonicBandwidth             = stack->Pop<num_t>();
+
+									auto profile                       = zitruncd(stack->Pop<num_t>());
+									auto pitchScaleMode                = zitruncd(stack->Pop<num_t>());
+									auto randomSeed                    = zitruncd(stack->Pop<num_t>());
+
+									ZRealSpectrum* spectrum = stack->Pop<ZRealSpectrum*>();
+									auto wavetable = new ZPadWavetable<>(*spectrum, randomSeed, pitchScaleMode, profile, harmonicBandwidth, harmonicBandwidthScale, harmonicBandwidthPitchScale, detune, detuneScale, detuneInharmonicity);
+									stack->Push(wavetable);
+									trace("0x%04x spectrum.toPadWavetable()", opcodeOffset);
+									break;
+								}
+
+							case 0xB08: // spectrum.addSine(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
 									auto harmonic = uint32_t(zitruncd(stack->Pop<num_t>()));
@@ -452,7 +472,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case 0xB04: // spectrum.addSaw(num harmonic, num gainDB)
+							case 0xB09: // spectrum.addSaw(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
 									auto harmonic = int32_t(zitruncd(stack->Pop<num_t>()));
@@ -466,7 +486,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case 0xB05: // spectrum.addSquare(num harmonic, num gainDB)
+							case 0xB0A: // spectrum.addSquare(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
 									auto harmonic = int32_t(zitruncd(stack->Pop<num_t>()));
@@ -480,7 +500,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case 0xB06: // spectrum.addTriangle(num harmonic, num gainDB)
+							case 0xB0B: // spectrum.addTriangle(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
 									auto harmonic = int32_t(zitruncd(stack->Pop<num_t>()));
@@ -498,7 +518,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case 0xB07: // spectrum.addThirds(num harmonic, num gainDB)
+							case 0xB0C: // spectrum.addThirds(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
 									auto harmonic = int32_t(zitruncd(stack->Pop<num_t>()));
@@ -512,7 +532,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
-							case 0xB08: // spectrum.addWhite(num harmonic, num gainDB)
+							case 0xB0D: // spectrum.addWhite(num harmonic, num gainDB)
 								{
 									auto gain = dbToGain(stack->Pop<num_t>());
 									auto harmonic = int32_t(zitruncd(stack->Pop<num_t>()));

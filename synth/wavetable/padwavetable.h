@@ -15,105 +15,15 @@ enum {
 	kModeMetallic,
 };
 
-bool LimitHarmonics(ZPadSpectrum& spectrum, double low, double high, uint32_t& lowOut, uint32_t& highOut)
-{
-	spectrum; // compiler error, thinks spectrun is unreferenced
-
-	if (high < 0.0 || low >= spectrum.size)
-		return false;
-	
-	lowOut = zifloord(zclamp(low, 0.0, (double)(spectrum.size-1)));
-	highOut = ziceild(zclamp(high, 0.0, (double)(spectrum.size-1)));
-
-	return true;
-}
-
+bool LimitHarmonics(ZPadSpectrum& spectrum, double low, double high, uint32_t& lowOut, uint32_t& highOut);
 
 // Profile functions
-void AddGaussian(ZPadSpectrum& spectrum, double gain, double mean, double stdDev)
-{
-	// Find harmonic boundaries, or return if outside range
-	uint32_t lowestHarmonic, highestHarmonic;
-	if (!LimitHarmonics(spectrum, mean - 3.0*stdDev, mean + 3.0*stdDev, lowestHarmonic, highestHarmonic))
-		return;
-
-	double invDivisor = 1.0 / (2.0 * stdDev * stdDev);
-
-	double multiplier = gain / stdDev;
-
-	for (uint32_t i=lowestHarmonic; i<=highestHarmonic; i++)
-	{
-		double diff = (double)i-mean;
-		spectrum.data[i] += complex_t(multiplier * zexpd( -diff*diff*invDivisor ));
-	}
-}
-
-void AddBox(ZPadSpectrum& spectrum, double gain, double center, double radius)
-{
-	// Find harmonic boundaries, or return if outside range
-	uint32_t lowestHarmonic, highestHarmonic;
-	if (!LimitHarmonics(spectrum, center - radius, center + radius, lowestHarmonic, highestHarmonic))
-		return;
-
-	double value = gain * 1.0 / (double)(highestHarmonic - lowestHarmonic);
-
-	for (uint32_t i=lowestHarmonic; i<=highestHarmonic; i++)
-	{
-		spectrum.data[i] += complex_t(value);
-	}
-}
-
-void AddInvGaussian(ZPadSpectrum& spectrum, double gain, double mean, double stdDev)
-{
-	// Find harmonic boundaries, or return if outside range
-	uint32_t lowestHarmonic, highestHarmonic;
-	if (!LimitHarmonics(spectrum, mean - 3.0*stdDev, mean + 3.0*stdDev, lowestHarmonic, highestHarmonic))
-		return;
-
-	double invDivisor = 1.0 / (2.0 * stdDev * stdDev);
-	double sum = 0.0;
-
-	for (double i=(double)lowestHarmonic; i<=(double)highestHarmonic; i += 1.0)
-	{
-		double diff = i-mean;
-		sum += 1.0 - zexpd( -diff*diff*invDivisor );
-	}
-
-	if (sum > 0.0001)
-	{
-		double multiplier = gain * 1.0 / sum;
-
-		for (uint32_t i=lowestHarmonic; i<=highestHarmonic; i++)
-		{
-			double diff = (double)i-mean;
-			spectrum.data[i] += complex_t(multiplier * (1.0 - zexpd( -diff*diff*invDivisor )));
-		}
-	}
-}
-
-void AddPure(ZPadSpectrum& spectrum, double gain, double mean, double stdDev)
-{
-	stdDev; // not used
-
-	uint32_t harmonic = ziroundd(mean);
-
- 	if (harmonic >= 0 && harmonic < spectrum.size)
-		spectrum.data[harmonic] += complex_t(gain);
-}
-
-void (*profileFunctions[])(ZPadSpectrum&, double, double, double) = {
-	&AddGaussian,
-	&AddBox,
-	&AddInvGaussian,
-	&AddPure,
-};
-
-double noise(double x, double y)
-{
-	// Based on iqs simple 2D noise
-	double r = zsind(x*12.98773298 + y*78.2334125)*43758.5453;
-	return r - double(zifloord(r));
-}
+void AddGaussian(ZPadSpectrum& spectrum, double gain, double mean, double stdDev);
+void AddBox(ZPadSpectrum& spectrum, double gain, double center, double radius);
+void AddInvGaussian(ZPadSpectrum& spectrum, double gain, double mean, double stdDev);
+void AddPure(ZPadSpectrum& spectrum, double gain, double mean, double stdDev);
+void AddHarmonic(ZPadSpectrum& spectrum, uint32_t type, double gain, double mean, double stdDev);
+double noise(double x, double y);
 
 template <uint32_t size = 2048*32, uint32_t padFactor=1> // size is number of samples in table, padFacotr applied independently
 class ZPadWavetable : public ZWavetable
@@ -136,20 +46,23 @@ public:
 private:
 	void GenerateShiftedPerturbedWave(const uint32_t factor, const ZPadSpectrum& amplitudeSpectrum, double waveform[size], double randomSeed)
 	{
-		ZRealSpectrum randomPhaseSpectrum;
+		ZPadSpectrum* randomPhaseSpectrum = new ZPadSpectrum;
+		randomPhaseSpectrum->Reset();
 
 		// Create spectrum with shifted and pertubed harmonics
-		for (uint32_t harmonic=0; harmonic<randomPhaseSpectrum; harmonic++)
+		for (uint32_t harmonic=0; harmonic<randomPhaseSpectrum->size; harmonic++)
 		{
-			double angle = noise(double(i)/double(factor), randomSeed) * kM_PI2;
+			double angle = noise(double(harmonic)/double(factor), randomSeed) * kM_PI2;
 			double amplitude = 1.0;
 
-			randomPhaseSpectrum.data[harmonic] = amplitudeSpectrum.data[harmonic] * complex_t(zcosd(angle)*amplitude, zsind(angle)*amplitude); 
+			randomPhaseSpectrum->data[harmonic] = amplitudeSpectrum.data[harmonic] * complex_t(zcosd(angle)*amplitude, zsind(angle)*amplitude); 
 		}
 
 		// Transform to waveform
 		complex::GFFT<10+5> transform;
-		transform.realifft(randomPhaseSpectrum.data, waveform); // 11 -> 2^11 -> 2048
+		transform.realifft(randomPhaseSpectrum->data, waveform); // 11 -> 2^11 -> 2048
+
+		delete randomPhaseSpectrum;
 	}
 
 	virtual ZWave* Generate(const uint32_t pitch)
@@ -157,10 +70,11 @@ private:
 		// Shift factor
 		uint32_t oct = (pitch-15)/12; // this should really be 17 in order to have r in 0.5-1.0, but it aliases above 0.9, so...
 		uint32_t factor = 1 << oct; // mul/spread factor for harmonics
+		factor = factor*32;
 
 		// Generate amplitudes
-		ZPadSpectrum amplitudeSpectrum;
-		amplitudeSpectrum.Reset();
+		ZPadSpectrum* amplitudeSpectrum = new ZPadSpectrum;
+		amplitudeSpectrum->Reset();
 
 		ZRandom detuneRandom(randomSeed + 828393);
 
@@ -191,19 +105,19 @@ private:
 									*	pitchScale										// Pitch scaling
 									/	zpowd(2.0, (double)(pitch % 12) / 12.0f);		// Correct for playback speed, which scales spectrum
 
-				profileFunctions[profile](amplitudeSpectrum, amplitude, partial, bandwidth);
+				AddHarmonic(*amplitudeSpectrum, profile, amplitude, partial, bandwidth);
 			}
 		}
 
 		// Transform to waveform
-		double waveformLeft[size];
-		double waveformRight[size];
+		double* waveformLeft = new double[size];
+		double* waveformRight = new double[size];
 
 		ZRandom rLeft(randomSeed);
 		ZRandom rRight(randomSeed+2901274);
 
-		GenerateShiftedPerturbedWave(factor, amplitudeSpectrum, waveformLeft, double(randomSeed));
-		GenerateShiftedPerturbedWave(factor, amplitudeSpectrum, waveformRight, double(randomSeed) + 3985.08);
+		GenerateShiftedPerturbedWave(factor, *amplitudeSpectrum, waveformLeft, double(randomSeed));
+		GenerateShiftedPerturbedWave(factor, *amplitudeSpectrum, waveformRight, double(randomSeed) + 3985.08);
 		
 		// Normalize wave
 		double max = 0.0;
@@ -229,6 +143,10 @@ private:
 			wave->paddedData[harmonic*2+0] = int16_t(clampedValLeft);
 			wave->paddedData[harmonic*2+1] = int16_t(clampedValRight);
 		}
+
+		delete amplitudeSpectrum; 
+		delete[] waveformLeft;
+		delete[] waveformRight;
 
 		return wave;
 	}

@@ -340,6 +340,13 @@ types = {
 				["return_type"] = make_const_type("wavetable"),
 				["description"] = "Make wavetable from spectrum.",
 			},
+			{
+				["name"] = "toPadWavetable",
+				["id"] = kOpMakePadWavetable,
+				["arguments"] = {make_type("num"), make_type("num"), make_type("num"), make_type("num"), make_type("num"), make_type("num"), make_type("num"), make_type("num"), make_type("num")},
+				["return_type"] = make_const_type("wavetable"),
+				["description"] = "Make pad wavetable from spectrum.",
+			},
 		},
 	},
 	["wavetable"] = {

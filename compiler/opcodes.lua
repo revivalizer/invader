@@ -109,13 +109,14 @@ kOpNodeFilter1      = 0xA03 + kOpcodeMaskIsNode
 
 -- Spectrum opcodes
 kOpMakeWavetable        = 0xB01
+kOpMakePadWavetable     = 0xB02
 
-kOpAddSine              = 0xB03
-kOpAddSaw               = 0xB04
-kOpAddSquare            = 0xB05
-kOpAddTriangle          = 0xB06
-kOpAddThirds            = 0xB07
-kOpAddWhite             = 0xB08
+kOpAddSine              = 0xB08
+kOpAddSaw               = 0xB09
+kOpAddSquare            = 0xB0A
+kOpAddTriangle          = 0xB0B
+kOpAddThirds            = 0xB0C
+kOpAddWhite             = 0xB0D
 
 kMulWhiteNoise          = 0xB10
 kMulWhiteNoiseDB        = 0xB11

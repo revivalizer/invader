@@ -45,7 +45,6 @@ private:
 		// Shift factor
 		uint32_t oct = (harmonic-15)/12; // this should really be 17 in order to have r in 0.5-1.0, but it aliases above 0.9, so...
 		uint32_t factor = 1 << oct; // mul/spread factor for harmonics
-		factor = factor*32;
 
 		// Transform to waveform
 		double waveformLeft[size];

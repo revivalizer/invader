@@ -2,6 +2,15 @@ str = [[
 ### global
 	const num a = 2
 	const num pi = 3.141592653589793
+
+	const num kProfileGauss = 0
+	const num kProfileBox = 1
+	const num kProfileInvGauss = 2
+	const num kProfilePure = 3
+
+	const num kModeNatural = 0
+	const num kModeMetallic = 1
+
 /*### strings
 	| channel: 2
 	const num test = 1 + a
@@ -20,8 +29,8 @@ str = [[
 	const spectrum spec2 = spectrum().addSaw(1, 0)
 //	const wavetable wt2 = spec2.toWavetable(34, 0.3, 2.0)
 //	const wavetable wt3 = spec2.toPadWavetable(    3661, 1, 0,      0.7, 1.0, 1.0,    0.0, 1.0, 0.0   )
-	const wavetable wt3 = spec2.toPadWavetable(    3661, 1, 0,      2.7, 1.5, 1.0,    0.0, 1.0, 0.0   )
-	out wavetableosc(wt3).filter1(3, voicepitch()+199, 0.2).ADSR(0.1, 0.1, -6, 1.0)
+	const wavetable wt3 = spec2.toPadWavetable(    3661, 1, kProfilePure,      2.7, 1.5, 1.0,    0.0, 1.0, 0.0   )
+	out wavetableosc(wt3).filter1(3, voicepitch()+48+24*sin(voicetime()), 0.2).ADSR(0.1, 0.1, -6, 1.0)
 ### master
 //	out strings.compress(strings2, -36, 20, 10, 10) + strings2.reverb(0, 0, 30, -6, -48, 0, -45, 2, 0.004, -1, 0)
 	out test.reverb(0, 0, 30, -6, -48, 0, -45, 2, 0.004, -1, 0)

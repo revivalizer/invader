@@ -649,6 +649,7 @@ end
 -- Compile program
 function compile(str)
 	local program = {}
+print("parsing")
 	program.ast = parse(str)
 --	print(serialize_table(program.ast))
 
@@ -658,6 +659,7 @@ function compile(str)
 	program.parent_scope_refs = {}
 	program.dot_sibling_refs  = {}
 
+print("checking")
 	check_sections(program)
 	generate_section_ids(program)
 
@@ -671,6 +673,7 @@ function compile(str)
 
 	mark_dot_operator(program.ast)
 
+print("infer types")
 	infer_types(program)
 
 	extract_const_assignments(program)
@@ -683,6 +686,7 @@ function compile(str)
 	generate_section_variables(program)
 
 --	print(serialize_table(program.ast))
+print("generate bytecode")
 	generate_bytecode(program, program.ast)
 
 	program.constants = program.constants:to_table()

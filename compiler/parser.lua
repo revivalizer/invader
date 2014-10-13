@@ -2,6 +2,10 @@ require("re") -- this is the "re" module of lpeg
 
 -- full grammar with captures
 
+print("generate parser")
+
+lpeg.setmaxstack(1000)
+
 p = re.compile[[
 	start <- ws? ({:tag: '' -> 'root':} {:sections: section_list:} {:match_length: {}:}) -> {}
 

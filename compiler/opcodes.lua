@@ -66,8 +66,8 @@ binary_opcodes =
 	          ["sample*sample"] = {"sample", kOpAdd + 1},
 	          ["sample*num"]    = {"sample", kOpAdd + 2}},
 	["-"]  = {["num*num"]       = {"num",    kOpSub + 0},
-	          ["sample*sample"] = {"sample", kOpSub + 1}},
-	["-"]  = {["sample*num"]    = {"sample", kOpSub + 2}}, -- don't subtract sample from number
+	          ["sample*sample"] = {"sample", kOpSub + 1},
+			  ["sample*num"]    = {"sample", kOpSub + 2}}, -- don't subtract sample from number
 	["*"]  = {["num*num"]       = {"num",    kOpMul + 0},
 	          ["sample*num"]    = {"sample", kOpMul + 1}}, -- multiplying samples would ring, so don't do that
 	["/"]  = {["num*num"]       = {"num",    kOpDiv + 0},

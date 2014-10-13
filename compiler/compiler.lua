@@ -651,6 +651,7 @@ function compile(str)
 	local program = {}
 print("parsing")
 	program.ast = parse(str)
+
 --	print(serialize_table(program.ast))
 
 	program.section_refs      = {}

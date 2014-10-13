@@ -8,7 +8,7 @@ ZWavetableOsc::ZWavetableOsc(nodetype_t type) : ZNode(type)
 	handleNoteOn = false;
 }
 
-sample_t GetInterpolatedValue(const double phase, const ZWave<2048>* const wave, const ZFIRInterpolator& interpolator)
+sample_t GetInterpolatedValue(const double phase, const ZWave* const wave, const ZFIRInterpolator& interpolator)
 {
 	uint32_t i = zitruncd(phase);
 	double fracPhase = phase - i;
@@ -60,8 +60,8 @@ void ZWavetableOsc::Process(ZVirtualMachine* vm)
 		double deltaPhase = freq / kSampleRate * wave->dSize / wave->reps;
 		phase += deltaPhase;
 
-		if (phase > wavetable->size)
-			phase -= wavetable->size;
+		if (phase > wave->dSize)
+			phase -= wave->dSize;
 	}
 
 	vm->stack->Push(block);

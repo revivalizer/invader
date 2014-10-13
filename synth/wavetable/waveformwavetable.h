@@ -3,7 +3,7 @@
 namespace invader {
 
 template <uint32_t size = 2048, uint32_t padFactor=1> // size is number of samples in table, padFacotr applied independently
-class ZWaveformWavetable : public ZWavetable<size, padFactor>
+class ZWaveformWavetable : public ZWavetable
 {
 public:
 	ZWaveformWavetable(const ZRealSpectrum& spectrum, uint32_t randomSeed, double phaseVariance, double amplitudeVariance)
@@ -40,7 +40,7 @@ private:
 		transform.realifft(shiftedSpectrum.data, waveform); // 11 -> 2^11 -> 2048
 	}
 
-	virtual ZWave<size>* Generate(const uint32_t harmonic)
+	virtual ZWave* Generate(const uint32_t harmonic)
 	{
 		// Shift factor
 		uint32_t oct = (harmonic-15)/12; // this should really be 17 in order to have r in 0.5-1.0, but it aliases above 0.9, so...
@@ -72,8 +72,7 @@ private:
 		}
 		
 		// Convert to 16 bit wave
-		auto wave = new ZWave<size>;
-		wave->reps = factor;
+		auto wave = new ZWave(size, factor);
 
 		for (uint32_t harmonic=0; harmonic<size; harmonic++)
 		{

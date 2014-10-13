@@ -17,11 +17,13 @@ enum {
 
 bool LimitHarmonics(ZPadSpectrum& spectrum, double low, double high, uint32_t& lowOut, uint32_t& highOut)
 {
+	spectrum; // compiler error, thinks spectrun is unreferenced
+
 	if (high < 0.0 || low >= spectrum.size)
 		return false;
 	
-	lowOut = zifloord(zclamp(low, 0.0, (double)(paderizer->maxHarmonics-1)));
-	highOut = ziceild(zclamp(high, 0.0, (double)(paderizer->maxHarmonics-1)));
+	lowOut = zifloord(zclamp(low, 0.0, (double)(spectrum.size-1)));
+	highOut = ziceild(zclamp(high, 0.0, (double)(spectrum.size-1)));
 
 	return true;
 }
@@ -32,17 +34,17 @@ void AddGaussian(ZPadSpectrum& spectrum, double gain, double mean, double stdDev
 {
 	// Find harmonic boundaries, or return if outside range
 	uint32_t lowestHarmonic, highestHarmonic;
-	if (!LimitHarmonics(paderizer, mean - 3.0*stdDev, mean + 3.0*stdDev, lowestHarmonic, highestHarmonic))
+	if (!LimitHarmonics(spectrum, mean - 3.0*stdDev, mean + 3.0*stdDev, lowestHarmonic, highestHarmonic))
 		return;
 
 	double invDivisor = 1.0 / (2.0 * stdDev * stdDev);
 
 	double multiplier = gain / stdDev;
 
-	for (int i=lowestHarmonic; i<=highestHarmonic; i++)
+	for (uint32_t i=lowestHarmonic; i<=highestHarmonic; i++)
 	{
 		double diff = (double)i-mean;
-		spectrum.data[i] += multiplier * zexpd( -diff*diff*invDivisor );
+		spectrum.data[i] += complex_t(multiplier * zexpd( -diff*diff*invDivisor ));
 	}
 }
 
@@ -50,14 +52,14 @@ void AddBox(ZPadSpectrum& spectrum, double gain, double center, double radius)
 {
 	// Find harmonic boundaries, or return if outside range
 	uint32_t lowestHarmonic, highestHarmonic;
-	if (!LimitHarmonics(paderizer, center - radius, center + radius, lowestHarmonic, highestHarmonic))
+	if (!LimitHarmonics(spectrum, center - radius, center + radius, lowestHarmonic, highestHarmonic))
 		return;
 
 	double value = gain * 1.0 / (double)(highestHarmonic - lowestHarmonic);
 
 	for (uint32_t i=lowestHarmonic; i<=highestHarmonic; i++)
 	{
-		spectrum.data[i] += value;
+		spectrum.data[i] += complex_t(value);
 	}
 }
 
@@ -65,7 +67,7 @@ void AddInvGaussian(ZPadSpectrum& spectrum, double gain, double mean, double std
 {
 	// Find harmonic boundaries, or return if outside range
 	uint32_t lowestHarmonic, highestHarmonic;
-	if (!LimitHarmonics(paderizer, mean - 3.0*stdDev, mean + 3.0*stdDev, lowestHarmonic, highestHarmonic))
+	if (!LimitHarmonics(spectrum, mean - 3.0*stdDev, mean + 3.0*stdDev, lowestHarmonic, highestHarmonic))
 		return;
 
 	double invDivisor = 1.0 / (2.0 * stdDev * stdDev);
@@ -84,20 +86,22 @@ void AddInvGaussian(ZPadSpectrum& spectrum, double gain, double mean, double std
 		for (uint32_t i=lowestHarmonic; i<=highestHarmonic; i++)
 		{
 			double diff = (double)i-mean;
-			spectrum.data[i] += multiplier * (1.0 - zexpd( -diff*diff*invDivisor ));
+			spectrum.data[i] += complex_t(multiplier * (1.0 - zexpd( -diff*diff*invDivisor )));
 		}
 	}
 }
 
-void AddPure(SpectrumPaderizer* paderizer, double gain, double mean, double stdDev)
+void AddPure(ZPadSpectrum& spectrum, double gain, double mean, double stdDev)
 {
+	stdDev; // not used
+
 	uint32_t harmonic = ziroundd(mean);
 
  	if (harmonic >= 0 && harmonic < spectrum.size)
-		spectrum[harmonic] += gain;
+		spectrum.data[harmonic] += complex_t(gain);
 }
 
-void (*profileFunctions[])(ZPadSpectrum*, double, double, double) = {
+void (*profileFunctions[])(ZPadSpectrum&, double, double, double) = {
 	&AddGaussian,
 	&AddBox,
 	&AddInvGaussian,
@@ -112,19 +116,8 @@ double noise(double x, double y)
 }
 
 template <uint32_t size = 2048*32, uint32_t padFactor=1> // size is number of samples in table, padFacotr applied independently
-class ZPadWavetable : public ZWavetable<size, padFactor>
+class ZPadWavetable : public ZWavetable
 {
-	uint32_t randomSeed;
-	uint32_t pitchScaleMode;
-	uint32_t profile;
-
-	double harmonicBandwith;
-	double harmonicBandwithScale;
-	double harmonicBandwithPitchScale;
-
-	double detune;
-	double detuneScale;
-	double detuneInharmonicity;
 public:
 	ZPadWavetable(const ZRealSpectrum& spectrum, uint32_t randomSeed, uint32_t pitchScaleMode, uint32_t profile, double harmonicBandwith, double harmonicBandwithScale, double harmonicBandwithPitchScale, double detune, double detuneScale, double detuneInharmonicity)
 		: spectrum(spectrum)
@@ -159,7 +152,7 @@ private:
 		transform.realifft(randomPhaseSpectrum.data, waveform); // 11 -> 2^11 -> 2048
 	}
 
-	virtual ZWave<size>* Generate(const uint32_t pitch)
+	virtual ZWave* Generate(const uint32_t pitch)
 	{
 		// Shift factor
 		uint32_t oct = (pitch-15)/12; // this should really be 17 in order to have r in 0.5-1.0, but it aliases above 0.9, so...
@@ -227,8 +220,7 @@ private:
 		}
 		
 		// Convert to 16 bit wave
-		auto wave = new ZWave<size>;
-		wave->reps = factor;
+		auto wave = new ZWave(size, factor);
 
 		for (uint32_t harmonic=0; harmonic<size; harmonic++)
 		{

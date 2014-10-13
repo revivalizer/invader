@@ -9,22 +9,10 @@
 #include "vm/opcodes.h"
 #include "vm/vm.h"
 
-#include "util/sync.h"
-
+// These are neccesary because they're public members of synth, and needs to be usable by the VST intrument class
 #include "math/util.h"
-#include "math/onepolefilter.h"
-#include "math/onepolefilterfast.h"
-#include "math/levelfollower.h"
+#include "util/sync.h"
 #include "math/resampler2x.h"
-#include "math/shapingtransform.h"
-#include "math/adsrenvelope.h"
-#include "math/spectrum.h"
-#include "math/fft.h"
-#include "math/filterzd24.h"
-
-#include "wavetable/wave.h"
-#include "wavetable/wavetable.h"
-#include "wavetable/waveformwavetable.h"
 #include "wavetable/firinterpolator.h"
 
 #include "graph/synth.h"

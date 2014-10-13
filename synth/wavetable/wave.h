@@ -2,36 +2,44 @@
 
 namespace invader {
 
-template <uint32_t size>
 class ZWave : public align16
 {
 public:
-	ZWave()
+	ZWave(const uint32_t size, const uint32_t reps)
+		: iSize(size)
+		, dSize(size)
+		, reps(reps)
 	{
+		data = new int16_t[(size+32)*2]; // allocate 16 samples at either end, stereo
 		paddedData = data+16*2;
 	}
 
-	static const uint32_t iSize = size;
-	static const double   dSize;
+	~ZWave()
+	{
+		if (data)
+		{
+			delete[] data;
+			data = nullptr;
+		}
+	}
 
-	int16_t   data[(size+32)*2]; // allocate 16 samples at either end - stereo
-	int16_t*  paddedData;
-
+	uint32_t iSize;
+	double dSize;
 	double reps; // number of repetitions of the waveform
+
+	int16_t*  data;
+	int16_t*  paddedData;
 
 	void GeneratePadding()
 	{
 		for (int32_t i=-32; i<0; i++)
-			paddedData[i] = paddedData[ i+size*2];
+			paddedData[i] = paddedData[ i+iSize*2];
 
 		for (int32_t i=0; i<32; i++)
-			paddedData[i+size*2] = paddedData[i];
+			paddedData[i+iSize*2] = paddedData[i];
 	}
 	
 private:
 };
-
-template <uint32_t size>
-const double ZWave<size>::dSize = double(size);
 
 } // namespace invader

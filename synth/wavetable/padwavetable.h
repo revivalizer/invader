@@ -68,7 +68,7 @@ private:
 	virtual ZWave* Generate(const uint32_t pitch)
 	{
 		// Shift factor
-		uint32_t oct = (pitch-15)/12; // this should really be 17 in order to have r in 0.5-1.0, but it aliases above 0.9, so...
+		int32_t oct = zmax(0, (int32_t(pitch)-15)/12); // this should really be 17 in order to have r in 0.5-1.0, but it aliases above 0.9, so...
 		uint32_t factor = 1 << oct; // mul/spread factor for harmonics
 		factor = factor*32;
 

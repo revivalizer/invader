@@ -837,12 +837,13 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto harmonic  = zmax(1, zitruncd(stack->Pop<num_t>()));
 
 									auto spec = stack->Pop<ZRealSpectrum*>();
+									ZRealSpectrum specIn = *spec; // don't overwrite spectrum we're reading from
 
 									uint32_t j = 0;
 
 									for (int32_t i=harmonic; i<spec->size; i++)
 									{
-										spec->data[i] += gain * spec->data[j];
+										spec->data[i] += gain * specIn.data[j++];
 									}
 
 									stack->Push(spec);
@@ -856,12 +857,13 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto harmonic  = zmax(1, zitruncd(stack->Pop<num_t>()));
 
 									auto spec = stack->Pop<ZRealSpectrum*>();
+									ZRealSpectrum specIn = *spec; // don't overwrite spectrum we're reading from
 
 									uint32_t j = 0;
 
 									for (int32_t i=harmonic; i<spec->size; i+=harmonic)
 									{
-										spec->data[i] += gain * spec->data[j];
+										spec->data[i] += gain * specIn.data[j++];
 									}
 
 									stack->Push(spec);
@@ -875,6 +877,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto harmonic  = zmax(1, zitruncd(stack->Pop<num_t>()));
 
 									auto spec = stack->Pop<ZRealSpectrum*>();
+									ZRealSpectrum specIn = *spec; // don't overwrite spectrum we're reading from
 
 									for (uint32_t layer = harmonic; layer<spec->size; layer+=harmonic)
 									{
@@ -882,7 +885,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 										for (int32_t i=layer; i<spec->size; i++)
 										{
-											spec->data[i] += gain * spec->data[j];
+											spec->data[i] += gain * specIn.data[j++];
 										}
 									}
 
@@ -897,6 +900,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto harmonic  = zmax(1, zitruncd(stack->Pop<num_t>()));
 
 									auto spec = stack->Pop<ZRealSpectrum*>();
+									ZRealSpectrum specIn = *spec; // don't overwrite spectrum we're reading from
 
 									for (uint32_t layer = harmonic; layer<spec->size; layer+=harmonic)
 									{
@@ -904,7 +908,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 										for (int32_t i=layer; i<spec->size; i+=layer)
 										{
-											spec->data[i] += gain * spec->data[j];
+											spec->data[i] += gain * specIn.data[j++];
 										}
 									}
 

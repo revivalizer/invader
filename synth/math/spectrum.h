@@ -46,7 +46,7 @@ public:
 	}
 };
 
-typedef ZSpectrum<complex_t, 2048> ZRealSpectrum;
+typedef ZSpectrum<complex_t, 256> ZRealSpectrum;
 typedef ZSpectrum<complex_t, 2048*32> ZPadSpectrum;
 
 } // namespace invader

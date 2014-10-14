@@ -2,7 +2,7 @@
 
 namespace invader {
 
-template <uint32_t size = 2048, uint32_t padFactor=1> // size is number of samples in table, padFacotr applied independently
+template <uint32_t size = 512, uint32_t padFactor=1> // size is number of samples in table, padFacotr applied independently
 class ZWaveformWavetable : public ZWavetable
 {
 public:
@@ -36,14 +36,14 @@ private:
 		}
 
 		// Transform to waveform
-		complex::GFFT<10> transform;
-		transform.realifft(shiftedSpectrum.data, waveform); // 11 -> 2^11 -> 2048
+		complex::GFFT<8> transform;
+		transform.realifft(shiftedSpectrum.data, waveform);
 	}
 
 	virtual ZWave* Generate(const uint32_t harmonic)
 	{
 		// Shift factor
-		uint32_t oct = (harmonic-15)/12; // this should really be 17 in order to have r in 0.5-1.0, but it aliases above 0.9, so...
+		uint32_t oct = (harmonic-15)/12-1; // this should really be 17 in order to have r in 0.5-1.0, but it aliases above 0.9, so...
 		uint32_t factor = 1 << oct; // mul/spread factor for harmonics
 
 		// Transform to waveform

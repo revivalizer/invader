@@ -27,13 +27,13 @@ str = [[
 	| channel: 1
 //	const spectrum spec2 = spectrum().addSaw(1, 0).addCopy(10, 12)
 	const spectrum spec2 = spectrum().addSaw(1, 0)
-//	const wavetable wt2 = spec2.toWavetable(34, 0.3, 2.0)
+	const wavetable wt2 = spec2.toWavetable(34, 0.3, 2.0)
 //	const wavetable wt3 = spec2.toPadWavetable(    3661, 1, 0,      0.7, 1.0, 1.0,    0.0, 1.0, 0.0   )
-	const wavetable wt3 = spec2.toPadWavetable(    3661, 1, kProfilePure,      2.7, 1.5, 1.0,    0.0, 1.0, 0.0   )
-	out wavetableosc(wt3).filter1(3, voicepitch()+48+24*sin(voicepos()*48.0 ), 0.2).ADSR(0.1, 0.1, -6, 1.0)
+	const wavetable wt3 = spec2.toPadWavetable(    3661, kModeNatural, kProfileGauss,      2.7, 1.5, 1.0,    0.0, 1.0, 0.0   )
+	out wavetableosc(wt3).filter1(3, voicepitch()+48, 0.2).ADSR(0.1, 0.1, -6, 1.0)
 ### master
 //	out strings.compress(strings2, -36, 20, 10, 10) + strings2.reverb(0, 0, 30, -6, -48, 0, -45, 2, 0.004, -1, 0)
-	out test.reverb(0, 0, 30, -6, -48, 0, -45, 2, 0.004, -1, 0)
+	out test.gain(sin(globaltime()*4.0*pi*2.0)*12).reverb(0, 0, 30, -6, -48, 0, -45, 2, 0.004, -1, 0)
 ]]
 
 package.path = ";compiler/?.lua"..package.path

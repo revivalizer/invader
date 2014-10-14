@@ -997,6 +997,22 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
+							case kOpGain: // sample -> sample
+								{
+									auto gaindB = stack->Pop<num_t>();
+									auto gain = sample_t(dbToGain(gaindB));
+									ZBlockBufferInternal& block = stack->Pop<ZBlockBufferInternal>();
+
+									for (uint32_t i=0; i<block.numSamples; i++)
+									{
+										block.samples[i] *= gain;
+									}
+
+									stack->Push(block);
+									trace("0x%04x gain(%f)", opcodeOffset, gaindB);
+									break;
+								}
+
 							case kOpVoicePitch: // num voicepitch()
 								{
 									stack->Push(voice->pitch);

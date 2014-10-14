@@ -139,6 +139,13 @@ types = {
 				["return_type"] = make_type("sample"),
 				["description"] = "Compress.",
 			},
+			{
+				["name"] = "gain",
+				["id"] = kOpGain,
+				["arguments"] = {make_type("num")},
+				["return_type"] = make_type("sample"),
+				["description"] = "Gain.",
+			},
 		},
 	},
 	["spectrum"] = {

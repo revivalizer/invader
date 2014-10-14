@@ -56,6 +56,7 @@ enum
 	kOpNodeCompress          = 0xC13 | kOpcodeMaskIsNode,
 	kOpNodeSidechainCompress = 0xC14 | kOpcodeMaskIsNode,
 	kOpNodeReverb            = 0xC15 | kOpcodeMaskIsNode,
+	kOpGain                  = 0xC16,
 
 	// Voice functions
 	kOpVoicePitch  = 0xC01,

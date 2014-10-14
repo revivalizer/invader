@@ -9,6 +9,7 @@ public:
 	bool DidUpdate(void);
 
 	char* data;
+	char* freeNextUpdate;
 
 	int32_t checkTime;
 	int32_t readTime;

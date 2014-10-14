@@ -3,6 +3,7 @@
 
 ZWatchFile::ZWatchFile(const char* path)
 	: data(nullptr)
+	, freeNextUpdate(nullptr)
 	//, path(zstrdup(path)) // we duplicate the string, because it might come in from Lua, where it would be garbagecollected
 	, path(path) 
 	, readTime(-1) // when was the file last read?
@@ -20,6 +21,13 @@ ZWatchFile::~ZWatchFile(void)
 
 bool ZWatchFile::DidUpdate(void)
 {
+	// Delay freeing of data until next call to update, so caller has a chance to react before we delete the data out from under him/her
+	if (freeNextUpdate)
+	{
+		zalignedfree(freeNextUpdate);
+		freeNextUpdate = nullptr;
+	}
+
 	FILETIME ftCreate, ftAccess, ftWrite;
 
 	hFile = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -40,7 +48,7 @@ bool ZWatchFile::DidUpdate(void)
 		GetFileSizeEx(hFile, &size);
 
 		if (data)
-			zalignedfree(data);
+			freeNextUpdate = data;
 
 		data = (char*)zalignedalloc(size.LowPart+1, 4); // ensure 4 byte align
 		((char*)data)[size.LowPart] = '\0'; // append zero for easy text handling

@@ -16,7 +16,7 @@ VSTInstrument::VSTInstrument(audioMasterCallback audioMaster) : AudioEffectX(aud
 //, vm(new LuaVM())
 , downsampler(new invader::ZResampler2x)
 //, vstEditor(nullptr)
-, programFile(zstrdup(ZScopedRegistryKey("InvaderProgramPath").str))
+, programFile(zstrdup(ZScopedRegistryKey("Software\\Fnuque\\Invader", "ProgramPath").str))
 , synth(nullptr)
 {
 	if (audioMaster)

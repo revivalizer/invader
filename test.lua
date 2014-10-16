@@ -26,7 +26,7 @@ str = [[
 ### test
 	| channel: 1
 //	const spectrum spec2 = spectrum().addSaw(1, 0).addCopy(10, 12)
-	const spectrum spec2 = spectrum().addSaw(1, 0).mirror(7)
+	const spectrum spec2 = spectrum().addSaw(1, 0)
 	const wavetable wt2 = spec2.toWavetable(34, 0.3, 2.0)
 //	const wavetable wt3 = spec2.toPadWavetable(    3661, 1, 0,      0.7, 1.0, 1.0,    0.0, 1.0, 0.0   )
 //	const wavetable wt3 = spec2.toPadWavetable(    3661, kModeNatural, kProfileGauss,      2.7, 1.5, 1.0,    0.0, 1.0, 0.0   )

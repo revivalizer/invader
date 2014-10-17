@@ -63,12 +63,18 @@ ZSynth::~ZSynth(void)
 
 void ZSynth::NoteOn(uint32_t channel, uint32_t note, uint32_t velocity, uint32_t deltaSamples)
 {
-	GetInstrumentFromMIDI(channel, note)->NoteOn(note, velocity, deltaSamples);
+	auto instrument = GetInstrumentFromMIDI(channel, note);
+
+	if (instrument)
+		instrument->NoteOn(note, velocity, deltaSamples);
 }
 
 void ZSynth::NoteOff(uint32_t channel, uint32_t note, uint32_t deltaSamples)
 {
-	GetInstrumentFromMIDI(channel, note)->NoteOff(note, deltaSamples);
+	auto instrument = GetInstrumentFromMIDI(channel, note);
+
+	if (instrument)
+		instrument->NoteOff(note, deltaSamples);
 }
 
 void ZSynth::ControlChange(uint32_t channel, uint32_t number, uint32_t value, uint32_t deltaSamples)

@@ -86,6 +86,8 @@ enum
 	kOpLog10       = 0xD42,
 	kOpExp         = 0xD43,
 	kOpPow         = 0xD44,
+
+	kOpADSR        = 0xD50 |  kOpcodeMaskIsNode,
 };
 
 // Type identifier

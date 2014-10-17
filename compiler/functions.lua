@@ -169,6 +169,12 @@ functions =
 		["return_type"] = make_type("num"),
 	},
 	{
+		["name"] = "ADSR",
+		["id"] = kOpADSR,
+		["arguments"] = {make_type("num"), make_type("num"), make_type("num"), make_type("num")},
+		["return_type"] = make_type("num"),
+	},
+	{
 		["name"] = "wavetableosc",
 		["id"] = kOpNodeWavetableOsc,
 		["arguments"] = { make_type("num"), make_const_type("wavetable") },

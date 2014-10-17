@@ -30,47 +30,22 @@ public:
 	{
 		double error = 0.0;
 		double diff;
-numTaps;
+
 		for (uint32_t i=0; i<filterSize*oversampling/2; i++)
 		{
 			double w = double(i)/double(numTaps*oversampling);
 
 			diff = re(spectrum[i]);
 
-			/*if (i==0)
+			if (w < passband)
 			{
-				spectrum[i] = complex_t(0.0);
-				diff = 0.0;
-			}
-			else*/ if (w < passband)
-			{
-				//diff = re(spectrum[i]) - 1.0;
-
 				spectrum[i] = complex_t(zclamp(re(spectrum[i]), 1.0/maxErrorPass, maxErrorPass));
-
-				/*if (re(spectrum[i]) > maxErrorPass)
-					spectrum[i] = complex_t(zsqrtd(maxErrorPass));
-				else if (re(spectrum[i]) < 1.0/maxErrorPass)
-					spectrum[i] = complex_t(1.0/zsqrtd(maxErrorPass));
-					*/
-
 
 				diff -= re(spectrum[i]);
 			}
 			else if (w > stopband)
 			{
-				//diff = re(spectrum[i]);
-
 				spectrum[i] = complex_t(zclamp(re(spectrum[i]), -maxErrorStop, maxErrorStop));
-
-
-				/*
-				if (re(spectrum[i]) > maxErrorStop)
-					spectrum[i] = complex_t(zsqrtd(maxErrorStop));
-				else if (re(spectrum[i]) < -maxErrorStop)
-					spectrum[i] = complex_t(-zsqrtd(maxErrorStop));
-					*/
-
 
 				diff -= re(spectrum[i]);
 			}

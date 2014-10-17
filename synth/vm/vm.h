@@ -28,6 +28,10 @@ public:
 	ZSynth*      synth;
 	ZInstrument* instrument;
 	ZVoice*      voice;
+
+	// Temp vars (so we don't allocate them on stack frame)
+	ZRealSpectrum tempSpec;
+	ZBlockBufferInternal tempBlock;
 };
 
 } // namespace invader

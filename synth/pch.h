@@ -1,15 +1,6 @@
 #include "libs/base/base.h"
 #include "libs/base_synth/base_synth.h"
 
-#include "vm/types.h"
-#include "vm/stack.h"
-#include "vm/storage.h"
-#include "vm/program.h"
-#include "vm/bytecodeiterator.h"
-#include "vm/node.h"
-#include "vm/opcodes.h"
-#include "vm/vm.h"
-
 #include "util/sync.h"
 
 #include "math/util.h"
@@ -28,6 +19,16 @@
 #include "wavetable/waveformwavetable.h"
 #include "wavetable/padwavetable.h"
 #include "wavetable/firinterpolator.h"
+
+#include "vm/types.h"
+#include "vm/stack.h"
+#include "vm/storage.h"
+#include "vm/program.h"
+#include "vm/bytecodeiterator.h"
+#include "vm/node.h"
+#include "vm/opcodes.h"
+#include "vm/vm.h"
+
 
 #include "graph/synth.h"
 #include "graph/instrument.h"

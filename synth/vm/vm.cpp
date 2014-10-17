@@ -392,15 +392,13 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 						{
 							case 1: // osc()
 								{
-									ZBlockBufferInternal out;
-
-									for (double i=0.0; i<out.numSamples; i++)
+									for (double i=0.0; i<tempBlock.numSamples; i++)
 									{
 										double time = voice->timeSinceNoteOn + i/kSampleRate;
-										out.samples[zitruncd(i)] = sample_t(zsind(time*pitchToFrequency(voice->pitch)*kM_PI2));
+										tempBlock.samples[zitruncd(i)] = sample_t(zsind(time*pitchToFrequency(voice->pitch)*kM_PI2));
 									}
 
-									stack->Push(out);
+									stack->Push(tempBlock);
 									trace("0x%04x osc()", opcodeOffset);
 									break;
 								}
@@ -837,13 +835,13 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto harmonic  = zmax(1, zitruncd(stack->Pop<num_t>()));
 
 									auto spec = stack->Pop<ZRealSpectrum*>();
-									ZRealSpectrum specIn = *spec; // don't overwrite spectrum we're reading from
+									tempSpec = *spec; // don't overwrite spectrum we're reading from
 
 									uint32_t j = 0;
 
 									for (int32_t i=harmonic; i<spec->size; i++)
 									{
-										spec->data[i] += gain * specIn.data[j++];
+										spec->data[i] += gain * tempSpec.data[j++];
 									}
 
 									stack->Push(spec);
@@ -857,13 +855,13 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto harmonic  = zmax(1, zitruncd(stack->Pop<num_t>()));
 
 									auto spec = stack->Pop<ZRealSpectrum*>();
-									ZRealSpectrum specIn = *spec; // don't overwrite spectrum we're reading from
+									tempSpec = *spec; // don't overwrite spectrum we're reading from
 
 									uint32_t j = 0;
 
 									for (int32_t i=harmonic; i<spec->size; i+=harmonic)
 									{
-										spec->data[i] += gain * specIn.data[j++];
+										spec->data[i] += gain * tempSpec.data[j++];
 									}
 
 									stack->Push(spec);
@@ -877,7 +875,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto harmonic  = zmax(1, zitruncd(stack->Pop<num_t>()));
 
 									auto spec = stack->Pop<ZRealSpectrum*>();
-									ZRealSpectrum specIn = *spec; // don't overwrite spectrum we're reading from
+									tempSpec = *spec; // don't overwrite spectrum we're reading from
 
 									for (uint32_t layer = harmonic; layer<spec->size; layer+=harmonic)
 									{
@@ -885,7 +883,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 										for (int32_t i=layer; i<spec->size; i++)
 										{
-											spec->data[i] += gain * specIn.data[j++];
+											spec->data[i] += gain * tempSpec.data[j++];
 										}
 									}
 
@@ -900,7 +898,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto harmonic  = zmax(1, zitruncd(stack->Pop<num_t>()));
 
 									auto spec = stack->Pop<ZRealSpectrum*>();
-									ZRealSpectrum specIn = *spec; // don't overwrite spectrum we're reading from
+									tempSpec = *spec; // don't overwrite spectrum we're reading from
 
 									for (uint32_t layer = harmonic; layer<spec->size; layer+=harmonic)
 									{
@@ -908,7 +906,7 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 
 										for (int32_t i=layer; i<spec->size; i+=layer)
 										{
-											spec->data[i] += gain * specIn.data[j++];
+											spec->data[i] += gain * tempSpec.data[j++];
 										}
 									}
 
@@ -920,11 +918,11 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 							case 0xB60: // spectrum.reverse()
 								{
 									auto spec = stack->Pop<ZRealSpectrum*>();
-									ZRealSpectrum in = *spec;
+									tempSpec = *spec;
 
 									for (int32_t i=1; i<spec->size; i++)
 									{
-										spec->data[i] = in.data[in.size-i];
+										spec->data[i] = tempSpec.data[tempSpec.size-i];
 									}
 
 									stack->Push(spec);
@@ -937,19 +935,19 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									auto harmonic  = zmax(1, zitruncd(stack->Pop<num_t>()));
 
 									auto spec = stack->Pop<ZRealSpectrum*>();
-									ZRealSpectrum in = *spec;
+									tempSpec = *spec;
 
 									uint32_t j=1;
 
 									for (int32_t i=harmonic-1; i>0; i--)
 									{
-										spec->data[j++] = in.data[i];
+										spec->data[j++] = tempSpec.data[i];
 									}
 
 									j=1;
 									for (int32_t i=harmonic; i<spec->size; i++)
 									{
-										spec->data[i] = in.data[j++];
+										spec->data[i] = tempSpec.data[j++];
 									}
 
 									stack->Push(spec);

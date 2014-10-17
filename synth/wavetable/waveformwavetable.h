@@ -15,10 +15,10 @@ public:
 	}
 	
 private:
+	ZRealSpectrum shiftedSpectrum; // move out of function to remove chkstk issues
+
 	void GenerateShiftedPerturbedWave(const uint32_t factor, double waveform[size], ZRandom& r)
 	{
-		ZRealSpectrum shiftedSpectrum;
-
 		// Create spectrum with shifted and pertubed harmonics
 		for (uint32_t harmonic=0; harmonic<shiftedSpectrum.size; harmonic++)
 		{
@@ -40,6 +40,9 @@ private:
 		transform.realifft(shiftedSpectrum.data, waveform);
 	}
 
+	double waveformLeft[size];
+	double waveformRight[size];
+
 	virtual ZWave* Generate(const uint32_t harmonic)
 	{
 		// Shift factor
@@ -47,9 +50,6 @@ private:
 		uint32_t factor = 1 << oct; // mul/spread factor for harmonics
 
 		// Transform to waveform
-		double waveformLeft[size];
-		double waveformRight[size];
-
 		ZRandom rLeft(randomSeed);
 		ZRandom rRight(randomSeed+2901274);
 

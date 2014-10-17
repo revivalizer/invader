@@ -171,7 +171,7 @@ functions =
 	{
 		["name"] = "wavetableosc",
 		["id"] = kOpNodeWavetableOsc,
-		["arguments"] = { make_const_type("wavetable") },
+		["arguments"] = { make_type("num"), make_const_type("wavetable") },
 		["return_type"] = make_type("sample"),
 		["description"] = "Wavetable oscillator.",
 	},

@@ -43,7 +43,7 @@ void ZWavetableOsc::Process(ZVirtualMachine* vm)
 	}
 
 	auto wavetable = vm->stack->Pop<ZWavetable*>();
-	wavetable;
+	auto pitch     = vm->stack->Pop<num_t>();
 
 	ZBlockBufferInternal block;
 
@@ -56,7 +56,7 @@ void ZWavetableOsc::Process(ZVirtualMachine* vm)
 
 		block.samples[i] = GetInterpolatedValue(phase, wave, vm->synth->firInterpolator);
 
-		double freq = pitchToFrequency(vm->voice->pitch);
+		double freq = pitchToFrequency(pitch);
 		double deltaPhase = freq / kSampleRate * wave->dSize / wave->reps;
 		phase += deltaPhase;
 

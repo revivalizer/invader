@@ -5,11 +5,11 @@ struct ZExeSong;
 class ZExeSongRenderer
 {
 	public:
-		ZExeSongRenderer(ZExeSong* song, short* buffer);
+		ZExeSongRenderer(ZExeSong* song, invader::ZVMProgram* prog, short* buffer);
 
 		// Vitals
 		short* buffer;
-		ZSynth synth;
+		invader::ZSynth synth;
 		ZExeSong* song;
 
 		// Derived song data 
@@ -25,6 +25,6 @@ private:
 		uint32_t currentLine;
 
 		// Resampler
-		ZResampler2x downsampler;
+		invader::ZResampler2x downsampler;
 		ZBlockBuffer1x downsampleBuffer;
 };

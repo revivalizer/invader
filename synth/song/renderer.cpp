@@ -2,7 +2,7 @@
 #include "renderer.h"
 #include "song.h"
 
-void CreateNodeInstances(ZSynthVirtualMachine* vm, ZVMProgram* program, opcode_index_t entryPoint, opcode_index_t exitPoint)
+/*void CreateNodeInstances(ZSynthVirtualMachine* vm, ZVMProgram* program, opcode_index_t entryPoint, opcode_index_t exitPoint)
 {
 	vm->AllocateNodeInstances(program);
 	ZVMBytecodeIterator it(*program);
@@ -24,14 +24,15 @@ void InitVirtualMachine(ZSynthVirtualMachine* vm, ZVMProgram* program, opcode_in
 	CreateNodeInstances(vm, program, entryPoint, exitPoint);
 	vm->program = program;
 	vm->entryPoint = entryPoint;
-}
+}*/
 
-ZExeSongRenderer::ZExeSongRenderer(ZExeSong* song, short* buffer)
+ZExeSongRenderer::ZExeSongRenderer(ZExeSong* song, invader::ZVMProgram* prog, short* buffer)
 	: sampleCount(0.0)
 	, lineSampleCount(samplesPerLine)
 	, currentLine(0)
 	, buffer(buffer)
 	, song(song)
+	, synth(prog)
 {
 	// Set derived song information
 	static const uint32_t linesPerBeat = 4;
@@ -40,7 +41,7 @@ ZExeSongRenderer::ZExeSongRenderer(ZExeSong* song, short* buffer)
 	samplesPerLine = 44100.0 / (bps * linesPerBeat);
 	numSamplesInSong = (uint32_t(double(song->numLines * samplesPerLine)) + 15) & ~0xF; // round up to nearest 16
 
-	// Create node instances
+	/*// Create node instances
 	// We init in bytecode limit order so we can just walk thorugh the bytecode limit array
 	auto limit = song->bytecodeLimits;
 
@@ -60,7 +61,7 @@ ZExeSongRenderer::ZExeSongRenderer(ZExeSong* song, short* buffer)
 		}
 
 		limit++;
-	}
+	}*/
 
 	// Set synth sync info
 	synth.sync.bpm  = song->bpm;
@@ -124,7 +125,7 @@ void ZExeSongRenderer::Process( uint32_t endSample )
 		synth.ProcessBlock();
 
 		// Resample
-		ZResampler2xDownsample(downsampler, downsampleBuffer, synth.blockStack->Pop());
+		ZResampler2xDownsample(downsampler, downsampleBuffer, synth.vm.stack->Pop<ZBlockBufferInternal>());
 
 		// Set output
 		sample_t gain = 32767.0*song->masterTrackVolume;

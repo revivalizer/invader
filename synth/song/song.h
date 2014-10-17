@@ -32,12 +32,6 @@ struct ZExeSong
 	uint16_t*       ucceNumber;
 	uint16_t*       ucceValue;
 
-	// ZVMProgram data
-	ZVMProgram*     program;
-
-	uint16_t        bytecodeLimitsCount;
-	opcode_index_t* bytecodeLimits;
-
 	ZExeSong() {};
 	//ZExeSong(ZRenoiseSong* song);
 	static uint32_t ComputeSize(ZExeSong* song);

@@ -9,8 +9,6 @@
 
 ZExeSong* ZExeSong::Pack()
 {
-	program->Pack();
-
 	PackPointer(numEventsPerInstrument);
 
 	PackPointer(eventTime);
@@ -22,9 +20,6 @@ ZExeSong* ZExeSong::Pack()
 
 	PackPointer(ucceNumber);
 	PackPointer(ucceValue);
-
-	PackPointer(program);
-	PackPointer(bytecodeLimits);
 
 	return this;
 }
@@ -42,11 +37,6 @@ ZExeSong* ZExeSong::Unpack()
 
 	UnpackPointer(ucceNumber);
 	UnpackPointer(ucceValue);
-
-	UnpackPointer(program);
-	UnpackPointer(bytecodeLimits);
-
-	program->Unpack();
 
 	return this;
 }
@@ -74,9 +64,7 @@ uint32_t ZExeSong::ComputeSize(ZExeSong* song)
 	               + sizeof(song->ucceNumber[0]) * song->numUniqueControlChangeEvents
 	               + sizeof(song->ucceValue[0])  * song->numUniqueControlChangeEvents
 
-	               + song->program->programSize
-	               + sizeof(song->bytecodeLimits[0]) * song->bytecodeLimitsCount;
-
+				   ;
 	return size;
 }
 
@@ -120,8 +108,6 @@ ZExeSong* ZExeSong::MakeBlob(ZExeSong* song)
 	packedSong->numUniqueNoteEvents           = song->numUniqueNoteEvents;
 	packedSong->numUniqueControlChangeEvents  = song->numUniqueControlChangeEvents;
 
-	packedSong->bytecodeLimitsCount            = song->bytecodeLimitsCount;
-
 	data += sizeof(ZExeSong);
 
 	// Add arrays
@@ -136,12 +122,6 @@ ZExeSong* ZExeSong::MakeBlob(ZExeSong* song)
 
 	AddArrayToPackedSong(ucceNumber, song->numUniqueControlChangeEvents);
 	AddArrayToPackedSong(ucceValue,  song->numUniqueControlChangeEvents);
-
-	song->program->Pack();
-	AddBufferToPackedSong(program, song->program->programSize);
-	AddArrayToPackedSong(bytecodeLimits, song->bytecodeLimitsCount);
-	      song->program->Unpack();
-	packedSong->program->Unpack();
 
 	return packedSong;
 }

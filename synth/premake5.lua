@@ -27,6 +27,8 @@ project "invader_synth"
 	files { "./nodes/filter.*" }
 	files { "./nodes/compressor.*" }
 	files { "./nodes/reverb.*" }
+	files { "./song/song.*" }
+	files { "./song/renderer.*" }
 	files { "./pch.h", "./pch.cpp" }
 	files { "./synth.h" }
 	files { "./wavetable/*" }

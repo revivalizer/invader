@@ -152,6 +152,7 @@ kOpVoicePos    = 0xC03
 kOpVoiceId     = 0xC04
 kOpGlobalTime  = 0xC82
 kOpGlobalPos   = 0xC83
+kOpVelocity    = 0xC90
 
 kOpBPM         = 0xCE1
 kOpBPS         = 0xCE2

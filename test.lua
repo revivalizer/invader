@@ -31,11 +31,11 @@ str = [[
 //	const wavetable wt3 = spec2.toPadWavetable(    3661, 1, 0,      0.7, 1.0, 1.0,    0.0, 1.0, 0.0   )
 //	const wavetable wt3 = spec2.toPadWavetable(    3661, kModeNatural, kProfileGauss,      2.7, 1.5, 1.0,    0.0, 1.0, 0.0   )
 //	out wavetableosc(voicepitch(), wt2).filter1(3, voicepitch()+48, 0.2).ADSR(0.1, 0.1, -6, 1.0)
-	out wavetableosc(voicepitch()+ADSR(0.1, 0.3, 0.0, 1.0)*12.0, wt2).filter1(3, voicepitch()+48, 0.2).ADSR(0.1, 0.1, -6, 1.0)
+	out wavetableosc(voicepitch()+ADSR(0.01, 0.01, 0.0, 1.0)*velocity()*12.0, wt2).filter1(3, voicepitch()+48*velocity(), 0.2).ADSR(0.1, 0.1, -6, 1.0)
 ### master
 //	out strings.compress(strings2, -36, 20, 10, 10) + strings2.reverb(0, 0, 30, -6, -48, 0, -45, 2, 0.004, -1, 0)
-//	out test.reverb(0, 0, 30, -6, -48, 0, -45, 2, 0.004, -1, 0)
-	out test.gain(0) + strings
+	out test.reverb(0, 0, 30, -6, -48, 0, -45, 2, 0.004, -6, 0)
+//	out test.gain(0) + strings
 ]]
 
 package.path = ";compiler/?.lua"..package.path

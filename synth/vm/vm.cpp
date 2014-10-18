@@ -1057,6 +1057,13 @@ void ZVirtualMachine::Run(opcode_t start_address, ZVMProgram* program)
 									break;
 								}
 
+							case kOpVelocity: // num velocity()
+								{
+									stack->Push(voice->velocity/127.0);
+									trace("0x%04x push velocity(): %f", opcodeOffset, voice->velocity/127.0);
+									break;
+								}
+
 							case kOpBPM: // num bpm()
 								{
 									stack->Push(synth->sync.bpm);

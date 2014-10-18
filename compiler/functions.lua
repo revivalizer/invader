@@ -61,6 +61,12 @@ functions =
 		["return_type"] = make_type("num"),
 	},
 	{
+		["name"] = "velocity",
+		["id"] = kOpVelocity,
+		["arguments"] = {},
+		["return_type"] = make_type("num"),
+	},
+	{
 		["name"] = "bpm",
 		["id"] = kOpBPM,
 		["arguments"] = {},

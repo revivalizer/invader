@@ -1,0 +1,18 @@
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\bin\Debug\FParsec.XML
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\bin\Debug\FParsec.dll
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\bin\Debug\FParsec.pdb
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\obj\Debug\FParsec.fsprojResolveAssemblyReference.cache
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\obj\Debug\FParsec.dll
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\obj\Debug\FParsec.pdb
+C:\Users\ralph\Documents\code\fparsectest1\libs\fparsec\Build\VS11\bin\Debug\FParsec.XML
+C:\Users\ralph\Documents\code\fparsectest1\libs\fparsec\Build\VS11\bin\Debug\FParsec.dll
+C:\Users\ralph\Documents\code\fparsectest1\libs\fparsec\Build\VS11\bin\Debug\FParsec.pdb
+C:\Users\ralph\Documents\code\fparsectest1\libs\fparsec\Build\VS11\obj\Debug\FParsec.fsprojResolveAssemblyReference.cache
+C:\Users\ralph\Documents\code\fparsectest1\libs\fparsec\Build\VS11\obj\Debug\FParsec.dll
+C:\Users\ralph\Documents\code\fparsectest1\libs\fparsec\Build\VS11\obj\Debug\FParsec.pdb
+C:\Users\ralph\Documents\code\invader\compiler\libs\fparsec\Build\VS11\bin\Debug\FParsec.XML
+C:\Users\ralph\Documents\code\invader\compiler\libs\fparsec\Build\VS11\bin\Debug\FParsec.dll
+C:\Users\ralph\Documents\code\invader\compiler\libs\fparsec\Build\VS11\bin\Debug\FParsec.pdb
+C:\Users\ralph\Documents\code\invader\compiler\libs\fparsec\Build\VS11\obj\Debug\FParsec.fsprojResolveAssemblyReference.cache
+C:\Users\ralph\Documents\code\invader\compiler\libs\fparsec\Build\VS11\obj\Debug\FParsec.dll
+C:\Users\ralph\Documents\code\invader\compiler\libs\fparsec\Build\VS11\obj\Debug\FParsec.pdb

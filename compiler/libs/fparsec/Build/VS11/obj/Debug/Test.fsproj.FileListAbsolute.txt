@@ -1,0 +1,5 @@
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\bin\Debug\test_fparsec.exe
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\bin\Debug\test_fparsec.pdb
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\obj\Debug\Test.fsprojResolveAssemblyReference.cache
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\obj\Debug\test_fparsec.exe
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\obj\Debug\test_fparsec.pdb

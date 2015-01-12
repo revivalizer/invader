@@ -10,3 +10,5 @@
 */build/*
 *.lua.bin
 *.lua.bin.h
+compiler/bin
+compiler/obj

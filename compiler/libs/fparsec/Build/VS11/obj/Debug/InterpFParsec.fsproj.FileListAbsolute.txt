@@ -1,0 +1,10 @@
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\bin\Debug\interp_fparsec.exe
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\bin\Debug\interp_fparsec.pdb
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\bin\Debug\FSharp.PowerPack.Compatibility.dll
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\bin\Debug\FSharp.PowerPack.dll
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\bin\Debug\FSharp.PowerPack.pdb
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\bin\Debug\FSharp.PowerPack.xml
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\bin\Debug\FSharp.PowerPack.Compatibility.pdb
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\bin\Debug\FSharp.PowerPack.Compatibility.xml
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\obj\Debug\interp_fparsec.exe
+C:\Users\ralph\Downloads\fparsec-main-c234349e7b73 (1)\fparsec-main-c234349e7b73\Build\VS11\obj\Debug\interp_fparsec.pdb

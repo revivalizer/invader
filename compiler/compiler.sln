@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "compiler", "compiler.fsproj", "{150CB221-3294-41A8-9895-9D9DD25A37B4}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FParsec", "libs\fparsec\Build\VS11\FParsec.fsproj", "{8EA340D3-E9E0-477E-9AC3-FBFDF3BAD41E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FParsecCS", "libs\fparsec\Build\VS11\FParsecCS.csproj", "{501423C3-8EA5-4E54-8D9C-EF60272B57FA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		nuget|Any CPU = nuget|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{150CB221-3294-41A8-9895-9D9DD25A37B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{150CB221-3294-41A8-9895-9D9DD25A37B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{150CB221-3294-41A8-9895-9D9DD25A37B4}.nuget|Any CPU.ActiveCfg = Release|Any CPU
+		{150CB221-3294-41A8-9895-9D9DD25A37B4}.nuget|Any CPU.Build.0 = Release|Any CPU
+		{150CB221-3294-41A8-9895-9D9DD25A37B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{150CB221-3294-41A8-9895-9D9DD25A37B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EA340D3-E9E0-477E-9AC3-FBFDF3BAD41E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EA340D3-E9E0-477E-9AC3-FBFDF3BAD41E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EA340D3-E9E0-477E-9AC3-FBFDF3BAD41E}.nuget|Any CPU.ActiveCfg = nuget|Any CPU
+		{8EA340D3-E9E0-477E-9AC3-FBFDF3BAD41E}.nuget|Any CPU.Build.0 = nuget|Any CPU
+		{8EA340D3-E9E0-477E-9AC3-FBFDF3BAD41E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EA340D3-E9E0-477E-9AC3-FBFDF3BAD41E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{501423C3-8EA5-4E54-8D9C-EF60272B57FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{501423C3-8EA5-4E54-8D9C-EF60272B57FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{501423C3-8EA5-4E54-8D9C-EF60272B57FA}.nuget|Any CPU.ActiveCfg = nuget|Any CPU
+		{501423C3-8EA5-4E54-8D9C-EF60272B57FA}.nuget|Any CPU.Build.0 = nuget|Any CPU
+		{501423C3-8EA5-4E54-8D9C-EF60272B57FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{501423C3-8EA5-4E54-8D9C-EF60272B57FA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

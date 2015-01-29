@@ -12,3 +12,5 @@
 *.lua.bin.h
 compiler/bin
 compiler/obj
+compiler/libs/fparsec/Build/VS11/bin
+compiler/libs/fparsec/Build/VS11/obj

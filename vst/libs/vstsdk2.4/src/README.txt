@@ -1,0 +1,1 @@
+Put the contents of the vstsdk2.4 folder here. Strictly only the public.sdk folder is neccesary.

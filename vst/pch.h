@@ -3,8 +3,8 @@
 #include <deque>
 #include <vector>
 
-#include "libs/base/base.h"
-#include "libs/base_synth/base_synth.h"
+#include "base/base.h"
+#include "base_synth/base_synth.h"
 
 #include "../synth/synth.h"
 #include "watchfile.h"

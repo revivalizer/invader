@@ -1,5 +1,5 @@
-#include "libs/base/base.h"
-#include "libs/base_synth/base_synth.h"
+#include "base/base.h"
+#include "base_synth/base_synth.h"
 
 #include "util/sync.h"
 

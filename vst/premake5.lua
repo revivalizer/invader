@@ -19,7 +19,8 @@ solution "invader_vst"
 
 	defines { "_CRT_SECURE_NO_WARNINGS" }
 
-	includedirs { "../../trespasser" }
+	includedirs { "../../64klibs" }
+	includedirs { "$(SolutionDir)/.." } -- for config.h
 
 	newoption {
 	   trigger     = "vstdir",
@@ -41,7 +42,7 @@ solution "invader_vst"
 		postbuildcommands { "copy \"$(TargetPath)\" \"".._OPTIONS.vstdir.."\" " }		
 		debugcommand "$(TargetDir)\\$(TargetName).exe" -- this should launch SAVIhost which should be placed in the target folders, and be named the same as the target file (invader.exe)
 
-		includedirs { "../../trespasser/external/libs/vstsdk2.4/src" }
+		includedirs { "libs/vstsdk2.4/src" }
 		configmap {
 			["VSTi Debug"]   = "Debug",
 			["VSTi Release"] = "Release"
@@ -65,9 +66,9 @@ solution "invader_vst"
 			defines { "NDEBUG" }
 			optimize "Size"
 
-	include "../../trespasser/external/libs/vstsdk2.4"
-	include "../../trespasser/libs/base"
-	include "../../trespasser/libs/base_synth"
+	include "libs/vstsdk2.4"
+	include "../../64klibs/base"
+	include "../../64klibs/base_synth"
 	include "../synth"
 
 

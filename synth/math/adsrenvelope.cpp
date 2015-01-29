@@ -215,7 +215,7 @@ double ZADSREnvelope::ComputeSuggestedModulationFrequency(int numSamplesInFrame)
 		case StateRelease:
 			return 100.f/release;
 		default:
-			ZASSERT(false);
+			ZBREAK();
 			return 0.f;
 	};
 }
